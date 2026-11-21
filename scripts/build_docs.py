@@ -1139,7 +1139,7 @@ TEMPLATE = """<!DOCTYPE html>
         <a href="{root_rel}index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.3</span>
+          <span class="version-badge">v0.1.4</span>
         </a>
       </div>
       
