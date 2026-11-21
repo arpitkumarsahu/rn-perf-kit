@@ -54,6 +54,10 @@ export function PerfOverlay({
   );
 }
 
+// The fiber hook skips this component's subtree, so the HUD's own 2 Hz re-renders
+// never show up as commits, render causes or render-storm findings.
+(PerfOverlay as { __rnPerfKitIgnore?: boolean }).__rnPerfKitIgnore = true;
+
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',

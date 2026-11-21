@@ -23,10 +23,27 @@ export interface NavSession {
 let sessionCounter = 0;
 let activeSession: NavSession | null = null;
 
+// A navigation action is dispatched BEFORE the state change that starts its session,
+// so its time is parked here and claimed by the next session instead of being
+// recorded on the previous one.
+const PENDING_TAP_MAX_AGE_MS = 1000;
+let pendingTapAt: number | null = null;
+
+export function notePendingTap(t?: number): void {
+  pendingTapAt = t ?? timeline.now();
+}
+
 export function startNavSession(fromRoute: string, toRoute: string): NavSession {
   const navId = String(++sessionCounter);
+  const now = timeline.now();
   activeSession = { navId, fromRoute, toRoute, droppedFrames: 0, totalFrames: 0, commitsDuringTransition: [] };
-  timeline.add({ type: 'nav', t: timeline.now(), phase: 'dispatch', route: toRoute, fromRoute, navId });
+  if (pendingTapAt !== null && now - pendingTapAt <= PENDING_TAP_MAX_AGE_MS) {
+    activeSession.tapAt = pendingTapAt;
+    timeline.add({ type: 'nav', t: pendingTapAt, phase: 'tap', route: toRoute, fromRoute, navId });
+  }
+  pendingTapAt = null;
+  activeSession.dispatchAt = now;
+  timeline.add({ type: 'nav', t: now, phase: 'dispatch', route: toRoute, fromRoute, navId });
   return activeSession;
 }
 

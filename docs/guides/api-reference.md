@@ -77,6 +77,10 @@ Floating, on-device HUD displaying live JS FPS (via `requestAnimationFrame`), UI
 | `disabled` | `boolean` | `false` | Hides HUD and halts all internal timers and animation frame loops. |
 | `insets` | `{ top: number; bottom: number }` | Auto | Safe area insets (pass `useSafeAreaInsets()` from `react-native-safe-area-context`). Defaults to `StatusBar.currentHeight`. |
 
+**UI FPS** is the refresh rate minus the rate of dropped frames, so an idle screen reads full FPS on both platforms (Android only reports frames it actually draws; iOS reports every vsync).
+
+**The HUD does not measure itself.** Its own re-renders are excluded from commits, render causes and findings. To exclude your own debug UI the same way, set `MyDebugPanel.__rnPerfKitIgnore = true` (works through `memo()` and `forwardRef()`).
+
 ---
 
 ## 4. `<PerfTrace>`

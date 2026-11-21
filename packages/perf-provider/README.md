@@ -65,6 +65,21 @@ yarn add rn-perf-kit
 import 'rn-perf-kit/install';
 ```
 
+**Expo Router apps** have no `index.js` by default (`"main": "expo-router/entry"`), and `app/_layout.tsx` loads *after* React. Add a two-line entry file and point `main` at it:
+
+```js
+// index.js
+import 'rn-perf-kit/install';
+import 'expo-router/entry';
+```
+
+```json
+// package.json
+"main": "index.js"
+```
+
+In debug builds React Native pre-installs the DevTools hook, so rn-perf-kit can attach to it from anywhere. **Release and QA builds have no such hook**: if `rn-perf-kit/install` isn't the first import, React never reports commits and render data stays empty.
+
 ### 2. Wrap your app
 
 #### Standard React Navigation:
@@ -104,6 +119,7 @@ export default function App() {
 ```tsx
 // app/_layout.tsx
 import { Stack } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PerfProvider, PerfOverlay } from 'rn-perf-kit';
 import { useExpoRouterPerf } from 'rn-perf-kit/expo-router';
 
@@ -117,11 +133,13 @@ export default function Root() {
   return (
     <PerfProvider enabled={__DEV__}>
       <AppLayout />
-      <PerfOverlay position="top-right" />
+      <PerfOverlay position="top-right" insets={useSafeAreaInsets()} />
     </PerfProvider>
   );
 }
 ```
+
+Remember the `index.js` entry from step 1 — `import 'rn-perf-kit/install'` at the top of `_layout.tsx` is too late for release builds.
 
 ### 3. Mark screen readiness
 
