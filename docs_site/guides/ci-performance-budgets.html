@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CI Performance Budgets & Regression Testing in React Native</title>
+  <meta name="description" content="Enforce hardware-tier performance budgets (LOW, MID, HIGH) on pull requests with GitHub Actions and the rn-perf CLI.">
+  <meta name="keywords" content="react native ci performance, performance budgets pull request, rn-perf cli, mobile performance regression">
+  <meta name="author" content="Arpit Kumar Sahu">
+  <link rel="canonical" href="https://arpitkumarsahu.github.io/rn-perf-kit/guides/ci-performance-budgets.html">
+
+  <!-- OpenGraph / Social Metadata for Google & Sharing -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="CI Performance Budgets & Regression Testing in React Native">
+  <meta property="og:description" content="Enforce hardware-tier performance budgets (LOW, MID, HIGH) on pull requests with GitHub Actions and the rn-perf CLI.">
+  <meta property="og:url" content="https://arpitkumarsahu.github.io/rn-perf-kit/guides/ci-performance-budgets.html">
+  <meta property="og:site_name" content="rn-perf-kit Documentation">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CI Performance Budgets & Regression Testing in React Native">
+  <meta name="twitter:description" content="Enforce hardware-tier performance budgets (LOW, MID, HIGH) on pull requests with GitHub Actions and the rn-perf CLI.">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Search -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "rn-perf-kit",
+    "operatingSystem": "Android, iOS",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Deep performance profiling toolkit for React Native apps focused on budget Android devices.",
+    "author": {
+      "@type": "Person",
+      "name": "Arpit Kumar Sahu"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://www.npmjs.com/package/rn-perf-kit"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <!-- Top Global Navbar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-left">
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="../index.html" class="nav-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-title">rn-perf-kit</span>
+          <span class="version-badge">v0.1.1</span>
+        </a>
+      </div>
+      <div class="nav-search">
+        <input type="text" id="docSearch" placeholder="Search guides, components, APIs..." oninput="filterSearch(this.value)">
+        <div id="searchResults" class="search-results-dropdown"></div>
+      </div>
+      <div class="nav-right">
+        <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
+          <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
+        </a>
+        <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
+          <svg height="22" width="22" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Documentation Container -->
+  <div class="doc-layout">
+    <!-- Sidebar -->
+    <aside class="doc-sidebar" id="docSidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-group"><div class="sidebar-heading">Getting Started</div><ul class="sidebar-links">
+<li><a href="../index.html">Overview</a></li>
+<li><a href="../getting-started.html">Quick Start Guide</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Guides</div><ul class="sidebar-links">
+<li><a href="../guides/navigation-profiling.html">Navigation Profiling</a></li>
+<li><a href="../guides/re-render-analysis.html">Re-render Analysis</a></li>
+<li><a href="../guides/frame-attribution-and-concurrency.html">Frame Attribution</a></li>
+<li><a href="../guides/ci-performance-budgets.html" class="active">CI Performance Budgets</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Reference</div><ul class="sidebar-links">
+<li><a href="../guides/api-reference.html">Full API Reference</a></li>
+</ul></div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="doc-main">
+      <article class="doc-content">
+        <h1 id="enforcing-performance-budgets-in-ci"><a href="#enforcing-performance-budgets-in-ci" class="anchor-link">#</a> Enforcing Performance Budgets in CI</h1>
+<p>Performance regressions usually happen gradually — a slow import here, an un-memoized component there — until users on budget Android devices begin reporting severe lag.</p>
+<p><code>rn-perf-kit</code> provides a dedicated CLI tool to enforce <strong>hardware-tier-aware performance budgets</strong> directly in your Continuous Integration (CI) pipeline.</p>
+<hr />
+<h2 id="1-device-tiers-low-mid-high"><a href="#1-device-tiers-low-mid-high" class="anchor-link">#</a> 1. Device Tiers (LOW / MID / HIGH)</h2>
+<p>A budget that makes sense on a modern iPhone 15 Pro will fail on a $90 Android Go device. <code>rn-perf-kit</code> automatically classifies devices at startup:</p>
+<div class="table-container">
+  <table>
+    <thead><tr><th>Device Tier</th><th>Criteria</th><th>Frame Budget (60Hz)</th></tr></thead>
+    <tbody><tr><td><strong><code>LOW</code></strong></td><td>Low-RAM flag active (<code>isLowRamDevice</code>), or RAM < 3 GB, or CPU cores ≤ 4</td><td>16.6 ms</td></tr><tr><td><strong><code>MID</code></strong></td><td>3 GB – 6 GB RAM, 6–8 CPU cores</td><td>16.6 ms</td></tr><tr><td><strong><code>HIGH</code></strong></td><td>RAM ≥ 6 GB, 8+ CPU cores, MediaPerformanceClass ≥ 31</td><td>16.6 ms / 8.3 ms (120Hz)</td></tr></tbody>
+  </table>
+</div>
+<hr />
+<h2 id="2-defining-perfconfigts"><a href="#2-defining-perfconfigts" class="anchor-link">#</a> 2. Defining <code>perf.config.ts</code></h2>
+<p>Create a <code>perf.config.ts</code> file in the root of your project:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">typescript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-typescript">import type { BudgetConfig } from &#x27;rn-perf-kit&#x27;;
+
+const config: BudgetConfig = {
+  // App startup to interactive (ms)
+  startup: {
+    LOW: 3000,
+    MID: 2000,
+    HIGH: 1500,
+  },
+
+  // Per-screen content-ready time (ms)
+  screens: {
+    Home: { LOW: 1200, MID: 800, HIGH: 500 },
+    ProductDetail: { LOW: 900, MID: 600, HIGH: 400 },
+  },
+
+  // Transition duration by route pair (ms)
+  navigation: {
+    &#x27;Home→ProductDetail&#x27;: { LOW: 600, MID: 350, HIGH: 250 },
+  },
+
+  // Health budgets
+  minFps: { LOW: 45, MID: 55, HIGH: 58 },
+  droppedFramesPct: { LOW: 15, MID: 5, HIGH: 2 },
+  maxCommitDuration: { LOW: 32, MID: 16, HIGH: 11 },
+};
+
+export default config;</code></pre>
+</div>
+<hr />
+<h2 id="3-using-the-cli"><a href="#3-using-the-cli" class="anchor-link">#</a> 3. Using the CLI</h2>
+<h3 id="budget-checking-rn-perf-check"><a href="#budget-checking-rn-perf-check" class="anchor-link">#</a> Budget Checking (<code>rn-perf check</code>)</h3>
+<p>Evaluates a recorded session against your budget configuration. If any <strong>critical findings</strong> are detected, the process exits with a non-zero exit code (<code>1</code>), automatically failing the CI step:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">bash</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-bash"># In CI:
+rn-perf check --budgets perf.config.ts --report session.json</code></pre>
+</div>
+<p><strong>Example Failure Output:</strong></p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">🔍 rn-perf budget check
+Budgets: perf.config.ts
+
+❌ 2 critical finding(s):
+
+  [navigation] Dropped 18/25 frames during Home → ProductDetail
+    72% frame drop rate during transition. Commit time: 121ms.
+    💡 Defer heavy component mounts until after transitionEnd.
+
+  [render] Render storm: ProductCard rendered 80x in 2s
+    40 renders/second detected.
+    💡 Check for unstable prop references. Wrap with React.memo() and useCallback.</code></pre>
+</div>
+<h3 id="pr-regression-comparison-rn-perf-compare"><a href="#pr-regression-comparison-rn-perf-compare" class="anchor-link">#</a> PR Regression Comparison (<code>rn-perf compare</code>)</h3>
+<p>Compares performance metrics between the base branch and the current PR branch:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">bash</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-bash">rn-perf compare base-session.json pr-session.json</code></pre>
+</div>
+<p><strong>Example Comparison Output:</strong></p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">📊 rn-perf session comparison
+
+Base: base-session.json
+PR:   pr-session.json
+
+  Jank %               base=4.2%   pr=18.5%  (+14.3%)
+  JS Stalls            base=0.0    pr=3.0    (+3.0)
+  Total Commits        base=12.0   pr=45.0   (+33.0)
+  Navigations          base=1.0    pr=1.0    (0.0)
+
+⚠️  1 new finding(s) in PR:
+  [CRITICAL] Dropped 18/25 frames during Home → ProductDetail</code></pre>
+</div>
+<hr />
+<h2 id="4-github-actions-workflow-integration"><a href="#4-github-actions-workflow-integration" class="anchor-link">#</a> 4. GitHub Actions Workflow Integration</h2>
+<p>Add <code>.github/workflows/perf-check.yml</code> to run automated Maestro flows and budget checks on every PR:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">yaml</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-yaml">name: Performance Budget Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 1. Run Maestro E2E test to simulate user flow
+      - name: Run E2E Performance Flow
+        run: maestro test .maestro/janklab-flow.yaml
+
+      # 2. Enforce budgets
+      - name: Check Performance Budgets
+        run: npx rn-perf check --budgets perf.config.ts --report session.json</code></pre>
+</div>
+      </article>
+      <footer class="doc-footer">
+        <div class="footer-edit">
+          <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">
+            Edit this guide on GitHub →
+          </a>
+        </div>
+        <p class="footer-copy">MIT Licensed © 2026 Arpit Kumar Sahu. Built for React Native performance excellence.</p>
+      </footer>
+    </main>
+
+    <!-- Table of Contents Sidebar -->
+    <aside class="doc-toc">
+      <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
+<li class="toc-l2"><a href="#1-device-tiers-low-mid-high">1. Device Tiers (LOW / MID / HIGH)</a></li>
+<li class="toc-l2"><a href="#2-defining-perfconfigts">2. Defining `perf.config.ts`</a></li>
+<li class="toc-l2"><a href="#3-using-the-cli">3. Using the CLI</a></li>
+<li class="toc-l3"><a href="#budget-checking-rn-perf-check">Budget Checking (`rn-perf check`)</a></li>
+<li class="toc-l3"><a href="#pr-regression-comparison-rn-perf-compare">PR Regression Comparison (`rn-perf compare`)</a></li>
+<li class="toc-l2"><a href="#4-github-actions-workflow-integration">4. GitHub Actions Workflow Integration</a></li>
+</ul></div>
+    </aside>
+  </div>
+
+  <script src="../assets/script.js"></script>
+</body>
+</html>

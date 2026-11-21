@@ -3,14 +3,15 @@
 [![npm version](https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837)](https://www.npmjs.com/package/rn-perf-kit)
 [![npm downloads](https://img.shields.io/npm/dm/rn-perf-kit.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/rn-perf-kit)
 [![CI](https://github.com/arpitkumarsahu/rn-perf-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/arpitkumarsahu/rn-perf-kit/actions)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0284c7?style=flat-square)](https://arpitkumarsahu.github.io/rn-perf-kit/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 ![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Expo-61DAFB?style=flat-square)
 
 > A drop-in performance profiling toolkit for React Native apps — tells you **what** is slow, **why**, and **what to change**. Focused on budget Android devices.
 
+🌐 **Documentation Site**: [arpitkumarsahu.github.io/rn-perf-kit](https://arpitkumarsahu.github.io/rn-perf-kit/)  
 📦 **NPM Registry**: [npmjs.com/package/rn-perf-kit](https://www.npmjs.com/package/rn-perf-kit)  
 🐙 **GitHub Repository**: [github.com/arpitkumarsahu/rn-perf-kit](https://github.com/arpitkumarsahu/rn-perf-kit)  
-📖 **Guides & Docs**: [Documentation Suite](./docs/README.md)  
 🧪 **Demo App**: [JankLab Playground](./example/README.md)
 
 ---

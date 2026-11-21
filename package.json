@@ -5,6 +5,7 @@
   "description": "Deep performance profiling toolkit for React Native apps",
   "scripts": {
     "build": "turbo run build",
+    "build:docs": "python3 scripts/build_docs.py",
     "test": "turbo run test",
     "test:core": "node packages/core/test-runner.js",
     "test:integration": "node scripts/run-integration-tests.js",

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Reference | rn-perf-kit Documentation</title>
+  <meta name="description" content="Comprehensive reference for PerfProvider, PerfOverlay, withNavigationPerf, usePerfScreen, PerfTrace, and store adapters.">
+  <meta name="keywords" content="rn-perf-kit api, PerfProvider reference, usePerfScreen api, withNavigationPerf, react native perf kit">
+  <meta name="author" content="Arpit Kumar Sahu">
+  <link rel="canonical" href="https://arpitkumarsahu.github.io/rn-perf-kit/guides/api-reference.html">
+
+  <!-- OpenGraph / Social Metadata for Google & Sharing -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="API Reference | rn-perf-kit Documentation">
+  <meta property="og:description" content="Comprehensive reference for PerfProvider, PerfOverlay, withNavigationPerf, usePerfScreen, PerfTrace, and store adapters.">
+  <meta property="og:url" content="https://arpitkumarsahu.github.io/rn-perf-kit/guides/api-reference.html">
+  <meta property="og:site_name" content="rn-perf-kit Documentation">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="API Reference | rn-perf-kit Documentation">
+  <meta name="twitter:description" content="Comprehensive reference for PerfProvider, PerfOverlay, withNavigationPerf, usePerfScreen, PerfTrace, and store adapters.">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Search -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "rn-perf-kit",
+    "operatingSystem": "Android, iOS",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Deep performance profiling toolkit for React Native apps focused on budget Android devices.",
+    "author": {
+      "@type": "Person",
+      "name": "Arpit Kumar Sahu"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://www.npmjs.com/package/rn-perf-kit"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <!-- Top Global Navbar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-left">
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="../index.html" class="nav-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-title">rn-perf-kit</span>
+          <span class="version-badge">v0.1.1</span>
+        </a>
+      </div>
+      <div class="nav-search">
+        <input type="text" id="docSearch" placeholder="Search guides, components, APIs..." oninput="filterSearch(this.value)">
+        <div id="searchResults" class="search-results-dropdown"></div>
+      </div>
+      <div class="nav-right">
+        <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
+          <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
+        </a>
+        <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
+          <svg height="22" width="22" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Documentation Container -->
+  <div class="doc-layout">
+    <!-- Sidebar -->
+    <aside class="doc-sidebar" id="docSidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-group"><div class="sidebar-heading">Getting Started</div><ul class="sidebar-links">
+<li><a href="../index.html">Overview</a></li>
+<li><a href="../getting-started.html">Quick Start Guide</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Guides</div><ul class="sidebar-links">
+<li><a href="../guides/navigation-profiling.html">Navigation Profiling</a></li>
+<li><a href="../guides/re-render-analysis.html">Re-render Analysis</a></li>
+<li><a href="../guides/frame-attribution-and-concurrency.html">Frame Attribution</a></li>
+<li><a href="../guides/ci-performance-budgets.html">CI Performance Budgets</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Reference</div><ul class="sidebar-links">
+<li><a href="../guides/api-reference.html" class="active">Full API Reference</a></li>
+</ul></div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="doc-main">
+      <article class="doc-content">
+        <h1 id="rn-perf-kit-api-reference"><a href="#rn-perf-kit-api-reference" class="anchor-link">#</a> rn-perf-kit API Reference</h1>
+<p>Complete reference for all components, hooks, utilities, and CLI commands provided by <code>rn-perf-kit</code>.</p>
+<hr />
+<h2 id="table-of-contents"><a href="#table-of-contents" class="anchor-link">#</a> Table of Contents</h2>
+<p>1. <a href="#1-rn-perf-kitinstall" ><code>rn-perf-kit/install</code></a></p>
+<p>2. <a href="#2-perfprovider" ><code>&lt;PerfProvider&gt;</code></a></p>
+<p>3. <a href="#3-perfoverlay" ><code>&lt;PerfOverlay&gt;</code></a></p>
+<p>4. <a href="#4-perftrace" ><code>&lt;PerfTrace&gt;</code></a></p>
+<p>5. <a href="#5-useperfscreen" ><code>usePerfScreen</code></a></p>
+<p>6. <a href="#6-usediscardedrendertracker" ><code>useDiscardedRenderTracker</code></a></p>
+<p>7. <a href="#7-withnavigationperf" ><code>withNavigationPerf</code></a></p>
+<p>8. <a href="#8-perf-tracing-utility" ><code>perf</code> Tracing Utility</a></p>
+<p>9. <a href="#9-store-adapters" >Store Adapters</a></p>
+<p>10. <a href="#10-cli-commands" >CLI Commands</a></p>
+<hr />
+<h2 id="1-rn-perf-kitinstall"><a href="#1-rn-perf-kitinstall" class="anchor-link">#</a> 1. <code>rn-perf-kit/install</code></h2>
+<p>Installs the React DevTools Fiber hook before React loads. <strong>Must be the very first line of your entry point.</strong></p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">typescript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-typescript">import &#x27;rn-perf-kit/install&#x27;;</code></pre>
+</div>
+<hr />
+<h2 id="2-perfprovider"><a href="#2-perfprovider" class="anchor-link">#</a> 2. <code>&lt;PerfProvider&gt;</code></h2>
+<p>Top-level context provider that configures and manages the lifecycle of the timeline, stall detectors, and fiber hooks.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">&lt;PerfProvider
+  enabled={boolean}
+  mode=&quot;light&quot; | &quot;deep&quot;
+  budgets={BudgetConfig}
+  onViolation={(violation: BudgetViolation) =&gt; void}
+  deviceTier=&quot;LOW&quot; | &quot;MID&quot; | &quot;HIGH&quot;
+&gt;
+  {children}
+&lt;/PerfProvider&gt;</code></pre>
+</div>
+<h3 id="props"><a href="#props" class="anchor-link">#</a> Props</h3>
+<div class="table-container">
+  <table>
+    <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody><tr><td><code>enabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Enables/disables all monitoring. Tree-shakeable when <code>false</code>.</td></tr><tr><td><code>mode</code></td><td>`'light' \</td><td>'deep'`</td><td><code>&#x27;light&#x27;</code></td><td><code>&#x27;light&#x27;</code> (<2% CPU, frames/stalls/sampled commits); <code>&#x27;deep&#x27;</code> (full fiber walk & prop diffing).</td></tr><tr><td><code>budgets</code></td><td><code>BudgetConfig</code></td><td><code>undefined</code></td><td>Hardware-tier aware budget thresholds.</td></tr><tr><td><code>onViolation</code></td><td><code>(v) =&gt; void</code></td><td><code>undefined</code></td><td>Callback fired when a budget violation is detected.</td></tr><tr><td><code>deviceTier</code></td><td>`'LOW' \</td><td>'MID' \</td><td>'HIGH'`</td><td>Auto</td><td>Overrides device tier classification for testing.</td></tr></tbody>
+  </table>
+</div>
+<hr />
+<h2 id="3-perfoverlay"><a href="#3-perfoverlay" class="anchor-link">#</a> 3. <code>&lt;PerfOverlay&gt;</code></h2>
+<p>Floating, on-device HUD displaying live performance statistics.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">&lt;PerfOverlay position=&quot;top-right&quot; disabled={false} /&gt;</code></pre>
+</div>
+<h3 id="props"><a href="#props" class="anchor-link">#</a> Props</h3>
+<div class="table-container">
+  <table>
+    <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody><tr><td><code>position</code></td><td>`'top-right' \</td><td>'top-left' \</td><td>'bottom-right' \</td><td>'bottom-left'`</td><td><code>&#x27;top-right&#x27;</code></td><td>Screen corner placement.</td></tr><tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Hides the HUD.</td></tr></tbody>
+  </table>
+</div>
+<hr />
+<h2 id="4-perftrace"><a href="#4-perftrace" class="anchor-link">#</a> 4. <code>&lt;PerfTrace&gt;</code></h2>
+<p>Lightweight wrapper around React's <code>&lt;Profiler&gt;</code> for targeted subtree measurement.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">&lt;PerfTrace id=&quot;ReviewsList&quot; disabled={false}&gt;
+  &lt;ReviewsList productId={id} /&gt;
+&lt;/PerfTrace&gt;</code></pre>
+</div>
+<hr />
+<h2 id="5-useperfscreen"><a href="#5-useperfscreen" class="anchor-link">#</a> 5. <code>usePerfScreen</code></h2>
+<p>Hook for tracking screen readiness and Time-To-Content-Ready.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">const { markReady } = usePerfScreen(screenName: string);</code></pre>
+</div>
+<ul>
+<li><strong><code>markReady()</code></strong>: Call when primary data and UI elements have completed loading.</li>
+</ul>
+<hr />
+<h2 id="6-usediscardedrendertracker"><a href="#6-usediscardedrendertracker" class="anchor-link">#</a> 6. <code>useDiscardedRenderTracker</code></h2>
+<p>Detects interim renders that were started by Concurrent React but discarded without committing.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">useDiscardedRenderTracker(componentName: string);</code></pre>
+</div>
+<hr />
+<h2 id="7-withnavigationperf"><a href="#7-withnavigationperf" class="anchor-link">#</a> 7. <code>withNavigationPerf</code></h2>
+<p>Wraps a React Navigation container reference to instrument routing lifecycle events.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import { withNavigationPerf } from &#x27;rn-perf-kit/navigation&#x27;;
+
+&lt;NavigationContainer ref={withNavigationPerf(navigationRef)}&gt;
+  ...
+&lt;/NavigationContainer&gt;</code></pre>
+</div>
+<hr />
+<h2 id="8-perf-tracing-utility"><a href="#8-perf-tracing-utility" class="anchor-link">#</a> 8. <code>perf</code> Tracing Utility</h2>
+<p>Manual tracing API for custom asynchronous or synchronous tasks:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">typescript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-typescript">import { perf } from &#x27;rn-perf-kit&#x27;;
+
+const trace = perf.start(&#x27;parse-catalog&#x27;, { items: 1000 });
+// ... work ...
+trace.end({ success: true });
+
+// Instant timestamp mark
+perf.mark(&#x27;checkpoint-reached&#x27;);</code></pre>
+</div>
+<hr />
+<h2 id="9-store-adapters"><a href="#9-store-adapters" class="anchor-link">#</a> 9. Store Adapters</h2>
+<p>Import from <code>rn-perf-kit/adapters</code>:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">typescript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-typescript">import {
+  reduxPerfMiddleware,
+  zustandPerf,
+  queryPerf,
+  installFetchInterceptor
+} from &#x27;rn-perf-kit/adapters&#x27;;</code></pre>
+</div>
+<ul>
+<li><strong><code>reduxPerfMiddleware</code></strong>: Dispatches Redux action types to timeline.</li>
+<li><strong><code>zustandPerf(name, creator)</code></strong>: Records changed store keys.</li>
+<li><strong><code>queryPerf(queryClient)</code></strong>: Subscribes to TanStack QueryCache and flags identical refetches.</li>
+<li><strong><code>installFetchInterceptor()</code></strong>: Intercepts <code>global.fetch</code> with automatic URL parameter redaction.</li>
+</ul>
+<hr />
+<h2 id="10-cli-commands"><a href="#10-cli-commands" class="anchor-link">#</a> 10. CLI Commands</h2>
+<p>Executed via <code>npx rn-perf</code> or <code>node packages/cli/dist/cli.js</code>:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">bash</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-bash"># 1. Compare two session reports
+rn-perf compare base.json pr.json
+
+# 2. Check a session against performance budgets (exits 1 on critical violation)
+rn-perf check --budgets perf.config.ts --report session.json
+
+# 3. Generate interactive HTML performance report
+rn-perf html session.json --output report.html</code></pre>
+</div>
+      </article>
+      <footer class="doc-footer">
+        <div class="footer-edit">
+          <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">
+            Edit this guide on GitHub →
+          </a>
+        </div>
+        <p class="footer-copy">MIT Licensed © 2026 Arpit Kumar Sahu. Built for React Native performance excellence.</p>
+      </footer>
+    </main>
+
+    <!-- Table of Contents Sidebar -->
+    <aside class="doc-toc">
+      <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
+<li class="toc-l2"><a href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-l2"><a href="#1-rn-perf-kitinstall">1. `rn-perf-kit/install`</a></li>
+<li class="toc-l2"><a href="#2-perfprovider">2. ``</a></li>
+<li class="toc-l3"><a href="#props">Props</a></li>
+<li class="toc-l2"><a href="#3-perfoverlay">3. ``</a></li>
+<li class="toc-l3"><a href="#props">Props</a></li>
+<li class="toc-l2"><a href="#4-perftrace">4. ``</a></li>
+<li class="toc-l2"><a href="#5-useperfscreen">5. `usePerfScreen`</a></li>
+<li class="toc-l2"><a href="#6-usediscardedrendertracker">6. `useDiscardedRenderTracker`</a></li>
+<li class="toc-l2"><a href="#7-withnavigationperf">7. `withNavigationPerf`</a></li>
+<li class="toc-l2"><a href="#8-perf-tracing-utility">8. `perf` Tracing Utility</a></li>
+<li class="toc-l2"><a href="#9-store-adapters">9. Store Adapters</a></li>
+<li class="toc-l2"><a href="#10-cli-commands">10. CLI Commands</a></li>
+</ul></div>
+    </aside>
+  </div>
+
+  <script src="../assets/script.js"></script>
+</body>
+</html>
