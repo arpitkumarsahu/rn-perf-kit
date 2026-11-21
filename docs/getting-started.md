@@ -1,6 +1,11 @@
 # Getting Started with rn-perf-kit
 
+[![npm version](https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837)](https://www.npmjs.com/package/rn-perf-kit)
+[![npm downloads](https://img.shields.io/npm/dm/rn-perf-kit.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/rn-perf-kit)
+
 This guide walks you through setting up `rn-perf-kit` in your React Native or Expo application in under 5 minutes.
+
+📦 **NPM Package**: [npmjs.com/package/rn-perf-kit](https://www.npmjs.com/package/rn-perf-kit)
 
 ---
 

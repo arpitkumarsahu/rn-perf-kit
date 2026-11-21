@@ -1,6 +1,17 @@
 # rn-perf-kit
 
-> A drop-in performance profiling toolkit for React Native apps — tells you **what** is slow, **why**, and **what to change**. Focused on low-end Android devices.
+[![npm version](https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837)](https://www.npmjs.com/package/rn-perf-kit)
+[![npm downloads](https://img.shields.io/npm/dm/rn-perf-kit.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/rn-perf-kit)
+[![CI](https://github.com/arpitkumarsahu/rn-perf-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/arpitkumarsahu/rn-perf-kit/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Expo-61DAFB?style=flat-square)
+
+> A drop-in performance profiling toolkit for React Native apps — tells you **what** is slow, **why**, and **what to change**. Focused on budget Android devices.
+
+📦 **NPM Registry**: [npmjs.com/package/rn-perf-kit](https://www.npmjs.com/package/rn-perf-kit)  
+🐙 **GitHub Repository**: [github.com/arpitkumarsahu/rn-perf-kit](https://github.com/arpitkumarsahu/rn-perf-kit)  
+📖 **Guides & Docs**: [Documentation Suite](./docs/README.md)  
+🧪 **Demo App**: [JankLab Playground](./example/README.md)
 
 ---
 
@@ -32,25 +43,42 @@ React Native apps often feel smooth on a developer's flagship phone, then lag an
 
 ## Quick Start
 
+Install the package from npm:
+
 ```sh
+# npm
 npm install rn-perf-kit
-# or
+
+# pnpm
+pnpm add rn-perf-kit
+
+# yarn
 yarn add rn-perf-kit
 ```
 
-```tsx
-// index.js — must be the FIRST import
-import 'rn-perf-kit/install';
+### 1. Register the Fiber hook
 
+```tsx
+// index.js — MUST be line 1 before react or react-native
+import 'rn-perf-kit/install';
+```
+
+### 2. Wrap your app
+
+```tsx
 // App.tsx
+import React, { useRef } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { PerfProvider, PerfOverlay } from 'rn-perf-kit';
 import { withNavigationPerf } from 'rn-perf-kit/navigation';
 
 export default function App() {
+  const navigationRef = useRef(null);
+
   return (
     <PerfProvider
-      enabled={__DEV__ || isQABuild}
-      mode="light" // or "deep"
+      enabled={__DEV__ || Boolean(process.env.IS_QA_BUILD)}
+      mode="light" // or "deep" for detailed prop diffing
       budgets={{
         startup: { LOW: 3000, MID: 2000, HIGH: 1500 },
         screens: { Home: 800, ProductDetail: 600 },
@@ -61,13 +89,15 @@ export default function App() {
       <NavigationContainer ref={withNavigationPerf(navigationRef)}>
         <RootStack />
       </NavigationContainer>
+
+      {/* Floating HUD showing live JS/UI FPS, stalls, and active screen */}
       <PerfOverlay position="top-right" />
     </PerfProvider>
   );
 }
 ```
 
-### Mark a screen ready
+### 3. Mark screen readiness
 
 ```tsx
 import { usePerfScreen, PerfTrace } from 'rn-perf-kit';
@@ -76,7 +106,9 @@ function HomeScreen() {
   const { markReady } = usePerfScreen('Home');
   const { data } = useFeed();
 
-  useEffect(() => { if (data) markReady(); }, [data]);
+  useEffect(() => {
+    if (data) markReady(); // Records time to content ready
+  }, [data]);
 
   return (
     <PerfTrace id="FeedList">
@@ -86,17 +118,25 @@ function HomeScreen() {
 }
 ```
 
-### Store adapters
+### 4. Store adapters
 
 ```ts
 import { reduxPerfMiddleware, zustandPerf, queryPerf } from 'rn-perf-kit/adapters';
 
-const store = configureStore({ reducer, middleware: (g) => g().concat(reduxPerfMiddleware) });
-const useCart = create(zustandPerf('cart', (set) => ({ /* ... */ })));
+// Redux
+const store = configureStore({
+  reducer,
+  middleware: (getDefault) => getDefault().concat(reduxPerfMiddleware),
+});
+
+// Zustand
+const useCart = create(zustandPerf('cart', (set) => ({ items: [] })));
+
+// TanStack Query
 queryPerf(queryClient);
 ```
 
-### Custom traces
+### 5. Custom traces
 
 ```ts
 import { perf } from 'rn-perf-kit';
@@ -110,29 +150,46 @@ t.end();
 
 ## Packages (Monorepo)
 
-| Package | Description |
-|---|---|
-| `core` | Timeline, ring buffer, event types, clock sync, budgets |
-| `native` | TurboModule: `nativeNow()`, FrameMetrics, CADisplayLink, memory, thermal, device tier |
-| `react` | Versioned fiber hook adapter, `<PerfTrace>`, render/commit tracker |
-| `navigation` | React Navigation + Expo Router adapter |
-| `adapters` | Redux, Zustand, TanStack Query, fetch/XHR |
-| `analyzers` | Navigation, render-cause, cascade/interruption, frame attribution, memory |
-| `overlay` | In-app HUD |
-| `reporters` | JSON, Perfetto/Chrome trace |
-| `cli` | `compare`, `check`, HTML report |
+Published packages on npm under the [`@rn-perf-kit`](https://www.npmjs.com/org/rn-perf-kit) organization:
+
+| Package | Version / Registry Link | Source Path | Description |
+|---|---|---|---|
+| **`rn-perf-kit`** | [![npm](https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square)](https://www.npmjs.com/package/rn-perf-kit) | [`packages/perf-provider`](./packages/perf-provider) | Main drop-in package: `<PerfProvider>`, `<PerfOverlay>`, `/install`, `/navigation`, `/adapters` |
+| **`@rn-perf-kit/core`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/core.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/core) | [`packages/core`](./packages/core) | Timeline, ring buffer, event model, monotonic clock sync, tier budgets |
+| **`@rn-perf-kit/native`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/native.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/native) | [`packages/native`](./packages/native) | TurboModule: `nativeNow()`, AndroidX FrameMetrics, iOS CADisplayLink, memory, thermal, device tier |
+| **`@rn-perf-kit/react`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/react.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/react) | [`packages/react`](./packages/react) | Versioned fiber hook adapter (`__REACT_DEVTOOLS_GLOBAL_HOOK__`), `<PerfTrace>`, `usePerfScreen` |
+| **`@rn-perf-kit/navigation`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/navigation.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/navigation) | [`packages/navigation`](./packages/navigation) | 6-phase React Navigation + Expo Router adapter (`withNavigationPerf`) |
+| **`@rn-perf-kit/adapters`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/adapters.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/adapters) | [`packages/adapters`](./packages/adapters) | Middleware for Redux Toolkit, Zustand, TanStack Query, and fetch/XHR interceptor |
+| **`@rn-perf-kit/analyzers`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/analyzers.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/analyzers) | [`packages/analyzers`](./packages/analyzers) | Navigation drop-rate, render storm/fan-out, cascade, and frame attribution analyzers |
+| **`@rn-perf-kit/overlay`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/overlay.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/overlay) | [`packages/overlay`](./packages/overlay) | In-app 2 Hz floating performance HUD overlay (`PerfOverlay`) |
+| **`@rn-perf-kit/reporters`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/reporters.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/reporters) | [`packages/reporters`](./packages/reporters) | JSON session exporter, Perfetto/Chrome trace exporter, standalone HTML report generator |
+| **`@rn-perf-kit/cli`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/cli.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/cli) | [`packages/cli`](./packages/cli) | CLI binary (`rn-perf`): `compare`, `check` (CI budgets), and `html` report generation |
 
 ---
 
-## CLI / CI
+## CLI & CI Integration
 
 ```sh
-# Compare two sessions
-rn-perf compare base.json pr.json
+# Compare PR session against baseline
+rn-perf compare base-session.json pr-session.json
 
-# Check against budgets (non-zero exit on violations)
-rn-perf check --budgets perf.config.ts
+# Check against budgets in perf.config.ts (exits with code 1 on regression)
+rn-perf check --budgets perf.config.ts --report session.json
+
+# Generate a standalone interactive HTML dashboard
+rn-perf html session.json --output report.html
 ```
+
+---
+
+## Documentation Guides
+
+- [**Getting Started**](./docs/getting-started.md) — 5-minute setup in bare React Native and Expo apps
+- [**Diagnosing & Fixing Navigation Jank**](./docs/guides/navigation-profiling.md) — 6-phase breakdown and mount deferral
+- [**Eliminating Render Storms & Wasted Re-renders**](./docs/guides/re-render-analysis.md) — Causes, unstable hooks, and selector leaks
+- [**Interrupted Renders & Frame Attribution**](./docs/guides/frame-attribution-and-concurrency.md) — Discarded renders and layout effect cascades
+- [**CI Performance Budgets & Regressions**](./docs/guides/ci-performance-budgets.md) — Automated PR enforcement with GitHub Actions
+- [**Full API Reference**](./docs/guides/api-reference.md) — Complete parameter and hook reference
 
 ---
 
@@ -140,22 +197,9 @@ rn-perf check --budgets perf.config.ts
 
 | Mode | Overhead | Use case |
 |---|---|---|
-| `disabled` | Zero (tree-shakeable) | Production (default off) |
-| `light` | < 1–2% CPU | QA, release builds |
-| `deep` | Measurable, time-boxed | Dev, recorded sessions |
-
----
-
-## Roadmap
-
-| Version | Contents |
-|---|---|
-| v0.1 | Foundation: frames, stalls, FPS overlay, JSON export |
-| v0.2 | Navigation phase profiling |
-| v0.3 | Re-render engine + store adapters |
-| v0.4 | Interruptions + frame attribution |
-| v0.5 | Low-end device focus + CI pipeline |
-| v1.0 | iOS parity + production sampling mode |
+| `disabled` | Zero (tree-shakeable) | Production builds |
+| `light` | < 1–2% CPU | QA, dogfood, internal releases |
+| `deep` | Measurable, time-boxed | Local dev, targeted debugging |
 
 ---
 
@@ -163,11 +207,12 @@ rn-perf check --budgets perf.config.ts
 
 - React Native 0.73+
 - New Architecture (Fabric + TurboModules) recommended
-- Android API 24+ for full FrameMetrics support
-- Expo SDK 50+ (config plugin included)
+- Android API 24+ (AndroidX JankStats & FrameMetrics support)
+- iOS 13+ (`CADisplayLink`, `NSProcessInfo.thermalState`)
+- Expo SDK 50+ (Config plugin included: `@rn-perf-kit/native`)
 
 ---
 
 ## License
 
-MIT
+[MIT](./LICENSE) © [Arpit Kumar Sahu](https://github.com/arpitkumarsahu)
