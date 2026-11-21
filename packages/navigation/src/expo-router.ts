@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { installNavigationListeners } from './withNavigationPerf';
 
+// Metro's module-scoped require; used so apps without expo-router still bundle
+declare const require: (id: string) => any;
+
 export function useExpoRouterPerf(): void {
   let ref: any = null;
   try {

@@ -32,11 +32,10 @@ export function generateHtmlReport(report: SessionReport): string {
   const findings = (report.findings as any[]) || [];
   const criticalFindings = findings.filter((f) => f.severity === 'critical');
   const warningFindings = findings.filter((f) => f.severity === 'warning');
-  const infoFindings = findings.filter((f) => f.severity === 'info' || !f.severity);
 
   const findingsHtml = findings.length === 0
     ? `<div class="empty-state">🎉 No performance issues or violations detected. Great job!</div>`
-    : findings.map((f, i) => {
+    : findings.map((f) => {
         const badgeClass = f.severity === 'critical' ? 'badge-critical' : f.severity === 'warning' ? 'badge-warning' : 'badge-info';
         return `
           <div class="finding-card ${f.severity || 'info'}">

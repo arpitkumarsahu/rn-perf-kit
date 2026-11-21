@@ -2,6 +2,9 @@
  * JSON Reporter — source-of-truth format for CLI and CI pipeline.
  */
 import { timeline, type PerfEvent, type DeviceTier } from '@rn-perf-kit/core';
+
+// Defined by React Native/Metro; may be absent when the reporter runs elsewhere (CLI, tests)
+declare const __DEV__: boolean | undefined;
 import {
   analyzeNavigation,
   analyzeRenderCauses,
