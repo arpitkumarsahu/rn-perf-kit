@@ -32,5 +32,9 @@
     "chrome-trace",
     "html-report",
     "json-report"
+  ],
+  "files": [
+    "src",
+    "README.md"
   ]
 }

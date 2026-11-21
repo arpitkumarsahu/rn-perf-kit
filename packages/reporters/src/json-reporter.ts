@@ -21,7 +21,19 @@ export interface SessionReport {
   build: { rnVersion?: string; reactVersion?: string; isDebug: boolean };
   events: PerfEvent[];
   findings: unknown[];
-  summary: { totalFrames: number; jankFrames: number; jankPct: number; totalCommits: number; jsStalls: number; navigations: number };
+  summary: {
+    totalFrames: number;
+    jankFrames: number;
+    jankPct: number;
+    totalCommits: number;
+    jsStalls: number;
+    navigations: number;
+    /** Component renders with no prop/state/context change (deep mode only). */
+    wastedRenders?: number;
+    wastedPct?: number;
+    /** Events lost because the timeline buffer was full: the report is incomplete if > 0. */
+    evictedEvents?: number;
+  };
 }
 
 export interface ReportOptions {
@@ -59,8 +71,17 @@ export function generateJsonReport(options: ReportOptions = {}): SessionReport {
   const commits = events.filter((e) => e.type === 'commit');
   const stalls = events.filter((e) => e.type === 'stall');
   const navEvents = events.filter((e) => e.type === 'nav' && e.phase === 'dispatch');
-  const firstT = events[0]?.t ?? now;
-  const lastT = events[events.length - 1]?.t ?? now;
+  // Events are stored in arrival order, which is not strictly time order
+  let firstT = now;
+  let lastT = now;
+  if (events.length > 0) {
+    firstT = Infinity;
+    lastT = -Infinity;
+    for (const e of events) {
+      if (e.t < firstT) firstT = e.t;
+      if (e.t > lastT) lastT = e.t;
+    }
+  }
 
   return {
     version: '1',
@@ -77,6 +98,9 @@ export function generateJsonReport(options: ReportOptions = {}): SessionReport {
       totalCommits: commits.length,
       jsStalls: stalls.length,
       navigations: navEvents.length,
+      wastedRenders: renderCauses.stats.wastedFibers,
+      wastedPct: renderCauses.stats.wastedPct,
+      evictedEvents: timeline.evicted,
     },
   };
 }

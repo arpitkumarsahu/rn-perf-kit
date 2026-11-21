@@ -76,8 +76,23 @@ class Timeline {
     this.buffer.clear();
   }
 
+  /** Replace the buffer with one of a different size. Recorded events are dropped. */
+  setCapacity(capacity: number): void {
+    if (capacity === this.buffer.maxSize) return;
+    this.buffer = new RingBuffer({ capacity });
+  }
+
   get size(): number {
     return this.buffer.size;
+  }
+
+  get capacity(): number {
+    return this.buffer.maxSize;
+  }
+
+  /** Events lost because the buffer was full; reports covering them are incomplete. */
+  get evicted(): number {
+    return this.buffer.evicted;
   }
 }
 

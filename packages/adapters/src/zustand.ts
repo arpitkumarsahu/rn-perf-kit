@@ -7,8 +7,9 @@
  */
 import { timeline } from '@rn-perf-kit/core';
 
+type SetState<T> = (partial: T | Partial<T> | ((state: T) => T | Partial<T>), replace?: boolean) => void;
 type StateCreator<T> = (
-  set: (partial: Partial<T> | ((state: T) => Partial<T>)) => void,
+  set: SetState<T>,
   get: () => T,
   api: unknown
 ) => T;
@@ -18,13 +19,13 @@ export function zustandPerf<T extends object>(
   creator: StateCreator<T>
 ): StateCreator<T> {
   return (set, get, api) => {
-    const patchedSet = (partial: Partial<T> | ((state: T) => Partial<T>)): void => {
+    // Forward `replace`: set(state, true) swaps the whole state instead of merging
+    const patchedSet: SetState<T> = (partial, replace) => {
       const prevState = get();
-      set(partial);
+      set(partial, replace);
       const nextState = get();
-      const changedKeys = (Object.keys(nextState) as Array<keyof T>)
-        .filter((k) => prevState[k] !== nextState[k])
-        .map(String);
+      const keys = new Set([...Object.keys(prevState), ...Object.keys(nextState)]) as Set<keyof T>;
+      const changedKeys = [...keys].filter((k) => prevState[k] !== nextState[k]).map(String);
       if (changedKeys.length > 0) {
         timeline.add({
           type: 'store',
