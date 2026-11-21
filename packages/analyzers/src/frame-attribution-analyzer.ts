@@ -14,6 +14,9 @@ export interface FrameAttribution {
   detail: string;
 }
 
+/** Native-side janky frames closer than this belong to the same episode. */
+const NATIVE_EPISODE_GAP_MS = 500;
+
 export function analyzeFrameAttribution(
   events: PerfEvent[],
   ctx: AnalyzerContext
@@ -25,6 +28,25 @@ export function analyzeFrameAttribution(
 
   const attributions: FrameAttribution[] = [];
   const findings: Finding[] = [];
+  // Consecutive native-side janky frames are one episode, reported once
+  let episode: { t: number; end: number; frames: number; worst: number } | null = null;
+  const flushEpisode = () => {
+    if (!episode) return;
+    findings.push({
+      id: `frame:native-side:${episode.t}`,
+      severity: 'info',
+      category: 'frame',
+      title: 'Native-side jank (no JS cause)',
+      detail:
+        episode.frames === 1
+          ? `Janky frame (${episode.worst.toFixed(0)}ms) with no overlapping JS work — likely native-side (layout, images, overdraw)`
+          : `${episode.frames} janky frames over ${(episode.end - episode.t).toFixed(0)}ms (worst ${episode.worst.toFixed(0)}ms) with no overlapping JS work — likely native-side (layout, images, overdraw, animations)`,
+      suggestion: 'Profile with Android Studio GPU profiler. Check for overdraw, large images, expensive layouts.',
+      t: episode.t,
+      meta: { frames: episode.frames, worstMs: episode.worst },
+    });
+    episode = null;
+  };
 
   for (const frame of jankFrames) {
     const fEnd = frame.t + frame.dur;
@@ -42,19 +64,18 @@ export function analyzeFrameAttribution(
       attr = { frameT: frame.t, frameDur: frame.dur, cause: 'gc', detail: `GC pause (${gc.dur.toFixed(0)}ms) caused janky frame` };
     } else {
       attr = { frameT: frame.t, frameDur: frame.dur, cause: 'native-side', detail: `Janky frame (${frame.dur.toFixed(0)}ms) with no overlapping JS work — likely native-side (layout, images, overdraw)` };
-      findings.push({
-        id: `frame:native-side:${frame.t}`,
-        severity: 'info',
-        category: 'frame',
-        title: 'Native-side jank (no JS cause)',
-        detail: attr.detail,
-        suggestion: 'Profile with Android Studio GPU profiler. Check for overdraw, large images, expensive layouts.',
-        t: frame.t,
-      });
+      const gapOk = episode && frame.t - episode.end <= NATIVE_EPISODE_GAP_MS;
+      if (!gapOk) flushEpisode();
+      if (!episode) episode = { t: frame.t, end: fEnd, frames: 0, worst: 0 };
+      episode.frames++;
+      episode.end = Math.max(episode.end, fEnd);
+      episode.worst = Math.max(episode.worst, frame.dur);
     }
+    if (attr.cause !== 'native-side') flushEpisode();
 
     attributions.push(attr);
   }
+  flushEpisode();
 
   return { attributions, findings };
 }

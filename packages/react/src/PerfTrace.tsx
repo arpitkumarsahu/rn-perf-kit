@@ -10,8 +10,10 @@ interface PerfTraceProps {
   disabled?: boolean;
 }
 
+// The fiber hook already records every commit, so a traced subtree is recorded as a
+// separate 'trace' event (named by `id`) instead of a second, duplicate commit.
 const onRenderCallback: ProfilerOnRenderCallback = (
-  _id,
+  id,
   phase,
   actualDuration,
   _baseDuration,
@@ -19,11 +21,11 @@ const onRenderCallback: ProfilerOnRenderCallback = (
   commitTime
 ) => {
   timeline.add({
-    type: 'commit',
+    type: 'trace',
     t: commitTime,
     dur: actualDuration,
+    id,
     phase: phase === 'mount' ? 'mount' : phase === 'nested-update' ? 'nested-update' : 'update',
-    fibers: [],
   });
 };
 

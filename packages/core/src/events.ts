@@ -34,6 +34,9 @@ export type RenderCause =
   | 'state-change'
   | 'context-change'
   | 'store-subscription'
+  // A store selector (useSelector / zustand / useSyncExternalStore) returned a NEW object
+  // with the same contents, so the component re-rendered for nothing.
+  | 'unstable-selector'
   | 'prop-change'
   | 'unknown';
 
@@ -98,6 +101,17 @@ export type PerfEvent =
       availableMb: number;
       trimLevel?: number;
     }
-  | { type: 'mark'; t: number; name: string; data?: unknown };
+  | { type: 'mark'; t: number; name: string; data?: unknown }
+  // <PerfTrace id>: one React Profiler measurement of a subtree. Kept separate from
+  // 'commit' so traced subtrees are not counted as extra commits.
+  | {
+      type: 'trace';
+      t: number;
+      dur: number;
+      id: string;
+      phase: 'mount' | 'update' | 'nested-update';
+    }
+  // A Suspense boundary switched between fallback and content (deep mode).
+  | { type: 'suspense'; t: number; boundary: string; showingFallback: boolean };
 
 export type PerfEventType = PerfEvent['type'];

@@ -20,6 +20,7 @@ const COMPONENT_TAGS = new Set([
   15 /* SimpleMemoComponent */,
 ]);
 const CLASS_COMPONENT = 1;
+const SUSPENSE_COMPONENT = 13;
 const MAX_FIBERS_PER_COMMIT = 300;
 
 const WRAPPED = Symbol.for('rn-perf-kit.commit');
@@ -36,6 +37,7 @@ interface Fiber {
   dependencies: { firstContext: unknown } | null;
   child: Fiber | null;
   sibling: Fiber | null;
+  return?: Fiber | null;
   actualDuration?: number;
   selfBaseDuration?: number;
 }
@@ -100,21 +102,48 @@ export function setFiberHookEnabled(value: boolean, deep = false): void {
   deepMode = deep;
 }
 
+// A commit that starts while the JS task of the previous commit is still running was
+// triggered by that commit's effects (setState in useLayoutEffect, or a synchronously
+// flushed useEffect). React's Profiler calls this a "nested update"; the DevTools hook
+// doesn't say, so detect it: the flag is cleared by a microtask, which only runs once
+// the current task has finished.
+let commitInCurrentTask = false;
+const clearTaskFlag = () => {
+  commitInCurrentTask = false;
+};
+const scheduleMicrotask: (cb: () => void) => void =
+  typeof queueMicrotask === 'function' ? queueMicrotask : (cb) => void Promise.resolve().then(cb);
+
+interface SuspenseToggle {
+  boundary: string;
+  showingFallback: boolean;
+}
+
 function processCommit(root: FiberRoot): void {
   const now = timeline.now();
   const current = root.current;
   const fibers: RenderedFiber[] = [];
+  const suspense: SuspenseToggle[] = [];
   // Commits where only ignored subtrees rendered (e.g. the PerfOverlay HUD) are the
   // profiler measuring itself: drop them so they never reach the timeline.
-  if (!walkCommit(current, deepMode ? fibers : null)) return;
+  if (!walkCommit(current, deepMode ? fibers : null, suspense)) return;
+  const nested = commitInCurrentTask;
+  if (!commitInCurrentTask) {
+    commitInCurrentTask = true;
+    scheduleMicrotask(clearTaskFlag);
+  }
   const dur = typeof current.actualDuration === 'number' ? current.actualDuration : -1;
+  const t = dur > 0 ? now - dur : now;
   timeline.add({
     type: 'commit',
-    t: dur > 0 ? now - dur : now,
+    t,
     dur,
     fibers,
-    phase: current.alternate ? 'update' : 'mount',
+    phase: !current.alternate ? 'mount' : nested ? 'nested-update' : 'update',
   });
+  for (const s of suspense) {
+    timeline.add({ type: 'suspense', t, boundary: s.boundary, showingFallback: s.showingFallback });
+  }
 }
 
 /** Components opt out of profiling with `Component.__rnPerfKitIgnore = true`. */
@@ -136,7 +165,7 @@ function isIgnored(fiber: Fiber): boolean {
  * With `out`, also records re-rendered components (deep mode); without it, stops at
  * the first piece of real work, so light mode stays cheap.
  */
-function walkCommit(root: Fiber, out: RenderedFiber[] | null): boolean {
+function walkCommit(root: Fiber, out: RenderedFiber[] | null, suspense: SuspenseToggle[]): boolean {
   let hasWork = false;
   const stack: Fiber[] = [root];
   while (stack.length > 0) {
@@ -144,6 +173,13 @@ function walkCommit(root: Fiber, out: RenderedFiber[] | null): boolean {
     if (fiber.sibling) stack.push(fiber.sibling);
     if (isIgnored(fiber)) continue;
     const prev = fiber.alternate;
+    // Suspense boundary switched between fallback (memoizedState set) and content
+    if (out && fiber.tag === SUSPENSE_COMPONENT && prev) {
+      const showingFallback = fiber.memoizedState != null;
+      if (showingFallback !== (prev.memoizedState != null)) {
+        suspense.push({ boundary: nearestComponentName(fiber), showingFallback });
+      }
+    }
     if (COMPONENT_TAGS.has(fiber.tag)) {
       // No alternate on a fiber reached by this walk = it mounted in this commit
       const rendered = !prev || (fiber.flags & PerformedWork) !== 0;
@@ -167,20 +203,47 @@ function walkCommit(root: Fiber, out: RenderedFiber[] | null): boolean {
   return hasWork;
 }
 
-function stateChanged(fiber: Fiber, prev: Fiber): boolean {
-  if (fiber.tag === CLASS_COMPONENT) return fiber.memoizedState !== prev.memoizedState;
+function nearestComponentName(fiber: Fiber): string {
+  let f: Fiber | null | undefined = fiber.return;
+  while (f) {
+    if (COMPONENT_TAGS.has(f.tag)) return getFiberName(f);
+    f = f.return;
+  }
+  return 'Suspense';
+}
+
+/**
+ * Which hook state changed between the two renders, if any.
+ * useState/useReducer queues have `dispatch`; useSyncExternalStore (react-redux
+ * useSelector, zustand, TanStack Query) queues have `getSnapshot`.
+ */
+function stateCause(fiber: Fiber, prev: Fiber): RenderCause | null {
+  if (fiber.tag === CLASS_COMPONENT) {
+    return fiber.memoizedState !== prev.memoizedState ? 'state-change' : null;
+  }
+  let storeChanged = false;
+  let storeChangedForReal = false;
   let h: any = fiber.memoizedState;
   let p: any = prev.memoizedState;
   while (h && p) {
-    if (h.queue != null && h.memoizedState !== p.memoizedState) return true;
+    if (h.queue != null && h.memoizedState !== p.memoizedState) {
+      if (typeof h.queue.getSnapshot === 'function') {
+        storeChanged = true;
+        if (!isSameShape(h.memoizedState, p.memoizedState)) storeChangedForReal = true;
+      } else {
+        return 'state-change';
+      }
+    }
     h = h.next;
     p = p.next;
   }
-  return false;
+  if (!storeChanged) return null;
+  return storeChangedForReal ? 'store-subscription' : 'unstable-selector';
 }
 
 function classifyRenderCause(fiber: Fiber, prev: Fiber): RenderCause {
-  if (stateChanged(fiber, prev)) return 'state-change';
+  const fromState = stateCause(fiber, prev);
+  if (fromState) return fromState;
   const a = prev.memoizedProps ?? {};
   const b = fiber.memoizedProps ?? {};
   if (a === b) return fiber.dependencies?.firstContext ? 'context-change' : 'parent-rerender';
@@ -223,7 +286,7 @@ function getFiberName(fiber: Fiber): string {
 }
 
 function isWasted(cause: RenderCause): boolean {
-  return cause === 'parent-rerender' || cause === 'unstable-reference';
+  return cause === 'parent-rerender' || cause === 'unstable-reference' || cause === 'unstable-selector';
 }
 
 function shallowEqual(
