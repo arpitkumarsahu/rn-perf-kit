@@ -30,6 +30,9 @@ export function generateHtmlReport(report: SessionReport): string {
   const tierStyle = tierColors[device.tier] || { bg: '#f1f5f9', text: '#475569', border: '#cbd5e1' };
 
   const findings = (report.findings as any[]) || [];
+  // Event times are on the device's monotonic clock: show them relative to the session
+  const sessionStart = (report.events ?? []).reduce((min, e) => (e.t < min ? e.t : min), Infinity);
+  const relMs = (t: number) => Math.max(0, Math.round(t - (Number.isFinite(sessionStart) ? sessionStart : t)));
   const criticalFindings = findings.filter((f) => f.severity === 'critical');
   const warningFindings = findings.filter((f) => f.severity === 'warning');
 
@@ -42,7 +45,7 @@ export function generateHtmlReport(report: SessionReport): string {
             <div class="finding-header">
               <span class="badge ${badgeClass}">${(f.severity || 'info').toUpperCase()}</span>
               <span class="finding-category">${escapeHtml(f.category || 'general')}</span>
-              <span class="finding-time">+${Math.round(f.t || 0)}ms</span>
+              <span class="finding-time">+${relMs(f.t || 0)}ms</span>
             </div>
             <h4 class="finding-title">${escapeHtml(f.title || 'Performance Finding')}</h4>
             <p class="finding-detail">${escapeHtml(f.detail || '')}</p>

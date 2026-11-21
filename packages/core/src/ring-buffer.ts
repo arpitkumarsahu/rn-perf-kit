@@ -16,14 +16,18 @@ export class RingBuffer {
   private readonly buffer: Array<PerfEvent | undefined>;
   private head = 0;
   private count = 0;
+  private evictedCount = 0;
 
   constructor(options: RingBufferOptions = {}) {
-    this.capacity = options.capacity ?? 10_000;
+    // A 120 Hz device emits 7,200 frame events per minute on its own; 20k keeps a full
+    // 60 s report window in deep mode on most devices.
+    this.capacity = options.capacity ?? 20_000;
     this.windowMs = options.windowMs ?? 60_000;
     this.buffer = new Array(this.capacity);
   }
 
   push(event: PerfEvent): void {
+    if (this.count === this.capacity) this.evictedCount++;
     this.buffer[this.head] = event;
     this.head = (this.head + 1) % this.capacity;
     if (this.count < this.capacity) this.count++;
@@ -50,10 +54,20 @@ export class RingBuffer {
   clear(): void {
     this.head = 0;
     this.count = 0;
+    this.evictedCount = 0;
     this.buffer.fill(undefined);
   }
 
   get size(): number {
     return this.count;
+  }
+
+  get maxSize(): number {
+    return this.capacity;
+  }
+
+  /** Events overwritten because the buffer was full (oldest-first). */
+  get evicted(): number {
+    return this.evictedCount;
   }
 }

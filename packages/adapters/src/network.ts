@@ -69,12 +69,27 @@ function responseSize(xhr: XMLHttpRequest): number {
   return 0;
 }
 
-function redactUrl(url: string): string {
+// Path segments that look like personal data or record ids: long numbers (phone numbers,
+// account ids), UUIDs, long hex/base64 tokens, emails.
+const SENSITIVE_SEGMENT =
+  /^(\+?\d{4,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{16,}|[A-Za-z0-9_-]{24,}|[^@/]+@[^@/]+)$/i;
+
+export function redactUrl(url: string): string {
+  const [beforeHash] = url.split('#');
+  const [base, query] = beforeHash.split('?');
+  const m = /^([a-z][a-z0-9+.-]*:\/\/[^/]*)?(.*)$/i.exec(base)!;
+  const origin = m[1] ?? '';
+  const path = m[2]
+    .split('/')
+    .map((seg) => (SENSITIVE_SEGMENT.test(decodeSegment(seg)) ? ':id' : seg))
+    .join('/');
+  return origin + path + (query !== undefined ? '?[redacted]' : '');
+}
+
+function decodeSegment(seg: string): string {
   try {
-    const u = new URL(url);
-    u.search = u.search ? '?[redacted]' : '';
-    return u.toString();
+    return decodeURIComponent(seg);
   } catch {
-    return url.split('?')[0];
+    return seg;
   }
 }
