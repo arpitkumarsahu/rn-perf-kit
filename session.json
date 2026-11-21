@@ -1,0 +1,1666 @@
+{
+  "version": "1",
+  "capturedAt": "2026-11-21T15:05:10.562Z",
+  "durationMs": 7000,
+  "device": {
+    "tier": "LOW",
+    "os": "android",
+    "osVersion": "14",
+    "totalRamMb": 2048,
+    "refreshRateHz": 60
+  },
+  "build": {
+    "rnVersion": "0.76.5",
+    "reactVersion": "18.3.2",
+    "isDebug": false
+  },
+  "events": [
+    {
+      "type": "nav",
+      "t": 1000,
+      "phase": "dispatch",
+      "route": "ProductDetail",
+      "fromRoute": "Home",
+      "navId": "nav-1"
+    },
+    {
+      "type": "nav",
+      "t": 1050,
+      "phase": "transition-start",
+      "route": "ProductDetail",
+      "fromRoute": "Home",
+      "navId": "nav-1"
+    },
+    {
+      "type": "frame",
+      "t": 1050,
+      "dur": 16.6,
+      "janky": false
+    },
+    {
+      "type": "frame",
+      "t": 1066.6,
+      "dur": 16.6,
+      "janky": false
+    },
+    {
+      "type": "frame",
+      "t": 1083.2,
+      "dur": 16.6,
+      "janky": false
+    },
+    {
+      "type": "frame",
+      "t": 1099.8,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1116.4,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1133,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1149.6,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1166.2,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1182.8,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1199.4,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1216,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1232.6,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1249.2,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1265.8,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1282.4,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1299,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1315.6,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1332.2,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1348.8,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1365.4,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1382,
+      "dur": 35,
+      "janky": true
+    },
+    {
+      "type": "frame",
+      "t": 1398.6,
+      "dur": 16.6,
+      "janky": false
+    },
+    {
+      "type": "frame",
+      "t": 1415.2,
+      "dur": 16.6,
+      "janky": false
+    },
+    {
+      "type": "frame",
+      "t": 1431.8,
+      "dur": 16.6,
+      "janky": false
+    },
+    {
+      "type": "frame",
+      "t": 1448.4,
+      "dur": 16.6,
+      "janky": false
+    },
+    {
+      "type": "commit",
+      "t": 1100,
+      "dur": 121,
+      "phase": "mount",
+      "fibers": [
+        {
+          "name": "ReviewsList",
+          "cause": "prop-change",
+          "actualDuration": 121,
+          "wasted": false
+        }
+      ]
+    },
+    {
+      "type": "nav",
+      "t": 1465,
+      "phase": "transition-end",
+      "route": "ProductDetail",
+      "fromRoute": "Home",
+      "navId": "nav-1"
+    },
+    {
+      "type": "commit",
+      "t": 2000,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2018,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2036,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2054,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2072,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2090,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2108,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2126,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2144,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2162,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2180,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2198,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2216,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2234,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2252,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2270,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2288,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2306,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2324,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2342,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2360,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2378,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2396,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2414,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2432,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2450,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2468,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2486,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2504,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2522,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2540,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2558,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2576,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2594,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2612,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2630,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2648,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2666,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2684,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2702,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2720,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2738,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2756,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2774,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2792,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2810,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2828,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2846,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2864,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2882,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2900,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2918,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2936,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2954,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2972,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 2990,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3008,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3026,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3044,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3062,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3080,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3098,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3116,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3134,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3152,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3170,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3188,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3206,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3224,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3242,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3260,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3278,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3296,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3314,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3332,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3350,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3368,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3386,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3404,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 3422,
+      "dur": 2,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductCard",
+          "cause": "unstable-reference",
+          "actualDuration": 2,
+          "wasted": true
+        }
+      ]
+    },
+    {
+      "type": "store",
+      "t": 3000,
+      "source": "zustand",
+      "key": "items"
+    },
+    {
+      "type": "commit",
+      "t": 3010,
+      "dur": 22,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ConsumerComponent_0",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_1",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_2",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_3",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_4",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_5",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_6",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_7",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_8",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_9",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_10",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_11",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_12",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_13",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_14",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_15",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_16",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_17",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_18",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        },
+        {
+          "name": "ConsumerComponent_19",
+          "cause": "store-subscription",
+          "actualDuration": 1,
+          "wasted": false
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 4000,
+      "dur": 8,
+      "phase": "update",
+      "fibers": [
+        {
+          "name": "ProductDetailScreen",
+          "cause": "prop-change",
+          "actualDuration": 8,
+          "wasted": false
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "t": 4008,
+      "dur": 6,
+      "phase": "nested-update",
+      "fibers": [
+        {
+          "name": "ProductDetailScreen",
+          "cause": "state-change",
+          "actualDuration": 6,
+          "wasted": false
+        }
+      ]
+    },
+    {
+      "type": "render-discarded",
+      "t": 5000,
+      "component": "SearchResults",
+      "renderCount": 4
+    },
+    {
+      "type": "frame",
+      "t": 6000,
+      "dur": 75,
+      "janky": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "nav:dropped-frames:nav-1",
+      "severity": "critical",
+      "category": "navigation",
+      "title": "Dropped 18/25 frames during Home → ProductDetail",
+      "detail": "72% frame drop rate during transition. Commit time: 121ms.",
+      "suggestion": "Defer heavy component mounts until after transitionEnd.",
+      "t": 1050
+    },
+    {
+      "id": "nav:heavy-commit:nav-1",
+      "severity": "warning",
+      "category": "navigation",
+      "title": "1 commit(s) over frame budget during Home → ProductDetail",
+      "detail": "Commits: 121ms. Budget: 16.6ms.",
+      "suggestion": "Wrap expensive screen content in React.lazy() or defer with startTransition.",
+      "t": 1050
+    },
+    {
+      "id": "render:storm:ProductCard:2000",
+      "severity": "critical",
+      "category": "render",
+      "title": "Render storm: ProductCard rendered 80x in 2s",
+      "detail": "40 renders/second detected.",
+      "suggestion": "Check for unstable prop references. Wrap with React.memo() and useCallback.",
+      "component": "ProductCard",
+      "t": 2000
+    },
+    {
+      "id": "render:fan-out:items:3000",
+      "severity": "warning",
+      "category": "render",
+      "title": "Fan-out: items update caused 21 component renders",
+      "detail": "Store: zustand/items. Components: ProductCard, ConsumerComponent_0, ConsumerComponent_1, ConsumerComponent_2, ConsumerComponent_3...",
+      "suggestion": "Split large stores into smaller ones. Use fine-grained selectors.",
+      "t": 3000
+    },
+    {
+      "id": "cascade:nested-update:4000",
+      "severity": "warning",
+      "category": "cascade",
+      "title": "Cascading update detected (setState in useLayoutEffect)",
+      "detail": "Two commits within 8.0ms. Second commit is nested-update.",
+      "suggestion": "Move state update to useEffect or derive value during render instead.",
+      "t": 4000
+    },
+    {
+      "id": "cascade:discarded:SearchResults",
+      "severity": "warning",
+      "category": "cascade",
+      "title": "SearchResults: 4 discarded renders",
+      "detail": "React started 4 renders of SearchResults that were discarded without committing.",
+      "suggestion": "Check for render cost or state thrash inside startTransition.",
+      "component": "SearchResults",
+      "t": 5000
+    },
+    {
+      "id": "frame:native-side:1232.6",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1232.6
+    },
+    {
+      "id": "frame:native-side:1249.2",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1249.2
+    },
+    {
+      "id": "frame:native-side:1265.8",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1265.8
+    },
+    {
+      "id": "frame:native-side:1282.4",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1282.4
+    },
+    {
+      "id": "frame:native-side:1299",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1299
+    },
+    {
+      "id": "frame:native-side:1315.6",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1315.6
+    },
+    {
+      "id": "frame:native-side:1332.2",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1332.2
+    },
+    {
+      "id": "frame:native-side:1348.8",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1348.8
+    },
+    {
+      "id": "frame:native-side:1365.4",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1365.4
+    },
+    {
+      "id": "frame:native-side:1382",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (35ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 1382
+    },
+    {
+      "id": "frame:native-side:6000",
+      "severity": "info",
+      "category": "frame",
+      "title": "Native-side jank (no JS cause)",
+      "detail": "Janky frame (75ms) with no overlapping JS commit or stall.",
+      "suggestion": "Check layout hierarchies, image resolutions, and GPU overdraw.",
+      "t": 6000
+    }
+  ],
+  "summary": {
+    "totalFrames": 26,
+    "jankFrames": 19,
+    "jankPct": 70.3,
+    "totalCommits": 84,
+    "jsStalls": 0,
+    "navigations": 1
+  }
+}

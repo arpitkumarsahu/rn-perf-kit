@@ -1,0 +1,26 @@
+appId: com.rnperfkit.janklab
+---
+# JankLab Automated Performance Verification Flow
+- launchApp
+- assertVisible: "JankLab Store"
+
+# 1. Trigger Home Screen Scrolling
+- scroll
+- scroll
+
+# 2. Trigger Home -> ProductDetail Navigation (ReviewsList mount jank)
+- tapOn: "Product 1"
+- assertVisible: "Reviews.*"
+
+# 3. Scroll heavy reviews list during transition window
+- scroll
+- scroll
+
+# 4. Trigger Back Navigation (Memory recovery check)
+- back
+- assertVisible: "JankLab Store"
+
+# 5. Trigger Search Screen (10k items filter stall & discarded renders)
+- tapOn: "Search"
+- inputText: "Item 99"
+- assertVisible: "Item 99"

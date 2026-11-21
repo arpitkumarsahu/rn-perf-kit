@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rn-perf-kit Performance Report</title>
+  <style>
+    :root { --bg: #0f172a; --card-bg: #1e293b; --card-border: #334155; --text: #f8fafc; --text-muted: #94a3b8; --accent: #6366f1; --danger: #ef4444; --warning: #f59e0b; --success: #10b981; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.5; padding: 24px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--card-border); }
+    h1 { font-size: 24px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .subtitle { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+    .device-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .metric-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; }
+    .metric-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+    .metric-value { font-size: 28px; font-weight: 800; margin: 4px 0; color: #fff; }
+    .metric-meta { font-size: 12px; color: var(--text-muted); }
+    .bar-container { width: 100%; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; margin-top: 8px; }
+    .bar-fill { height: 100%; border-radius: 3px; }
+    .section-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .findings-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .finding-card { background: var(--card-bg); border: 1px solid var(--card-border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 16px; }
+    .finding-card.critical { border-left-color: var(--danger); }
+    .finding-card.warning { border-left-color: var(--warning); }
+    .finding-card.info { border-left-color: #38bdf8; }
+    .finding-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
+    .badge-critical { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-info { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .finding-category { font-size: 11px; color: var(--text-muted); font-family: monospace; background: #0f172a; padding: 2px 6px; border-radius: 4px; }
+    .finding-time { font-size: 11px; color: var(--text-muted); margin-left: auto; font-family: monospace; }
+    .finding-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .finding-detail { font-size: 13px; color: #cbd5e1; margin-bottom: 10px; }
+    .finding-suggestion { background: rgba(99, 102, 241, 0.1); border: 1px dashed rgba(99, 102, 241, 0.4); padding: 10px 12px; border-radius: 6px; font-size: 12px; color: #c7d2fe; }
+    .bulb { margin-right: 4px; }
+    details { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px 16px; margin-top: 16px; }
+    summary { font-weight: 600; cursor: pointer; color: var(--text-muted); font-size: 13px; }
+    pre { background: #090d16; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 11px; color: #94a3b8; overflow-x: auto; max-height: 400px; }
+    .empty-state { padding: 32px; text-align: center; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>⚡ rn-perf-kit Report</h1>
+        <div class="subtitle">Session recorded: 2026-11-21T15:05:10.562Z · Duration: 7000ms</div>
+      </div>
+      <div>
+        <div class="device-badge">
+          📱 LOW TIER · ANDROID 14
+        </div>
+      </div>
+    </header>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Jank Frame Rate</div>
+        <div class="metric-value" style="color: var(--danger)">
+          70.3%
+        </div>
+        <div class="metric-meta">19 janky / 26 frames</div>
+        <div class="bar-container">
+          <div class="bar-fill" style="width: 70.3%; background: var(--danger);"></div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">JS Stalls (&gt;50ms)</div>
+        <div class="metric-value" style="color: var(--success)">
+          0
+        </div>
+        <div class="metric-meta">Smooth execution</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">React Commits</div>
+        <div class="metric-value">84</div>
+        <div class="metric-meta">DOM / Fabric tree mutations</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Navigations</div>
+        <div class="metric-value">1</div>
+        <div class="metric-meta">Route transitions recorded</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      🔍 Actionable Findings (17)
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">
+        (2 critical, 4 warnings)
+      </span>
+    </div>
+    
+    <div class="findings-container">
+      <div class="finding-card critical"><div class="finding-header"><span class="badge badge-critical">CRITICAL</span><span class="finding-category">navigation</span><span class="finding-time">+1050ms</span></div><h4 class="finding-title">Dropped 18/25 frames during Home → ProductDetail</h4><p class="finding-detail">72% frame drop rate during transition. Commit time: 121ms.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Defer heavy component mounts until after transitionEnd.</div></div><div class="finding-card warning"><div class="finding-header"><span class="badge badge-warning">WARNING</span><span class="finding-category">navigation</span><span class="finding-time">+1050ms</span></div><h4 class="finding-title">1 commit(s) over frame budget during Home → ProductDetail</h4><p class="finding-detail">Commits: 121ms. Budget: 16.6ms.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Wrap expensive screen content in React.lazy() or defer with startTransition.</div></div><div class="finding-card critical"><div class="finding-header"><span class="badge badge-critical">CRITICAL</span><span class="finding-category">render</span><span class="finding-time">+2000ms</span></div><h4 class="finding-title">Render storm: ProductCard rendered 80x in 2s</h4><p class="finding-detail">40 renders/second detected.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check for unstable prop references. Wrap with React.memo() and useCallback.</div></div><div class="finding-card warning"><div class="finding-header"><span class="badge badge-warning">WARNING</span><span class="finding-category">render</span><span class="finding-time">+3000ms</span></div><h4 class="finding-title">Fan-out: items update caused 21 component renders</h4><p class="finding-detail">Store: zustand/items. Components: ProductCard, ConsumerComponent_0, ConsumerComponent_1, ConsumerComponent_2, ConsumerComponent_3...</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Split large stores into smaller ones. Use fine-grained selectors.</div></div><div class="finding-card warning"><div class="finding-header"><span class="badge badge-warning">WARNING</span><span class="finding-category">cascade</span><span class="finding-time">+4000ms</span></div><h4 class="finding-title">Cascading update detected (setState in useLayoutEffect)</h4><p class="finding-detail">Two commits within 8.0ms. Second commit is nested-update.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Move state update to useEffect or derive value during render instead.</div></div><div class="finding-card warning"><div class="finding-header"><span class="badge badge-warning">WARNING</span><span class="finding-category">cascade</span><span class="finding-time">+5000ms</span></div><h4 class="finding-title">SearchResults: 4 discarded renders</h4><p class="finding-detail">React started 4 renders of SearchResults that were discarded without committing.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check for render cost or state thrash inside startTransition.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1233ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1249ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1266ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1282ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1299ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1316ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1332ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1349ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1365ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+1382ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (35ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div><div class="finding-card info"><div class="finding-header"><span class="badge badge-info">INFO</span><span class="finding-category">frame</span><span class="finding-time">+6000ms</span></div><h4 class="finding-title">Native-side jank (no JS cause)</h4><p class="finding-detail">Janky frame (75ms) with no overlapping JS commit or stall.</p><div class="finding-suggestion"><span class="bulb">💡</span><strong>Recommendation:</strong> Check layout hierarchies, image resolutions, and GPU overdraw.</div></div>
+    </div>
+
+    <details>
+      <summary>Raw Session JSON</summary>
+      <pre>{
+  &quot;version&quot;: &quot;1&quot;,
+  &quot;capturedAt&quot;: &quot;2026-11-21T15:05:10.562Z&quot;,
+  &quot;durationMs&quot;: 7000,
+  &quot;device&quot;: {
+    &quot;tier&quot;: &quot;LOW&quot;,
+    &quot;os&quot;: &quot;android&quot;,
+    &quot;osVersion&quot;: &quot;14&quot;,
+    &quot;totalRamMb&quot;: 2048,
+    &quot;refreshRateHz&quot;: 60
+  },
+  &quot;build&quot;: {
+    &quot;rnVersion&quot;: &quot;0.76.5&quot;,
+    &quot;reactVersion&quot;: &quot;18.3.2&quot;,
+    &quot;isDebug&quot;: false
+  },
+  &quot;events&quot;: [
+    {
+      &quot;type&quot;: &quot;nav&quot;,
+      &quot;t&quot;: 1000,
+      &quot;phase&quot;: &quot;dispatch&quot;,
+      &quot;route&quot;: &quot;ProductDetail&quot;,
+      &quot;fromRoute&quot;: &quot;Home&quot;,
+      &quot;navId&quot;: &quot;nav-1&quot;
+    },
+    {
+      &quot;type&quot;: &quot;nav&quot;,
+      &quot;t&quot;: 1050,
+      &quot;phase&quot;: &quot;transition-start&quot;,
+      &quot;route&quot;: &quot;ProductDetail&quot;,
+      &quot;fromRoute&quot;: &quot;Home&quot;,
+      &quot;navId&quot;: &quot;nav-1&quot;
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1050,
+      &quot;dur&quot;: 16.6,
+      &quot;janky&quot;: false
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1066.6,
+      &quot;dur&quot;: 16.6,
+      &quot;janky&quot;: false
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1083.2,
+      &quot;dur&quot;: 16.6,
+      &quot;janky&quot;: false
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1099.8,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1116.4,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1133,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1149.6,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1166.2,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1182.8,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1199.4,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1216,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1232.6,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1249.2,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1265.8,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1282.4,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1299,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1315.6,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1332.2,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1348.8,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1365.4,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1382,
+      &quot;dur&quot;: 35,
+      &quot;janky&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1398.6,
+      &quot;dur&quot;: 16.6,
+      &quot;janky&quot;: false
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1415.2,
+      &quot;dur&quot;: 16.6,
+      &quot;janky&quot;: false
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1431.8,
+      &quot;dur&quot;: 16.6,
+      &quot;janky&quot;: false
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 1448.4,
+      &quot;dur&quot;: 16.6,
+      &quot;janky&quot;: false
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 1100,
+      &quot;dur&quot;: 121,
+      &quot;phase&quot;: &quot;mount&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ReviewsList&quot;,
+          &quot;cause&quot;: &quot;prop-change&quot;,
+          &quot;actualDuration&quot;: 121,
+          &quot;wasted&quot;: false
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;nav&quot;,
+      &quot;t&quot;: 1465,
+      &quot;phase&quot;: &quot;transition-end&quot;,
+      &quot;route&quot;: &quot;ProductDetail&quot;,
+      &quot;fromRoute&quot;: &quot;Home&quot;,
+      &quot;navId&quot;: &quot;nav-1&quot;
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2000,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2018,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2036,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2054,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2072,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2090,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2108,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2126,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2144,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2162,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2180,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2198,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2216,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2234,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2252,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2270,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2288,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2306,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2324,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2342,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2360,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2378,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2396,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2414,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2432,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2450,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2468,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2486,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2504,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2522,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2540,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2558,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2576,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2594,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2612,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2630,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2648,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2666,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2684,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2702,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2720,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2738,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2756,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2774,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2792,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2810,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2828,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2846,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2864,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2882,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2900,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2918,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2936,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2954,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2972,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 2990,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3008,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3026,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3044,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3062,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3080,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3098,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3116,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3134,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3152,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3170,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3188,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3206,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3224,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3242,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3260,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3278,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3296,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3314,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3332,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3350,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3368,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3386,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3404,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3422,
+      &quot;dur&quot;: 2,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductCard&quot;,
+          &quot;cause&quot;: &quot;unstable-reference&quot;,
+          &quot;actualDuration&quot;: 2,
+          &quot;wasted&quot;: true
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;store&quot;,
+      &quot;t&quot;: 3000,
+      &quot;source&quot;: &quot;zustand&quot;,
+      &quot;key&quot;: &quot;items&quot;
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 3010,
+      &quot;dur&quot;: 22,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_0&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_1&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_2&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_3&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_4&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_5&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_6&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_7&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_8&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_9&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_10&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_11&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_12&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_13&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_14&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_15&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_16&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_17&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_18&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;ConsumerComponent_19&quot;,
+          &quot;cause&quot;: &quot;store-subscription&quot;,
+          &quot;actualDuration&quot;: 1,
+          &quot;wasted&quot;: false
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 4000,
+      &quot;dur&quot;: 8,
+      &quot;phase&quot;: &quot;update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductDetailScreen&quot;,
+          &quot;cause&quot;: &quot;prop-change&quot;,
+          &quot;actualDuration&quot;: 8,
+          &quot;wasted&quot;: false
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;commit&quot;,
+      &quot;t&quot;: 4008,
+      &quot;dur&quot;: 6,
+      &quot;phase&quot;: &quot;nested-update&quot;,
+      &quot;fibers&quot;: [
+        {
+          &quot;name&quot;: &quot;ProductDetailScreen&quot;,
+          &quot;cause&quot;: &quot;state-change&quot;,
+          &quot;actualDuration&quot;: 6,
+          &quot;wasted&quot;: false
+        }
+      ]
+    },
+    {
+      &quot;type&quot;: &quot;render-discarded&quot;,
+      &quot;t&quot;: 5000,
+      &quot;component&quot;: &quot;SearchResults&quot;,
+      &quot;renderCount&quot;: 4
+    },
+    {
+      &quot;type&quot;: &quot;frame&quot;,
+      &quot;t&quot;: 6000,
+      &quot;dur&quot;: 75,
+      &quot;janky&quot;: true
+    }
+  ],
+  &quot;findings&quot;: [
+    {
+      &quot;id&quot;: &quot;nav:dropped-frames:nav-1&quot;,
+      &quot;severity&quot;: &quot;critical&quot;,
+      &quot;category&quot;: &quot;navigation&quot;,
+      &quot;title&quot;: &quot;Dropped 18/25 frames during Home → ProductDetail&quot;,
+      &quot;detail&quot;: &quot;72% frame drop rate during transition. Commit time: 121ms.&quot;,
+      &quot;suggestion&quot;: &quot;Defer heavy component mounts until after transitionEnd.&quot;,
+      &quot;t&quot;: 1050
+    },
+    {
+      &quot;id&quot;: &quot;nav:heavy-commit:nav-1&quot;,
+      &quot;severity&quot;: &quot;warning&quot;,
+      &quot;category&quot;: &quot;navigation&quot;,
+      &quot;title&quot;: &quot;1 commit(s) over frame budget during Home → ProductDetail&quot;,
+      &quot;detail&quot;: &quot;Commits: 121ms. Budget: 16.6ms.&quot;,
+      &quot;suggestion&quot;: &quot;Wrap expensive screen content in React.lazy() or defer with startTransition.&quot;,
+      &quot;t&quot;: 1050
+    },
+    {
+      &quot;id&quot;: &quot;render:storm:ProductCard:2000&quot;,
+      &quot;severity&quot;: &quot;critical&quot;,
+      &quot;category&quot;: &quot;render&quot;,
+      &quot;title&quot;: &quot;Render storm: ProductCard rendered 80x in 2s&quot;,
+      &quot;detail&quot;: &quot;40 renders/second detected.&quot;,
+      &quot;suggestion&quot;: &quot;Check for unstable prop references. Wrap with React.memo() and useCallback.&quot;,
+      &quot;component&quot;: &quot;ProductCard&quot;,
+      &quot;t&quot;: 2000
+    },
+    {
+      &quot;id&quot;: &quot;render:fan-out:items:3000&quot;,
+      &quot;severity&quot;: &quot;warning&quot;,
+      &quot;category&quot;: &quot;render&quot;,
+      &quot;title&quot;: &quot;Fan-out: items update caused 21 component renders&quot;,
+      &quot;detail&quot;: &quot;Store: zustand/items. Components: ProductCard, ConsumerComponent_0, ConsumerComponent_1, ConsumerComponent_2, ConsumerComponent_3...&quot;,
+      &quot;suggestion&quot;: &quot;Split large stores into smaller ones. Use fine-grained selectors.&quot;,
+      &quot;t&quot;: 3000
+    },
+    {
+      &quot;id&quot;: &quot;cascade:nested-update:4000&quot;,
+      &quot;severity&quot;: &quot;warning&quot;,
+      &quot;category&quot;: &quot;cascade&quot;,
+      &quot;title&quot;: &quot;Cascading update detected (setState in useLayoutEffect)&quot;,
+      &quot;detail&quot;: &quot;Two commits within 8.0ms. Second commit is nested-update.&quot;,
+      &quot;suggestion&quot;: &quot;Move state update to useEffect or derive value during render instead.&quot;,
+      &quot;t&quot;: 4000
+    },
+    {
+      &quot;id&quot;: &quot;cascade:discarded:SearchResults&quot;,
+      &quot;severity&quot;: &quot;warning&quot;,
+      &quot;category&quot;: &quot;cascade&quot;,
+      &quot;title&quot;: &quot;SearchResults: 4 discarded renders&quot;,
+      &quot;detail&quot;: &quot;React started 4 renders of SearchResults that were discarded without committing.&quot;,
+      &quot;suggestion&quot;: &quot;Check for render cost or state thrash inside startTransition.&quot;,
+      &quot;component&quot;: &quot;SearchResults&quot;,
+      &quot;t&quot;: 5000
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1232.6&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1232.6
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1249.2&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1249.2
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1265.8&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1265.8
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1282.4&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1282.4
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1299&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1299
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1315.6&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1315.6
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1332.2&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1332.2
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1348.8&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1348.8
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1365.4&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1365.4
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:1382&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (35ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 1382
+    },
+    {
+      &quot;id&quot;: &quot;frame:native-side:6000&quot;,
+      &quot;severity&quot;: &quot;info&quot;,
+      &quot;category&quot;: &quot;frame&quot;,
+      &quot;title&quot;: &quot;Native-side jank (no JS cause)&quot;,
+      &quot;detail&quot;: &quot;Janky frame (75ms) with no overlapping JS commit or stall.&quot;,
+      &quot;suggestion&quot;: &quot;Check layout hierarchies, image resolutions, and GPU overdraw.&quot;,
+      &quot;t&quot;: 6000
+    }
+  ],
+  &quot;summary&quot;: {
+    &quot;totalFrames&quot;: 26,
+    &quot;jankFrames&quot;: 19,
+    &quot;jankPct&quot;: 70.3,
+    &quot;totalCommits&quot;: 84,
+    &quot;jsStalls&quot;: 0,
+    &quot;navigations&quot;: 1
+  }
+}</pre>
+    </details>
+  </div>
+</body>
+</html>
