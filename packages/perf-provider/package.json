@@ -1,6 +1,6 @@
 {
   "name": "rn-perf-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deep performance profiling toolkit for React Native apps",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -23,13 +23,48 @@
     "@types/react": "^18.0.0"
   },
   "dependencies": {
-    "@rn-perf-kit/core": "^0.1.0",
-    "@rn-perf-kit/native": "^0.1.0",
-    "@rn-perf-kit/react": "^0.1.0",
-    "@rn-perf-kit/navigation": "^0.1.0",
-    "@rn-perf-kit/adapters": "^0.1.0",
-    "@rn-perf-kit/analyzers": "^0.1.0",
-    "@rn-perf-kit/overlay": "^0.1.0",
-    "@rn-perf-kit/reporters": "^0.1.0"
-  }
+    "@rn-perf-kit/core": "^0.1.1",
+    "@rn-perf-kit/native": "^0.1.1",
+    "@rn-perf-kit/react": "^0.1.1",
+    "@rn-perf-kit/navigation": "^0.1.1",
+    "@rn-perf-kit/adapters": "^0.1.1",
+    "@rn-perf-kit/analyzers": "^0.1.1",
+    "@rn-perf-kit/overlay": "^0.1.1",
+    "@rn-perf-kit/reporters": "^0.1.1"
+  },
+  "author": "Arpit Kumar Sahu <aarpitkumarsahu99@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arpitkumarsahu/rn-perf-kit.git",
+    "directory": "packages/perf-provider"
+  },
+  "bugs": {
+    "url": "https://github.com/arpitkumarsahu/rn-perf-kit/issues"
+  },
+  "homepage": "https://github.com/arpitkumarsahu/rn-perf-kit#readme",
+  "keywords": [
+    "react-native",
+    "react-native-performance",
+    "performance",
+    "profiling",
+    "profiler",
+    "jank",
+    "fps",
+    "dropped-frames",
+    "android",
+    "ios",
+    "budget-android",
+    "react-navigation",
+    "navigation",
+    "re-render",
+    "wasted-renders",
+    "fiber-devtools",
+    "turbomodule",
+    "fabric",
+    "new-architecture",
+    "hud",
+    "overlay",
+    "perfetto"
+  ]
 }

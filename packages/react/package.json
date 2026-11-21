@@ -1,6 +1,6 @@
 {
   "name": "@rn-perf-kit/react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React fiber hook adapter, PerfTrace component, render/commit tracker",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -17,6 +17,25 @@
     "@types/react": "^18.0.0"
   },
   "dependencies": {
-    "@rn-perf-kit/core": "^0.1.0"
-  }
+    "@rn-perf-kit/core": "^0.1.1"
+  },
+  "author": "Arpit Kumar Sahu <aarpitkumarsahu99@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arpitkumarsahu/rn-perf-kit.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/arpitkumarsahu/rn-perf-kit/issues"
+  },
+  "homepage": "https://github.com/arpitkumarsahu/rn-perf-kit#readme",
+  "keywords": [
+    "react-native",
+    "react",
+    "fiber",
+    "re-renders",
+    "profiler",
+    "concurrency"
+  ]
 }
