@@ -16,11 +16,13 @@ When a user taps a button to open a new screen, the transition moves through six
 
 | Phase | Description | How `rn-perf-kit` captures it |
 |---|---|---|
-| **Tap → Dispatch** | Time between touch event and navigation action trigger | Intercepts navigation dispatch on `navigationRef` or Expo Router ref |
-| **Dispatch → First Commit** | Time taken for React to mount the root container of the new route | Fiber commit hook detects first commit containing new route |
-| **Transition Start → End** | The native/JS slide or fade animation duration | Screen focus / transition listeners (`transitionStart`, `transitionEnd`) |
-| **Content Ready** | When primary data/UI has loaded | Triggered when `markReady()` is called from `usePerfScreen` |
-| **Interactive** | Screen is stable with no frames dropped or JS stalls for 300ms | Timeline analyzer evaluates frame rate & stall sentinel |
+| **Tap → Dispatch** | Time between the navigation action and the state change | Container `__unsafe_action__` listener (`withNavigationPerf` / `useExpoRouterPerf`) |
+| **Dispatch → First Commit** | Time until React commits the new route | First React commit after the state change |
+| **Transition Start → End** | The native/JS slide or fade animation duration | The destination screen's `transitionStart` / `transitionEnd`, read from the container on React Navigation 7 / Expo Router (stack navigators only; tabs and drawers have none) |
+| **Content Ready** | When primary data/UI has loaded | `usePerfScreen(<route name>).markReady()` on the destination screen |
+| **Interactive** | The transition has finished and React has been quiet (no commits) for 250ms | Recorded automatically; a navigation that never settles is closed after 5s |
+
+Navigations are tracked by route **key**, so pushing the same screen with different params (product A → product B) counts as a new navigation.
 
 ---
 
@@ -54,7 +56,7 @@ import { Stack } from 'expo-router';
 import { useExpoRouterPerf } from 'rn-perf-kit/expo-router';
 
 export default function Layout() {
-  useExpoRouterPerf(); // Listens to Expo Router navigation container
+  useExpoRouterPerf(); // Listens to Expo Router navigation container: all phases, no per-screen hooks
 
   return <Stack />;
 }

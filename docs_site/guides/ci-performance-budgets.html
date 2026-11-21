@@ -786,7 +786,7 @@ img {
   <pre><code class="language-typescript">import type { BudgetConfig } from &#x27;rn-perf-kit&#x27;;
 
 const config: BudgetConfig = {
-  // App startup to interactive (ms)
+  // Process start -&gt; first usePerfScreen().markReady() (ms)
   startup: {
     LOW: 3000,
     MID: 2000,
@@ -815,7 +815,7 @@ export default config;</code></pre>
 <hr />
 <h2 id="3-using-the-cli"><a href="#3-using-the-cli" class="anchor-link">#</a> 3. Using the CLI</h2>
 <h3 id="budget-checking-rn-perf-check"><a href="#budget-checking-rn-perf-check" class="anchor-link">#</a> Budget Checking (<code>rn-perf check</code>)</h3>
-<p>Evaluates a recorded session against your budget configuration. If any <strong>critical findings</strong> or budget violations occur, the process exits with exit code <code>1</code>, failing the CI step:</p>
+<p>Applies the budgets in your config (<code>.ts</code>, <code>.js</code> or <code>.json</code>, default export) to a recorded session, using the session's device tier. Any budget violation or <strong>critical finding</strong> exits with code <code>1</code>, failing the CI step:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">bash</span>
@@ -833,13 +833,17 @@ rn-perf check --budgets perf.config.ts --report session.json</code></pre>
   <pre><code class="language-text">🔍 rn-perf budget check
 Budgets: perf.config.ts
 
+Device tier: LOW
+
+❌ 2 budget violation(s):
+
+  [fps] 42fps &lt; budget 45fps (tier: LOW)
+  [screen] ProductDetail 940ms &gt; budget 900ms (tier: LOW)
+
 ❌ 2 critical finding(s):
 
-  [fps] 42fps &lt; budget 55fps (tier: LOW)
-  [screen] ProductDetail 940ms &gt; budget 600ms (tier: LOW)
-
   [navigation] Dropped 18/25 frames during Home → ProductDetail
-    72% frame drop rate during transition. Commit time: 121ms.
+    72% drop rate. Commit time: 121ms. JS stall: 0ms.
     💡 Defer heavy component mounts until after transitionEnd.
 
   [render] Render storm: ProductCard rendered 80x in 2s
@@ -847,7 +851,7 @@ Budgets: perf.config.ts
     💡 Check for unstable prop references. Wrap with React.memo() and useCallback.</code></pre>
 </div>
 <h3 id="pr-regression-comparison-rn-perf-compare"><a href="#pr-regression-comparison-rn-perf-compare" class="anchor-link">#</a> PR Regression Comparison (<code>rn-perf compare</code>)</h3>
-<p>Compares performance metrics between the base branch and the current PR branch:</p>
+<p>Compares performance metrics between the base branch and the current PR branch. Exits <code>1</code> when the PR adds critical/warning findings or raises jank % by more than <code>--max-jank-increase</code> points (default 2); add <code>--report-only</code> to only print. Findings are matched without their timestamps, so the same problem in both sessions is not reported as new:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">bash</span>

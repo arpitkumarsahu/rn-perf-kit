@@ -838,7 +838,7 @@ img {
 <p><strong>The HUD does not measure itself.</strong> Its own re-renders are excluded from commits, render causes and findings. To exclude your own debug UI the same way, set <code>MyDebugPanel.__rnPerfKitIgnore = true</code> (works through <code>memo()</code> and <code>forwardRef()</code>).</p>
 <hr />
 <h2 id="4-perftrace"><a href="#4-perftrace" class="anchor-link">#</a> 4. <code>&lt;PerfTrace&gt;</code></h2>
-<p>Lightweight wrapper around React's <code>&lt;Profiler&gt;</code> for targeted subtree measurement.</p>
+<p>Lightweight wrapper around React's <code>&lt;Profiler&gt;</code> for targeted subtree measurement. Each render of the subtree is recorded as a <code>trace</code> event named by <code>id</code> (shown as <code>trace:&lt;id&gt;</code> in Perfetto); it is not counted as an extra commit. Requires a dev or profiling build.</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">tsx</span>
@@ -934,11 +934,11 @@ perf.mark(&#x27;checkpoint-reached&#x27;);</code></pre>
 } from &#x27;rn-perf-kit/adapters&#x27;;</code></pre>
 </div>
 <ul>
-<li><strong><code>installNetworkInterceptor()</code></strong>: Unified <code>XMLHttpRequest</code> interceptor covering both <code>axios</code> and <code>fetch</code>. Redacts query parameters and records response size.</li>
+<li><strong><code>installNetworkInterceptor()</code></strong>: Unified <code>XMLHttpRequest</code> interceptor covering both <code>axios</code> and <code>fetch</code>. Records response size, and redacts query strings and id-like path segments (long numbers, UUIDs, tokens, emails become <code>:id</code>). <code>redactUrl(url)</code> is exported.</li>
 <li><strong><code>uninstallNetworkInterceptor()</code></strong>: Safely removes network hooks if no newer wrapper is layered on top.</li>
 <li><strong><code>reduxPerfMiddleware</code></strong>: Dispatches Redux action types to timeline.</li>
-<li><strong><code>zustandPerf(name, creator)</code></strong>: Records changed store keys.</li>
-<li><strong><code>queryPerf(queryClient)</code></strong>: Subscribes to TanStack QueryCache using a <code>WeakMap</code>, flagging identical refetches with <code>[identical-refetch]</code>.</li>
+<li><strong><code>zustandPerf(name, creator)</code></strong>: Records changed store keys. Supports <code>set(state, true)</code> (replace).</li>
+<li><strong><code>queryPerf(queryClient, { formatKey? })</code></strong>: Subscribes to TanStack QueryCache, flagging identical refetches with <code>[identical-refetch]</code>. Keys are recorded as <code>first-segment(+N)</code> by default because they often contain user data; pass <code>formatKey: (q) =&gt; q.queryHash</code> to record full keys.</li>
 </ul>
 <hr />
 <h2 id="10-analyzers-session-reports"><a href="#10-analyzers-session-reports" class="anchor-link">#</a> 10. Analyzers & Session Reports</h2>
@@ -971,10 +971,10 @@ perf.mark(&#x27;checkpoint-reached&#x27;);</code></pre>
     <span class="code-lang">bash</span>
     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
   </div>
-  <pre><code class="language-bash"># 1. Compare two session reports
-rn-perf compare base.json pr.json
+  <pre><code class="language-bash"># 1. Compare two session reports (exits 1 on new findings or a jank regression)
+rn-perf compare base.json pr.json [--max-jank-increase 2] [--report-only]
 
-# 2. Check a session against performance budgets (exits 1 on critical violation)
+# 2. Apply perf.config budgets to a session (exits 1 on any violation or critical finding)
 rn-perf check --budgets perf.config.ts --report session.json
 
 # 3. Generate interactive HTML performance report

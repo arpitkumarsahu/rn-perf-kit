@@ -779,9 +779,10 @@ img {
 <div class="table-container">
   <table>
     <thead><tr><th>Phase</th><th>Description</th><th>How <code>rn-perf-kit</code> captures it</th></tr></thead>
-    <tbody><tr><td><strong>Tap → Dispatch</strong></td><td>Time between touch event and navigation action trigger</td><td>Intercepts navigation dispatch on <code>navigationRef</code> or Expo Router ref</td></tr><tr><td><strong>Dispatch → First Commit</strong></td><td>Time taken for React to mount the root container of the new route</td><td>Fiber commit hook detects first commit containing new route</td></tr><tr><td><strong>Transition Start → End</strong></td><td>The native/JS slide or fade animation duration</td><td>Screen focus / transition listeners (<code>transitionStart</code>, <code>transitionEnd</code>)</td></tr><tr><td><strong>Content Ready</strong></td><td>When primary data/UI has loaded</td><td>Triggered when <code>markReady()</code> is called from <code>usePerfScreen</code></td></tr><tr><td><strong>Interactive</strong></td><td>Screen is stable with no frames dropped or JS stalls for 300ms</td><td>Timeline analyzer evaluates frame rate & stall sentinel</td></tr></tbody>
+    <tbody><tr><td><strong>Tap → Dispatch</strong></td><td>Time between the navigation action and the state change</td><td>Container <code>__unsafe_action__</code> listener (<code>withNavigationPerf</code> / <code>useExpoRouterPerf</code>)</td></tr><tr><td><strong>Dispatch → First Commit</strong></td><td>Time until React commits the new route</td><td>First React commit after the state change</td></tr><tr><td><strong>Transition Start → End</strong></td><td>The native/JS slide or fade animation duration</td><td>The destination screen's <code>transitionStart</code> / <code>transitionEnd</code>, read from the container on React Navigation 7 / Expo Router (stack navigators only; tabs and drawers have none)</td></tr><tr><td><strong>Content Ready</strong></td><td>When primary data/UI has loaded</td><td><code>usePerfScreen(&lt;route name&gt;).markReady()</code> on the destination screen</td></tr><tr><td><strong>Interactive</strong></td><td>The transition has finished and React has been quiet (no commits) for 250ms</td><td>Recorded automatically; a navigation that never settles is closed after 5s</td></tr></tbody>
   </table>
 </div>
+<p>Navigations are tracked by route <strong>key</strong>, so pushing the same screen with different params (product A → product B) counts as a new navigation.</p>
 <hr />
 <h2 id="setting-up-navigation-instrumentation"><a href="#setting-up-navigation-instrumentation" class="anchor-link">#</a> Setting Up Navigation Instrumentation</h2>
 <h3 id="standard-react-navigation"><a href="#standard-react-navigation" class="anchor-link">#</a> Standard React Navigation</h3>
@@ -815,7 +816,7 @@ export function RootNavigator() {
 import { useExpoRouterPerf } from &#x27;rn-perf-kit/expo-router&#x27;;
 
 export default function Layout() {
-  useExpoRouterPerf(); // Listens to Expo Router navigation container
+  useExpoRouterPerf(); // Listens to Expo Router navigation container: all phases, no per-screen hooks
 
   return &lt;Stack /&gt;;
 }</code></pre>
