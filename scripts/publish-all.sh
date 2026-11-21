@@ -47,7 +47,7 @@ for PKG in "${PACKAGES[@]}"; do
   
   echo "📦 Publishing $PKG_NAME@$PKG_VERSION ($PKG)..."
   cd "$PKG_DIR"
-  npm publish --access public || echo "  ⚠️ Notice: $PKG_NAME@$PKG_VERSION already uploaded or staged."
+  npm publish --access public --ignore-scripts || echo "  ⚠️ Notice: $PKG_NAME@$PKG_VERSION already uploaded or staged."
   echo "  ✓ Handled $PKG_NAME@$PKG_VERSION successfully."
   echo ""
 done
