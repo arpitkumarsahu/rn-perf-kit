@@ -1,0 +1,20 @@
+{
+  "name": "@rn-perf-kit/adapters",
+  "version": "0.1.0",
+  "description": "Store adapters for rn-perf-kit: Redux, Zustand, TanStack Query, fetch",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": { "typecheck": "tsc --noEmit", "lint": "eslint src/" },
+  "peerDependencies": {
+    "@reduxjs/toolkit": ">=1.9.0",
+    "@tanstack/react-query": ">=5.0.0",
+    "zustand": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@reduxjs/toolkit": { "optional": true },
+    "@tanstack/react-query": { "optional": true },
+    "zustand": { "optional": true }
+  },
+  "devDependencies": { "typescript": "^5.3.0" },
+  "dependencies": { "@rn-perf-kit/core": "workspace:*" }
+}
