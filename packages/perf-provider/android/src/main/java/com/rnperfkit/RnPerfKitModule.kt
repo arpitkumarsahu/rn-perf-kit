@@ -41,6 +41,11 @@ class RnPerfKitModule(reactContext: ReactApplicationContext) :
     // Clock: System.nanoTime() to align with JankStats frameStartNanos
     override fun nativeNow(): Double = System.nanoTime() / 1_000_000.0
 
+    // Process.getStartUptimeMillis() and System.nanoTime() both use CLOCK_MONOTONIC,
+    // so the start time is directly comparable with nativeNow().
+    override fun getProcessStartTime(): Double =
+        android.os.Process.getStartUptimeMillis().toDouble()
+
     override fun getDeviceInfo(): WritableMap {
         val ctx = reactApplicationContext
         val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
