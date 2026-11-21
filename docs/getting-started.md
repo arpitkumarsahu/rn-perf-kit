@@ -2,16 +2,18 @@
 
 [![npm version](https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837)](https://www.npmjs.com/package/rn-perf-kit)
 [![npm downloads](https://img.shields.io/npm/dm/rn-perf-kit.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/rn-perf-kit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 This guide walks you through setting up `rn-perf-kit` in your React Native or Expo application in under 5 minutes.
 
-📦 **NPM Package**: [npmjs.com/package/rn-perf-kit](https://www.npmjs.com/package/rn-perf-kit)
+📦 **NPM Package**: [npmjs.com/package/rn-perf-kit](https://www.npmjs.com/package/rn-perf-kit)  
+🐙 **GitHub Repository**: [github.com/arpitkumarsahu/rn-perf-kit](https://github.com/arpitkumarsahu/rn-perf-kit)
 
 ---
 
 ## 1. Installation
 
-Install the package into your project:
+Install the top-level package into your project:
 
 ```bash
 # Using npm
@@ -24,41 +26,47 @@ pnpm add rn-perf-kit
 yarn add rn-perf-kit
 ```
 
-### Expo Projects
-If you use Expo, the included Config Plugin automatically configures Android and iOS build settings:
+### React Native & Expo Autolinking
 
-```json
-// app.json
-{
-  "expo": {
-    "plugins": ["@rn-perf-kit/native"]
-  }
-}
-```
+`rn-perf-kit` ships its native TurboModule (`RnPerfKit`) directly inside the package:
+- **React Native 0.76+**: Autolinking automatically discovers and links the native code for Android (`AndroidX JankStats`) and iOS (`CADisplayLink`). No manual `pod install` edits or Gradle modifications needed.
+- **Expo SDK 52+ / 53+**: Autolinked out-of-the-box via Expo Prebuild / Continuous Native Generation (`npx expo run:android` or `npx expo run:ios`). No custom config plugin required in `app.json`.
 
 ---
 
-## 2. Install the React Fiber Hook (Crucial Step)
+## 2. Register the React Fiber Hook (Crucial Step)
 
-To capture React commit times, component names, and re-render causes, `rn-perf-kit/install` **must be the very first import** in your application entry point before `react` or `react-native` are loaded.
+To capture accurate React commit times, component names, and re-render causes, `rn-perf-kit/install` **must be the very first import** in your application entry point before `react` or `react-native` are loaded.
 
+### Bare React Native
 ```javascript
-// index.js (Bare React Native) or index.ts (Expo)
-import 'rn-perf-kit/install'; // <--- MUST BE LINE 1
+// index.js (Bare React Native) — MUST BE LINE 1
+import 'rn-perf-kit/install';
 
-import { registerRootComponent } from 'expo';
+import { AppRegistry } from 'react-native';
 import App from './src/App';
+import { name as appName } from './app.json';
 
-registerRootComponent(App);
+AppRegistry.registerComponent(appName, () => App);
 ```
 
-> **Why?** React checks for `__REACT_DEVTOOLS_GLOBAL_HOOK__` at module initialization time. Importing this first registers the hook before React creates its internal Fiber renderer.
+### Expo Router
+For Expo Router apps, create a root `index.js` and set `"main": "index.js"` in `package.json`:
+```javascript
+// index.js (Expo Router) — MUST BE LINE 1
+import 'rn-perf-kit/install';
+import 'expo-router/entry';
+```
+
+> **Why?** React checks for `__REACT_DEVTOOLS_GLOBAL_HOOK__` at module initialization time. Importing this first registers the hook before React creates its internal Fiber renderer. In dev builds, `rn-perf-kit` safely chains onto any existing DevTools hook.
 
 ---
 
 ## 3. Wrap Your Root Component
 
-In your root `App.tsx`, wrap your navigation tree with `<PerfProvider>`:
+### Option A: Standard React Navigation (`@react-navigation/native`)
+
+Wrap your navigation container with `<PerfProvider>`. Pass `navigationRef` to `withNavigationPerf` — it returns a cached callback ref that automatically binds listeners when the container mounts:
 
 ```tsx
 import React, { useRef } from 'react';
@@ -79,7 +87,7 @@ export default function App() {
       budgets={{
         startup: { LOW: 3000, MID: 2000, HIGH: 1500 },
         screens: { Home: 800, ProductDetail: 600 },
-        droppedFramesPct: { LOW: 15, MID: 5, HIGH: 2 },
+        minFps: 55,
       }}
       onViolation={(violation) => {
         console.warn('[perf:violation]', violation.message);
@@ -93,6 +101,32 @@ export default function App() {
       </NavigationContainer>
 
       {/* Floating HUD showing live JS/UI FPS, stalls, and active route */}
+      <PerfOverlay position="top-right" />
+    </PerfProvider>
+  );
+}
+```
+
+### Option B: Expo Router (`expo-router`)
+
+In Expo Router projects, use the `useExpoRouterPerf()` hook inside your root layout:
+
+```tsx
+// app/_layout.tsx
+import React from 'react';
+import { Stack } from 'expo-router';
+import { PerfProvider, PerfOverlay } from 'rn-perf-kit';
+import { useExpoRouterPerf } from 'rn-perf-kit/expo-router';
+
+function AppLayout() {
+  useExpoRouterPerf(); // Automatically attaches listeners to Expo Router container
+  return <Stack />;
+}
+
+export default function RootLayout() {
+  return (
+    <PerfProvider enabled={__DEV__}>
+      <AppLayout />
       <PerfOverlay position="top-right" />
     </PerfProvider>
   );
@@ -117,7 +151,7 @@ export function ProductDetailScreen({ route }) {
 
   useEffect(() => {
     if (!isLoading && data) {
-      markReady(); // Measures Time-To-Content-Ready
+      markReady(); // Measures Time-To-Content-Ready (screen:ready:ProductDetail)
     }
   }, [isLoading, data, markReady]);
 
@@ -126,7 +160,7 @@ export function ProductDetailScreen({ route }) {
 ```
 
 ### Wrapping Expensive Subtrees (`<PerfTrace>`)
-Wrap suspect components to record render duration without fiber-hook overhead:
+Wrap suspect components to record render duration:
 
 ```tsx
 import { PerfTrace } from 'rn-perf-kit';
@@ -138,9 +172,20 @@ import { PerfTrace } from 'rn-perf-kit';
 
 ---
 
-## 5. Hooking Up Store Adapters
+## 5. Hooking Up Store & Network Adapters
 
-Link your state stores so the analyzer can pinpoint which action or state key triggered a re-render cascade:
+### Automatic Network Interception (Axios & Fetch)
+`PerfProvider` automatically installs a unified `XMLHttpRequest` interceptor upon mounting when enabled. This covers both `axios` and native `fetch` requests with automatic query string redaction (stripping API keys and sensitive tokens) and response size tracking:
+
+```ts
+// Manual control if using outside PerfProvider:
+import { installNetworkInterceptor, uninstallNetworkInterceptor } from 'rn-perf-kit/adapters';
+
+installNetworkInterceptor();
+```
+
+### State Store Adapters
+Link your state stores so analyzers can pinpoint which action or state key triggered a re-render cascade:
 
 ```typescript
 // Redux Toolkit
@@ -154,7 +199,7 @@ const store = configureStore({
 // Zustand
 import { zustandPerf } from 'rn-perf-kit/adapters';
 
-export const useCartStore = create(
+const useCartStore = create(
   zustandPerf('cart', (set) => ({
     items: [],
     addItem: (item) => set((s) => ({ items: [...s.items, item] })),
@@ -164,11 +209,36 @@ export const useCartStore = create(
 // TanStack Query
 import { queryPerf } from 'rn-perf-kit/adapters';
 
-queryPerf(queryClient);
+queryPerf(queryClient); // Uses WeakMap object tracking and detects identical refetches
 ```
 
 ---
 
-## Next Steps
-- Learn how to diagnose navigation stutter in [**Diagnosing & Fixing Navigation Jank**](./guides/navigation-profiling.md).
-- Understand why components re-render in [**Eliminating Render Storms**](./guides/re-render-analysis.md).
+## 6. Production & Profiling Builds
+
+### Zero Overhead in Production
+When `<PerfProvider enabled={false}>` is set, the timeline ring buffer is dormant (`enabled: false`) and 0 events are recorded. For absolute tree-shaking in production:
+
+```tsx
+const Perf = __DEV__ || process.env.EXPO_PUBLIC_PERF === '1' ? require('rn-perf-kit') : null;
+```
+
+### QA Profiling Builds (React Fabric)
+On React 18.3+ and React 19, commit durations and `actualDuration` profiling require a profiling build of React Native. In Expo / Metro, you can opt in via a Metro alias:
+
+```js
+// metro.config.js
+const { getDefaultConfig } = require('expo/metro-config');
+const config = getDefaultConfig(__dirname);
+
+if (process.env.PERF_PROFILING === '1') {
+  const upstream = config.resolver.resolveRequest;
+  config.resolver.resolveRequest = (context, moduleName, platform) => {
+    const name = moduleName.endsWith('/ReactFabric-prod')
+      ? moduleName.replace(/-prod$/, '-profiling')
+      : moduleName;
+    return (upstream ?? context.resolveRequest)(context, name, platform);
+  };
+}
+module.exports = config;
+```

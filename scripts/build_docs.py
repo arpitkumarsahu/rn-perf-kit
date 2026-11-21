@@ -739,44 +739,44 @@ function filterSearch(query) {
     {
       title: 'Quick Start Installation',
       category: 'Getting Started',
-      desc: '5-minute setup in React Native and Expo, fiber hook registration',
+      desc: '5-minute setup in React Native and Expo, fiber hook registration, autolinking',
       url: root + 'getting-started.html',
-      keywords: 'install setup fiber hook perfprovider expo npm yarn pnpm'
+      keywords: 'install setup fiber hook perfprovider expo router expo-router autolinking npm yarn pnpm new architecture'
     },
     {
       title: 'Navigation Profiling',
       category: 'Guides',
-      desc: '6-phase routing breakdown, mount-during-transition jank detection',
+      desc: '6-phase routing breakdown, Expo Router and React Navigation deferral',
       url: root + 'guides/navigation-profiling.html',
-      keywords: 'navigation jank lag transition stutter defer mount tap dispatch'
+      keywords: 'navigation jank lag transition stutter defer mount tap dispatch expo router expo-router withnavigationperf useexporouterperf'
     },
     {
       title: 'Re-render Analysis',
       category: 'Guides',
       desc: 'Eliminating render storms, wasted re-renders, and selector instability',
       url: root + 'guides/re-render-analysis.html',
-      keywords: 're-render render storm wasted selector redux zustand context'
+      keywords: 're-render render storm wasted selector redux zustand context query tanstack identical refetch'
     },
     {
       title: 'Frame Attribution & Concurrency',
       category: 'Guides',
-      desc: 'Correlate dropped frames with JS commits, stalls, and layout cascades',
+      desc: 'Correlate dropped frames with JS commits, stalls, JankStats, and layout cascades',
       url: root + 'guides/frame-attribution-and-concurrency.html',
-      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect'
+      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect jankstats cadisplaylink clock sync'
     },
     {
       title: 'CI Performance Budgets',
       category: 'Guides',
       desc: 'Automated performance regression checks in GitHub Actions PRs',
       url: root + 'guides/ci-performance-budgets.html',
-      keywords: 'ci budgets github actions regression check cli rn-perf'
+      keywords: 'ci budgets github actions regression check cli rn-perf hardware tiers low mid high'
     },
     {
       title: 'Full API Reference',
       category: 'Reference',
-      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, hooks',
+      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, useExpoRouterPerf, adapters',
       url: root + 'guides/api-reference.html',
-      keywords: 'api reference perfprovider withnavigationperf useperfscreen perftrace'
+      keywords: 'api reference perfprovider withnavigationperf useexporouterperf useperfscreen perftrace network query store analyzers'
     }
   ];
 
@@ -891,7 +891,7 @@ TEMPLATE = """<!DOCTYPE html>
         <a href="{root_rel}index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.1</span>
+          <span class="version-badge">v0.1.2</span>
         </a>
       </div>
       

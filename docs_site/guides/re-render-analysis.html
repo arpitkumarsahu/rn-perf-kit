@@ -491,7 +491,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
         <a href="../index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.1</span>
+          <span class="version-badge">v0.1.2</span>
         </a>
       </div>
       
@@ -547,13 +547,15 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 <p>This guide explains how <code>rn-perf-kit</code> classifies why components re-render, how it distinguishes between <strong>wasted</strong> and <strong>genuine</strong> renders, and how to fix common pitfalls.</p>
 <hr />
 <h2 id="1-render-cause-classification"><a href="#1-render-cause-classification" class="anchor-link">#</a> 1. Render Cause Classification</h2>
-<p><code>rn-perf-kit</code> intercepts fiber commits via the React DevTools hook and compares each fiber with its previous alternate:</p>
+<p><code>rn-perf-kit</code> inspects fiber commits via the versioned React DevTools hook. In <code>deep</code> mode, it traverses rendered fibers using a memory-safe <strong>iterative stack</strong> (capped at 300 fibers per commit) that skips bailed-out subtrees where React did not render (<code>prev &amp;&amp; prev.child === fiber.child</code>).</p>
 <div class="table-container">
   <table>
     <thead><tr><th>Cause</th><th>Classification Criteria</th><th>Is It Wasted?</th></tr></thead>
-    <tbody><tr><td><code>parent-rerender</code></td><td>Props shallow-equal, state unchanged, no context dependency</td><td><strong>YES</strong></td></tr><tr><td><code>unstable-reference</code></td><td>Prop reference changed, but deep content is identical</td><td><strong>YES</strong></td></tr><tr><td><code>state-change</code></td><td>Component hook <code>memoizedState</code> list changed</td><td>No</td></tr><tr><td><code>context-change</code></td><td>Component context dependency value changed</td><td>Depends</td></tr><tr><td><code>store-subscription</code></td><td><code>useSyncExternalStore</code> emitted an update</td><td>Depends</td></tr><tr><td><code>prop-change</code></td><td>Props genuinely differ in value</td><td>No</td></tr></tbody>
+    <tbody><tr><td><code>parent-rerender</code></td><td>Props shallow-equal, state unchanged, no context dependency</td><td><strong>YES</strong></td></tr><tr><td><code>unstable-reference</code></td><td>Same keys and shape, but reference is new (<code>() =&gt; {}</code>, <code>[]</code>, <code>{}</code>)</td><td><strong>YES</strong></td></tr><tr><td><code>state-change</code></td><td>Stateful hook update (<code>useState</code>, <code>useReducer</code>, <code>useSyncExternalStore</code>)</td><td>No</td></tr><tr><td><code>context-change</code></td><td>Component context dependency value changed</td><td>Depends</td></tr><tr><td><code>store-subscription</code></td><td><code>useSyncExternalStore</code> emitted an update</td><td>Depends</td></tr><tr><td><code>prop-change</code></td><td>Props genuinely differ in value or key count</td><td>No</td></tr></tbody>
   </table>
 </div>
+<h3 id="accurate-hook-state-diffing"><a href="#accurate-hook-state-diffing" class="anchor-link">#</a> Accurate Hook State Diffing</h3>
+<p>React clones the internal hook linked list on every render. To avoid falsely classifying every hook-based component as a <code>state-change</code>, <code>rn-perf-kit</code> specifically compares stateful hooks that maintain an update <code>queue</code> (<code>h.queue != null</code>), accurately pinpointing actual state updates.</p>
 <hr />
 <h2 id="2-common-pitfall-unstable-inline-callbacks"><a href="#2-common-pitfall-unstable-inline-callbacks" class="anchor-link">#</a> 2. Common Pitfall: Unstable Inline Callbacks</h2>
 <h3 id="the-problem"><a href="#the-problem" class="anchor-link">#</a> The Problem</h3>
@@ -661,6 +663,19 @@ const activeItems = useCartStore(
   useShallow((state) =&gt; state.items.filter((i) =&gt; i.active))
 );</code></pre>
 </div>
+<hr />
+<h2 id="5-tanstack-query-identical-refetches"><a href="#5-tanstack-query-identical-refetches" class="anchor-link">#</a> 5. TanStack Query Identical Refetches</h2>
+<p>When a query refetches data from the network but receives identical payload contents, re-rendering the screen is wasteful. <code>rn-perf-kit/adapters</code> tracks queries via a <code>WeakMap&lt;object, unknown&gt;</code>. With TanStack Query's default <code>structuralSharing: true</code>, reference equality (<code>prevData === nextData</code>) proves the data didn't change:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">ts</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-ts">import { queryPerf } from &#x27;rn-perf-kit/adapters&#x27;;
+
+queryPerf(queryClient);</code></pre>
+</div>
+<p>When an identical payload is detected, it logs <code>[identical-refetch]</code> on the timeline so the analyzer can alert you to increase <code>staleTime</code>.</p>
       </article>
       <footer class="doc-footer">
         <div class="footer-edit">
@@ -676,6 +691,7 @@ const activeItems = useCartStore(
     <aside class="doc-toc">
       <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
 <li class="toc-l2"><a href="#1-render-cause-classification">1. Render Cause Classification</a></li>
+<li class="toc-l3"><a href="#accurate-hook-state-diffing">Accurate Hook State Diffing</a></li>
 <li class="toc-l2"><a href="#2-common-pitfall-unstable-inline-callbacks">2. Common Pitfall: Unstable Inline Callbacks</a></li>
 <li class="toc-l3"><a href="#the-problem">The Problem</a></li>
 <li class="toc-l3"><a href="#the-finding-from-rn-perf-kit">The Finding from `rn-perf-kit`</a></li>
@@ -687,6 +703,7 @@ const activeItems = useCartStore(
 <li class="toc-l2"><a href="#4-common-pitfall-selector-instability">4. Common Pitfall: Selector Instability</a></li>
 <li class="toc-l3"><a href="#the-problem">The Problem</a></li>
 <li class="toc-l3"><a href="#the-fix-useshallow-or-memoized-selectors">The Fix: `useShallow` or Memoized Selectors</a></li>
+<li class="toc-l2"><a href="#5-tanstack-query-identical-refetches">5. TanStack Query Identical Refetches</a></li>
 </ul></div>
     </aside>
   </div>
@@ -728,44 +745,44 @@ function filterSearch(query) {
     {
       title: 'Quick Start Installation',
       category: 'Getting Started',
-      desc: '5-minute setup in React Native and Expo, fiber hook registration',
+      desc: '5-minute setup in React Native and Expo, fiber hook registration, autolinking',
       url: root + 'getting-started.html',
-      keywords: 'install setup fiber hook perfprovider expo npm yarn pnpm'
+      keywords: 'install setup fiber hook perfprovider expo router expo-router autolinking npm yarn pnpm new architecture'
     },
     {
       title: 'Navigation Profiling',
       category: 'Guides',
-      desc: '6-phase routing breakdown, mount-during-transition jank detection',
+      desc: '6-phase routing breakdown, Expo Router and React Navigation deferral',
       url: root + 'guides/navigation-profiling.html',
-      keywords: 'navigation jank lag transition stutter defer mount tap dispatch'
+      keywords: 'navigation jank lag transition stutter defer mount tap dispatch expo router expo-router withnavigationperf useexporouterperf'
     },
     {
       title: 'Re-render Analysis',
       category: 'Guides',
       desc: 'Eliminating render storms, wasted re-renders, and selector instability',
       url: root + 'guides/re-render-analysis.html',
-      keywords: 're-render render storm wasted selector redux zustand context'
+      keywords: 're-render render storm wasted selector redux zustand context query tanstack identical refetch'
     },
     {
       title: 'Frame Attribution & Concurrency',
       category: 'Guides',
-      desc: 'Correlate dropped frames with JS commits, stalls, and layout cascades',
+      desc: 'Correlate dropped frames with JS commits, stalls, JankStats, and layout cascades',
       url: root + 'guides/frame-attribution-and-concurrency.html',
-      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect'
+      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect jankstats cadisplaylink clock sync'
     },
     {
       title: 'CI Performance Budgets',
       category: 'Guides',
       desc: 'Automated performance regression checks in GitHub Actions PRs',
       url: root + 'guides/ci-performance-budgets.html',
-      keywords: 'ci budgets github actions regression check cli rn-perf'
+      keywords: 'ci budgets github actions regression check cli rn-perf hardware tiers low mid high'
     },
     {
       title: 'Full API Reference',
       category: 'Reference',
-      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, hooks',
+      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, useExpoRouterPerf, adapters',
       url: root + 'guides/api-reference.html',
-      keywords: 'api reference perfprovider withnavigationperf useperfscreen perftrace'
+      keywords: 'api reference perfprovider withnavigationperf useexporouterperf useperfscreen perftrace network query store analyzers'
     }
   ];
 

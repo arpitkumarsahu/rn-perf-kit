@@ -11,7 +11,7 @@ This guide explains how `rn-perf-kit` detects discarded renders, cascading effec
 ### How It Works
 With features like `startTransition`, `useDeferredValue`, and Suspense, React can start rendering a component tree, yield execution to a higher-priority task (like user input), and **discard the previous render work without committing it to the screen**.
 
-While this prevents input lag, on low-end multi-core devices it burns valuable CPU cycles.
+While this prevents input lag, on low-end multi-core devices it burns valuable CPU cycles:
 
 ```
 Keystroke 1 ──► Render SearchResults (interrupted!) ──► DISCARDED
@@ -20,14 +20,21 @@ Keystroke 3 ──► Render SearchResults (committed)   ──► PAINT
 ```
 
 ### How `rn-perf-kit` Detects It
-`rn-perf-kit` registers a token during the component's render phase and checks for its resolution in `useLayoutEffect` (which only runs if committed). Stale tokens that never commit are recorded as discarded renders.
+`rn-perf-kit` provides `useDiscardedRenderTracker(componentName)`:
+1. Each render generates an incremental token recorded in a pending map.
+2. If the render commits to screen, its layout effect immediately resolves and removes the token.
+3. If the render was interrupted or discarded, its token remains unresolved. A low-overhead 200ms sweep aggregates stale tokens by component name and automatically halts once no pending tokens remain.
 
-### The Finding from `rn-perf-kit`
+```tsx
+import { useDiscardedRenderTracker } from 'rn-perf-kit';
+
+export function SearchResults({ query }) {
+  useDiscardedRenderTracker('SearchResults');
+  // ... render ...
+}
 ```
-[WARNING] SearchResults: 4 discarded renders
-  React started 4 renders of SearchResults that were discarded without committing.
-  💡 Check for expensive operations or heavy subtrees inside startTransition.
-```
+
+> **Note on React StrictMode:** In development builds, React StrictMode renders components twice and commits once, which creates one artificial discard. `rn-perf-kit` suppresses duplicate pairs under 2ms.
 
 ---
 
@@ -64,7 +71,11 @@ const title = `Product ${productId}`;
 
 ## 3. Frame Attribution (JS vs. Native-Side Jank)
 
-When Android `FrameMetrics` or iOS `CADisplayLink` reports that a frame took > 16.6ms (at 60 Hz), `rn-perf-kit` checks the timeline for overlapping JS thread activity:
+### High-Precision Monotonic Clock Synchronization
+To correlate native frame drops with JavaScript commits, both runtimes must share a precise time reference:
+- **Android**: Collects hardware frame metrics via **AndroidX JankStats** on the `System.nanoTime()` clock.
+- **iOS**: Samples display refresh via **`CADisplayLink`** on the `CACurrentMediaTime()` clock.
+- **Clock Sync Engine**: `perfClock` establishes monotonic offset alignment upon app initialization, converting native frame timestamps to the JavaScript timeline.
 
 ```
 Timeline:

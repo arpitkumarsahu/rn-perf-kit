@@ -16,11 +16,49 @@ When a user taps a button to open a new screen, the transition moves through six
 
 | Phase | Description | How `rn-perf-kit` captures it |
 |---|---|---|
-| **Tap → Dispatch** | Time between touch event and navigation action trigger | Intercepts `__unsafe_action__` on `navigationRef` |
+| **Tap → Dispatch** | Time between touch event and navigation action trigger | Intercepts navigation dispatch on `navigationRef` or Expo Router ref |
 | **Dispatch → First Commit** | Time taken for React to mount the root container of the new route | Fiber commit hook detects first commit containing new route |
 | **Transition Start → End** | The native/JS slide or fade animation duration | Screen focus / transition listeners (`transitionStart`, `transitionEnd`) |
 | **Content Ready** | When primary data/UI has loaded | Triggered when `markReady()` is called from `usePerfScreen` |
 | **Interactive** | Screen is stable with no frames dropped or JS stalls for 300ms | Timeline analyzer evaluates frame rate & stall sentinel |
+
+---
+
+## Setting Up Navigation Instrumentation
+
+### Standard React Navigation
+
+`withNavigationPerf(ref)` returns a cached callback ref that automatically binds all required state listeners when `<NavigationContainer>` mounts:
+
+```tsx
+import { NavigationContainer } from '@react-navigation/native';
+import { withNavigationPerf } from 'rn-perf-kit/navigation';
+
+export function RootNavigator() {
+  const navRef = useRef(null);
+
+  return (
+    <NavigationContainer ref={withNavigationPerf(navRef)}>
+      {/* Screens */}
+    </NavigationContainer>
+  );
+}
+```
+
+### Expo Router
+
+In Expo Router apps, call `useExpoRouterPerf()` inside your root `_layout.tsx`:
+
+```tsx
+import { Stack } from 'expo-router';
+import { useExpoRouterPerf } from 'rn-perf-kit/expo-router';
+
+export default function Layout() {
+  useExpoRouterPerf(); // Listens to Expo Router navigation container
+
+  return <Stack />;
+}
+```
 
 ---
 

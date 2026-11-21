@@ -491,7 +491,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
         <a href="index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.1</span>
+          <span class="version-badge">v0.1.2</span>
         </a>
       </div>
       
@@ -545,11 +545,13 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
         <h1 id="getting-started-with-rn-perf-kit"><a href="#getting-started-with-rn-perf-kit" class="anchor-link">#</a> Getting Started with rn-perf-kit</h1>
 <p><a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version" /></a></p>
 <p><a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/npm/dm/rn-perf-kit.svg?style=flat-square&color=blue" alt="npm downloads" /></a></p>
+<p><a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT" /></a></p>
 <p>This guide walks you through setting up <code>rn-perf-kit</code> in your React Native or Expo application in under 5 minutes.</p>
 <p>📦 <strong>NPM Package</strong>: <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer">npmjs.com/package/rn-perf-kit</a></p>
+<p>🐙 <strong>GitHub Repository</strong>: <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">github.com/arpitkumarsahu/rn-perf-kit</a></p>
 <hr />
 <h2 id="1-installation"><a href="#1-installation" class="anchor-link">#</a> 1. Installation</h2>
-<p>Install the package into your project:</p>
+<p>Install the top-level package into your project:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">bash</span>
@@ -564,40 +566,46 @@ pnpm add rn-perf-kit
 # Using yarn
 yarn add rn-perf-kit</code></pre>
 </div>
-<h3 id="expo-projects"><a href="#expo-projects" class="anchor-link">#</a> Expo Projects</h3>
-<p>If you use Expo, the included Config Plugin automatically configures Android and iOS build settings:</p>
-<div class="code-block-wrapper">
-  <div class="code-block-header">
-    <span class="code-lang">json</span>
-    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-  </div>
-  <pre><code class="language-json">// app.json
-{
-  &quot;expo&quot;: {
-    &quot;plugins&quot;: [&quot;@rn-perf-kit/native&quot;]
-  }
-}</code></pre>
-</div>
+<h3 id="react-native-expo-autolinking"><a href="#react-native-expo-autolinking" class="anchor-link">#</a> React Native & Expo Autolinking</h3>
+<p><code>rn-perf-kit</code> ships its native TurboModule (<code>RnPerfKit</code>) directly inside the package:</p>
+<ul>
+<li><strong>React Native 0.76+</strong>: Autolinking automatically discovers and links the native code for Android (<code>AndroidX JankStats</code>) and iOS (<code>CADisplayLink</code>). No manual <code>pod install</code> edits or Gradle modifications needed.</li>
+<li><strong>Expo SDK 52+ / 53+</strong>: Autolinked out-of-the-box via Expo Prebuild / Continuous Native Generation (<code>npx expo run:android</code> or <code>npx expo run:ios</code>). No custom config plugin required in <code>app.json</code>.</li>
+</ul>
 <hr />
-<h2 id="2-install-the-react-fiber-hook-crucial-step"><a href="#2-install-the-react-fiber-hook-crucial-step" class="anchor-link">#</a> 2. Install the React Fiber Hook (Crucial Step)</h2>
-<p>To capture React commit times, component names, and re-render causes, <code>rn-perf-kit/install</code> <strong>must be the very first import</strong> in your application entry point before <code>react</code> or <code>react-native</code> are loaded.</p>
+<h2 id="2-register-the-react-fiber-hook-crucial-step"><a href="#2-register-the-react-fiber-hook-crucial-step" class="anchor-link">#</a> 2. Register the React Fiber Hook (Crucial Step)</h2>
+<p>To capture accurate React commit times, component names, and re-render causes, <code>rn-perf-kit/install</code> <strong>must be the very first import</strong> in your application entry point before <code>react</code> or <code>react-native</code> are loaded.</p>
+<h3 id="bare-react-native"><a href="#bare-react-native" class="anchor-link">#</a> Bare React Native</h3>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">javascript</span>
     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
   </div>
-  <pre><code class="language-javascript">// index.js (Bare React Native) or index.ts (Expo)
-import &#x27;rn-perf-kit/install&#x27;; // &lt;--- MUST BE LINE 1
+  <pre><code class="language-javascript">// index.js (Bare React Native) — MUST BE LINE 1
+import &#x27;rn-perf-kit/install&#x27;;
 
-import { registerRootComponent } from &#x27;expo&#x27;;
+import { AppRegistry } from &#x27;react-native&#x27;;
 import App from &#x27;./src/App&#x27;;
+import { name as appName } from &#x27;./app.json&#x27;;
 
-registerRootComponent(App);</code></pre>
+AppRegistry.registerComponent(appName, () =&gt; App);</code></pre>
 </div>
-<blockquote><p><strong>Why?</strong> React checks for <code>__REACT_DEVTOOLS_GLOBAL_HOOK__</code> at module initialization time. Importing this first registers the hook before React creates its internal Fiber renderer.</p></blockquote>
+<h3 id="expo-router"><a href="#expo-router" class="anchor-link">#</a> Expo Router</h3>
+<p>For Expo Router apps, create a root <code>index.js</code> and set <code>&quot;main&quot;: &quot;index.js&quot;</code> in <code>package.json</code>:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">javascript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-javascript">// index.js (Expo Router) — MUST BE LINE 1
+import &#x27;rn-perf-kit/install&#x27;;
+import &#x27;expo-router/entry&#x27;;</code></pre>
+</div>
+<blockquote><p><strong>Why?</strong> React checks for <code>__REACT_DEVTOOLS_GLOBAL_HOOK__</code> at module initialization time. Importing this first registers the hook before React creates its internal Fiber renderer. In dev builds, <code>rn-perf-kit</code> safely chains onto any existing DevTools hook.</p></blockquote>
 <hr />
 <h2 id="3-wrap-your-root-component"><a href="#3-wrap-your-root-component" class="anchor-link">#</a> 3. Wrap Your Root Component</h2>
-<p>In your root <code>App.tsx</code>, wrap your navigation tree with <code>&lt;PerfProvider&gt;</code>:</p>
+<h3 id="option-a-standard-react-navigation-react-navigationnative"><a href="#option-a-standard-react-navigation-react-navigationnative" class="anchor-link">#</a> Option A: Standard React Navigation (<code>@react-navigation/native</code>)</h3>
+<p>Wrap your navigation container with <code>&lt;PerfProvider&gt;</code>. Pass <code>navigationRef</code> to <code>withNavigationPerf</code> — it returns a cached callback ref that automatically binds listeners when the container mounts:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">tsx</span>
@@ -621,7 +629,7 @@ export default function App() {
       budgets={{
         startup: { LOW: 3000, MID: 2000, HIGH: 1500 },
         screens: { Home: 800, ProductDetail: 600 },
-        droppedFramesPct: { LOW: 15, MID: 5, HIGH: 2 },
+        minFps: 55,
       }}
       onViolation={(violation) =&gt; {
         console.warn(&#x27;[perf:violation]&#x27;, violation.message);
@@ -635,6 +643,33 @@ export default function App() {
       &lt;/NavigationContainer&gt;
 
       {/* Floating HUD showing live JS/UI FPS, stalls, and active route */}
+      &lt;PerfOverlay position=&quot;top-right&quot; /&gt;
+    &lt;/PerfProvider&gt;
+  );
+}</code></pre>
+</div>
+<h3 id="option-b-expo-router-expo-router"><a href="#option-b-expo-router-expo-router" class="anchor-link">#</a> Option B: Expo Router (<code>expo-router</code>)</h3>
+<p>In Expo Router projects, use the <code>useExpoRouterPerf()</code> hook inside your root layout:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">// app/_layout.tsx
+import React from &#x27;react&#x27;;
+import { Stack } from &#x27;expo-router&#x27;;
+import { PerfProvider, PerfOverlay } from &#x27;rn-perf-kit&#x27;;
+import { useExpoRouterPerf } from &#x27;rn-perf-kit/expo-router&#x27;;
+
+function AppLayout() {
+  useExpoRouterPerf(); // Automatically attaches listeners to Expo Router container
+  return &lt;Stack /&gt;;
+}
+
+export default function RootLayout() {
+  return (
+    &lt;PerfProvider enabled={__DEV__}&gt;
+      &lt;AppLayout /&gt;
       &lt;PerfOverlay position=&quot;top-right&quot; /&gt;
     &lt;/PerfProvider&gt;
   );
@@ -659,7 +694,7 @@ export function ProductDetailScreen({ route }) {
 
   useEffect(() =&gt; {
     if (!isLoading &amp;&amp; data) {
-      markReady(); // Measures Time-To-Content-Ready
+      markReady(); // Measures Time-To-Content-Ready (screen:ready:ProductDetail)
     }
   }, [isLoading, data, markReady]);
 
@@ -667,7 +702,7 @@ export function ProductDetailScreen({ route }) {
 }</code></pre>
 </div>
 <h3 id="wrapping-expensive-subtrees-perftrace"><a href="#wrapping-expensive-subtrees-perftrace" class="anchor-link">#</a> Wrapping Expensive Subtrees (<code>&lt;PerfTrace&gt;</code>)</h3>
-<p>Wrap suspect components to record render duration without fiber-hook overhead:</p>
+<p>Wrap suspect components to record render duration:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">tsx</span>
@@ -680,8 +715,21 @@ export function ProductDetailScreen({ route }) {
 &lt;/PerfTrace&gt;</code></pre>
 </div>
 <hr />
-<h2 id="5-hooking-up-store-adapters"><a href="#5-hooking-up-store-adapters" class="anchor-link">#</a> 5. Hooking Up Store Adapters</h2>
-<p>Link your state stores so the analyzer can pinpoint which action or state key triggered a re-render cascade:</p>
+<h2 id="5-hooking-up-store-network-adapters"><a href="#5-hooking-up-store-network-adapters" class="anchor-link">#</a> 5. Hooking Up Store & Network Adapters</h2>
+<h3 id="automatic-network-interception-axios-fetch"><a href="#automatic-network-interception-axios-fetch" class="anchor-link">#</a> Automatic Network Interception (Axios & Fetch)</h3>
+<p><code>PerfProvider</code> automatically installs a unified <code>XMLHttpRequest</code> interceptor upon mounting when enabled. This covers both <code>axios</code> and native <code>fetch</code> requests with automatic query string redaction (stripping API keys and sensitive tokens) and response size tracking:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">ts</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-ts">// Manual control if using outside PerfProvider:
+import { installNetworkInterceptor, uninstallNetworkInterceptor } from &#x27;rn-perf-kit/adapters&#x27;;
+
+installNetworkInterceptor();</code></pre>
+</div>
+<h3 id="state-store-adapters"><a href="#state-store-adapters" class="anchor-link">#</a> State Store Adapters</h3>
+<p>Link your state stores so analyzers can pinpoint which action or state key triggered a re-render cascade:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">typescript</span>
@@ -698,7 +746,7 @@ const store = configureStore({
 // Zustand
 import { zustandPerf } from &#x27;rn-perf-kit/adapters&#x27;;
 
-export const useCartStore = create(
+const useCartStore = create(
   zustandPerf(&#x27;cart&#x27;, (set) =&gt; ({
     items: [],
     addItem: (item) =&gt; set((s) =&gt; ({ items: [...s.items, item] })),
@@ -708,14 +756,41 @@ export const useCartStore = create(
 // TanStack Query
 import { queryPerf } from &#x27;rn-perf-kit/adapters&#x27;;
 
-queryPerf(queryClient);</code></pre>
+queryPerf(queryClient); // Uses WeakMap object tracking and detects identical refetches</code></pre>
 </div>
 <hr />
-<h2 id="next-steps"><a href="#next-steps" class="anchor-link">#</a> Next Steps</h2>
-<ul>
-<li>Learn how to diagnose navigation stutter in <a href="./guides/navigation-profiling.html" ><strong>Diagnosing & Fixing Navigation Jank</strong></a>.</li>
-<li>Understand why components re-render in <a href="./guides/re-render-analysis.html" ><strong>Eliminating Render Storms</strong></a>.</li>
-</ul>
+<h2 id="6-production-profiling-builds"><a href="#6-production-profiling-builds" class="anchor-link">#</a> 6. Production & Profiling Builds</h2>
+<h3 id="zero-overhead-in-production"><a href="#zero-overhead-in-production" class="anchor-link">#</a> Zero Overhead in Production</h3>
+<p>When <code>&lt;PerfProvider enabled={false}&gt;</code> is set, the timeline ring buffer is dormant (<code>enabled: false</code>) and 0 events are recorded. For absolute tree-shaking in production:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">const Perf = __DEV__ || process.env.EXPO_PUBLIC_PERF === &#x27;1&#x27; ? require(&#x27;rn-perf-kit&#x27;) : null;</code></pre>
+</div>
+<h3 id="qa-profiling-builds-react-fabric"><a href="#qa-profiling-builds-react-fabric" class="anchor-link">#</a> QA Profiling Builds (React Fabric)</h3>
+<p>On React 18.3+ and React 19, commit durations and <code>actualDuration</code> profiling require a profiling build of React Native. In Expo / Metro, you can opt in via a Metro alias:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">js</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-js">// metro.config.js
+const { getDefaultConfig } = require(&#x27;expo/metro-config&#x27;);
+const config = getDefaultConfig(__dirname);
+
+if (process.env.PERF_PROFILING === &#x27;1&#x27;) {
+  const upstream = config.resolver.resolveRequest;
+  config.resolver.resolveRequest = (context, moduleName, platform) =&gt; {
+    const name = moduleName.endsWith(&#x27;/ReactFabric-prod&#x27;)
+      ? moduleName.replace(/-prod$/, &#x27;-profiling&#x27;)
+      : moduleName;
+    return (upstream ?? context.resolveRequest)(context, name, platform);
+  };
+}
+module.exports = config;</code></pre>
+</div>
       </article>
       <footer class="doc-footer">
         <div class="footer-edit">
@@ -731,14 +806,22 @@ queryPerf(queryClient);</code></pre>
     <aside class="doc-toc">
       <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
 <li class="toc-l2"><a href="#1-installation">1. Installation</a></li>
-<li class="toc-l3"><a href="#expo-projects">Expo Projects</a></li>
-<li class="toc-l2"><a href="#2-install-the-react-fiber-hook-crucial-step">2. Install the React Fiber Hook (Crucial Step)</a></li>
+<li class="toc-l3"><a href="#react-native-expo-autolinking">React Native & Expo Autolinking</a></li>
+<li class="toc-l2"><a href="#2-register-the-react-fiber-hook-crucial-step">2. Register the React Fiber Hook (Crucial Step)</a></li>
+<li class="toc-l3"><a href="#bare-react-native">Bare React Native</a></li>
+<li class="toc-l3"><a href="#expo-router">Expo Router</a></li>
 <li class="toc-l2"><a href="#3-wrap-your-root-component">3. Wrap Your Root Component</a></li>
+<li class="toc-l3"><a href="#option-a-standard-react-navigation-react-navigationnative">Option A: Standard React Navigation (`@react-navigation/native`)</a></li>
+<li class="toc-l3"><a href="#option-b-expo-router-expo-router">Option B: Expo Router (`expo-router`)</a></li>
 <li class="toc-l2"><a href="#4-instrumenting-screens-and-subtrees">4. Instrumenting Screens and Subtrees</a></li>
 <li class="toc-l3"><a href="#tracking-screen-readiness-useperfscreen">Tracking Screen Readiness (`usePerfScreen`)</a></li>
 <li class="toc-l3"><a href="#wrapping-expensive-subtrees-perftrace">Wrapping Expensive Subtrees (``)</a></li>
-<li class="toc-l2"><a href="#5-hooking-up-store-adapters">5. Hooking Up Store Adapters</a></li>
-<li class="toc-l2"><a href="#next-steps">Next Steps</a></li>
+<li class="toc-l2"><a href="#5-hooking-up-store-network-adapters">5. Hooking Up Store & Network Adapters</a></li>
+<li class="toc-l3"><a href="#automatic-network-interception-axios-fetch">Automatic Network Interception (Axios & Fetch)</a></li>
+<li class="toc-l3"><a href="#state-store-adapters">State Store Adapters</a></li>
+<li class="toc-l2"><a href="#6-production-profiling-builds">6. Production & Profiling Builds</a></li>
+<li class="toc-l3"><a href="#zero-overhead-in-production">Zero Overhead in Production</a></li>
+<li class="toc-l3"><a href="#qa-profiling-builds-react-fabric">QA Profiling Builds (React Fabric)</a></li>
 </ul></div>
     </aside>
   </div>
@@ -780,44 +863,44 @@ function filterSearch(query) {
     {
       title: 'Quick Start Installation',
       category: 'Getting Started',
-      desc: '5-minute setup in React Native and Expo, fiber hook registration',
+      desc: '5-minute setup in React Native and Expo, fiber hook registration, autolinking',
       url: root + 'getting-started.html',
-      keywords: 'install setup fiber hook perfprovider expo npm yarn pnpm'
+      keywords: 'install setup fiber hook perfprovider expo router expo-router autolinking npm yarn pnpm new architecture'
     },
     {
       title: 'Navigation Profiling',
       category: 'Guides',
-      desc: '6-phase routing breakdown, mount-during-transition jank detection',
+      desc: '6-phase routing breakdown, Expo Router and React Navigation deferral',
       url: root + 'guides/navigation-profiling.html',
-      keywords: 'navigation jank lag transition stutter defer mount tap dispatch'
+      keywords: 'navigation jank lag transition stutter defer mount tap dispatch expo router expo-router withnavigationperf useexporouterperf'
     },
     {
       title: 'Re-render Analysis',
       category: 'Guides',
       desc: 'Eliminating render storms, wasted re-renders, and selector instability',
       url: root + 'guides/re-render-analysis.html',
-      keywords: 're-render render storm wasted selector redux zustand context'
+      keywords: 're-render render storm wasted selector redux zustand context query tanstack identical refetch'
     },
     {
       title: 'Frame Attribution & Concurrency',
       category: 'Guides',
-      desc: 'Correlate dropped frames with JS commits, stalls, and layout cascades',
+      desc: 'Correlate dropped frames with JS commits, stalls, JankStats, and layout cascades',
       url: root + 'guides/frame-attribution-and-concurrency.html',
-      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect'
+      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect jankstats cadisplaylink clock sync'
     },
     {
       title: 'CI Performance Budgets',
       category: 'Guides',
       desc: 'Automated performance regression checks in GitHub Actions PRs',
       url: root + 'guides/ci-performance-budgets.html',
-      keywords: 'ci budgets github actions regression check cli rn-perf'
+      keywords: 'ci budgets github actions regression check cli rn-perf hardware tiers low mid high'
     },
     {
       title: 'Full API Reference',
       category: 'Reference',
-      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, hooks',
+      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, useExpoRouterPerf, adapters',
       url: root + 'guides/api-reference.html',
-      keywords: 'api reference perfprovider withnavigationperf useperfscreen perftrace'
+      keywords: 'api reference perfprovider withnavigationperf useexporouterperf useperfscreen perftrace network query store analyzers'
     }
   ];
 

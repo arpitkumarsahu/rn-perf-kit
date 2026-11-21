@@ -8,13 +8,13 @@ Performance regressions usually happen gradually — a slow import here, an un-m
 
 ## 1. Device Tiers (LOW / MID / HIGH)
 
-A budget that makes sense on a modern iPhone 15 Pro will fail on a $90 Android Go device. `rn-perf-kit` automatically classifies devices at startup:
+A budget that makes sense on a modern iPhone 16 Pro will fail on a $90 Android Go device. `rn-perf-kit` automatically classifies devices at startup based on hardware telemetry:
 
 | Device Tier | Criteria | Frame Budget (60Hz) |
 |---|---|:---:|
 | **`LOW`** | Low-RAM flag active (`isLowRamDevice`), or RAM < 3 GB, or CPU cores ≤ 4 | 16.6 ms |
-| **`MID`** | 3 GB – 6 GB RAM, 6–8 CPU cores | 16.6 ms |
-| **`HIGH`** | RAM ≥ 6 GB, 8+ CPU cores, MediaPerformanceClass ≥ 31 | 16.6 ms / 8.3 ms (120Hz) |
+| **`MID`** | 3 GB – 6 GB RAM, 6–8 CPU cores (Android) / RAM < 5.8 GB (iOS) | 16.6 ms |
+| **`HIGH`** | RAM ≥ 6 GB, 8+ CPU cores, MediaPerformanceClass ≥ 31 (Android) / RAM ≥ 5.8 GB (iOS) | 16.6 ms / 8.3 ms (120Hz) |
 
 ---
 
@@ -58,7 +58,7 @@ export default config;
 ## 3. Using the CLI
 
 ### Budget Checking (`rn-perf check`)
-Evaluates a recorded session against your budget configuration. If any **critical findings** are detected, the process exits with a non-zero exit code (`1`), automatically failing the CI step:
+Evaluates a recorded session against your budget configuration. If any **critical findings** or budget violations occur, the process exits with exit code `1`, failing the CI step:
 
 ```bash
 # In CI:
@@ -71,6 +71,9 @@ rn-perf check --budgets perf.config.ts --report session.json
 Budgets: perf.config.ts
 
 ❌ 2 critical finding(s):
+
+  [fps] 42fps < budget 55fps (tier: LOW)
+  [screen] ProductDetail 940ms > budget 600ms (tier: LOW)
 
   [navigation] Dropped 18/25 frames during Home → ProductDetail
     72% frame drop rate during transition. Commit time: 121ms.

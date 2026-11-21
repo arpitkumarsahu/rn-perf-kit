@@ -11,16 +11,17 @@ Complete reference for all components, hooks, utilities, and CLI commands provid
 4. [`<PerfTrace>`](#4-perftrace)
 5. [`usePerfScreen`](#5-useperfscreen)
 6. [`useDiscardedRenderTracker`](#6-usediscardedrendertracker)
-7. [`withNavigationPerf`](#7-withnavigationperf)
+7. [Navigation Hooks & Adapters](#7-navigation-hooks--adapters)
 8. [`perf` Tracing Utility](#8-perf-tracing-utility)
-9. [Store Adapters](#9-store-adapters)
-10. [CLI Commands](#10-cli-commands)
+9. [Store & Network Adapters](#9-store--network-adapters)
+10. [Analyzers & Session Reports](#10-analyzers--session-reports)
+11. [CLI Commands](#11-cli-commands)
 
 ---
 
 ## 1. `rn-perf-kit/install`
 
-Installs the React DevTools Fiber hook before React loads. **Must be the very first line of your entry point.**
+Installs the React DevTools Fiber hook before React initializes. **Must be the very first import in your application entry point.**
 
 ```typescript
 import 'rn-perf-kit/install';
@@ -30,7 +31,7 @@ import 'rn-perf-kit/install';
 
 ## 2. `<PerfProvider>`
 
-Top-level context provider that configures and manages the lifecycle of the timeline, stall detectors, and fiber hooks.
+Top-level context provider that manages timeline lifecycle, high-precision clock synchronization, frame listeners, and budget monitoring.
 
 ```tsx
 <PerfProvider
@@ -48,20 +49,24 @@ Top-level context provider that configures and manages the lifecycle of the time
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `enabled` | `boolean` | `false` | Enables/disables all monitoring. Tree-shakeable when `false`. |
-| `mode` | `'light' \| 'deep'` | `'light'` | `'light'` (<2% CPU, frames/stalls/sampled commits); `'deep'` (full fiber walk & prop diffing). |
+| `enabled` | `boolean` | `false` | Enables/disables all collectors. When `false`, the timeline stays dormant with 0 CPU overhead. |
+| `mode` | `'light' \| 'deep'` | `'light'` | `'light'` (<2% CPU, frames/stalls/sampled commits); `'deep'` (bounded iterative fiber walking & prop diffing). |
 | `budgets` | `BudgetConfig` | `undefined` | Hardware-tier aware budget thresholds. |
 | `onViolation`| `(v) => void` | `undefined` | Callback fired when a budget violation is detected. |
-| `deviceTier` | `'LOW' \| 'MID' \| 'HIGH'` | Auto | Overrides device tier classification for testing. |
+| `deviceTier` | `'LOW' \| 'MID' \| 'HIGH'` | Auto | Overrides device hardware classification. |
 
 ---
 
 ## 3. `<PerfOverlay>`
 
-Floating, on-device HUD displaying live performance statistics.
+Floating, on-device HUD displaying live JS FPS (via `requestAnimationFrame`), UI FPS (via native hardware frame emitter), JS thread stalls, and the active route.
 
 ```tsx
-<PerfOverlay position="top-right" disabled={false} />
+<PerfOverlay
+  position="top-right"
+  disabled={false}
+  insets={{ top: 48, bottom: 34 }}
+/>
 ```
 
 ### Props
@@ -69,7 +74,8 @@ Floating, on-device HUD displaying live performance statistics.
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `position` | `'top-right' \| 'top-left' \| 'bottom-right' \| 'bottom-left'` | `'top-right'` | Screen corner placement. |
-| `disabled` | `boolean` | `false` | Hides the HUD. |
+| `disabled` | `boolean` | `false` | Hides HUD and halts all internal timers and animation frame loops. |
+| `insets` | `{ top: number; bottom: number }` | Auto | Safe area insets (pass `useSafeAreaInsets()` from `react-native-safe-area-context`). Defaults to `StatusBar.currentHeight`. |
 
 ---
 
@@ -93,13 +99,13 @@ Hook for tracking screen readiness and Time-To-Content-Ready.
 const { markReady } = usePerfScreen(screenName: string);
 ```
 
-- **`markReady()`**: Call when primary data and UI elements have completed loading.
+- **`markReady()`**: Call when primary data and UI elements have completed loading. Dispatches a `screen:ready:<screenName>` mark on the timeline.
 
 ---
 
 ## 6. `useDiscardedRenderTracker`
 
-Detects interim renders that were started by Concurrent React but discarded without committing.
+Detects renders started by Concurrent React that were discarded before committing to screen.
 
 ```tsx
 useDiscardedRenderTracker(componentName: string);
@@ -107,16 +113,29 @@ useDiscardedRenderTracker(componentName: string);
 
 ---
 
-## 7. `withNavigationPerf`
+## 7. Navigation Hooks & Adapters
 
-Wraps a React Navigation container reference to instrument routing lifecycle events.
+### `withNavigationPerf(ref)` (React Navigation)
+Wraps a `useRef` pointing to `NavigationContainer`. Returns a cached callback ref that automatically binds listeners when the container mounts:
 
 ```tsx
 import { withNavigationPerf } from 'rn-perf-kit/navigation';
 
+const navigationRef = useRef(null);
 <NavigationContainer ref={withNavigationPerf(navigationRef)}>
-  ...
-</NavigationContainer>
+```
+
+### `useExpoRouterPerf()` (Expo Router)
+Hook for Expo Router applications. Automatically attaches listeners to Expo Router's navigation container:
+
+```tsx
+// app/_layout.tsx
+import { useExpoRouterPerf } from 'rn-perf-kit/expo-router';
+
+export default function RootLayout() {
+  useExpoRouterPerf();
+  return <Stack />;
+}
 ```
 
 ---
@@ -138,27 +157,51 @@ perf.mark('checkpoint-reached');
 
 ---
 
-## 9. Store Adapters
+## 9. Store & Network Adapters
 
 Import from `rn-perf-kit/adapters`:
 
 ```typescript
 import {
+  installNetworkInterceptor,
+  uninstallNetworkInterceptor,
   reduxPerfMiddleware,
   zustandPerf,
   queryPerf,
-  installFetchInterceptor
 } from 'rn-perf-kit/adapters';
 ```
 
+- **`installNetworkInterceptor()`**: Unified `XMLHttpRequest` interceptor covering both `axios` and `fetch`. Redacts query parameters and records response size.
+- **`uninstallNetworkInterceptor()`**: Safely removes network hooks if no newer wrapper is layered on top.
 - **`reduxPerfMiddleware`**: Dispatches Redux action types to timeline.
 - **`zustandPerf(name, creator)`**: Records changed store keys.
-- **`queryPerf(queryClient)`**: Subscribes to TanStack QueryCache and flags identical refetches.
-- **`installFetchInterceptor()`**: Intercepts `global.fetch` with automatic URL parameter redaction.
+- **`queryPerf(queryClient)`**: Subscribes to TanStack QueryCache using a `WeakMap`, flagging identical refetches with `[identical-refetch]`.
 
 ---
 
-## 10. CLI Commands
+## 10. Analyzers & Session Reports
+
+Import from `rn-perf-kit`:
+
+```typescript
+import {
+  generateJsonReport,
+  generatePerfettoTrace,
+  getDeviceReportInfo,
+  analyzeNavigation,
+  analyzeRenderCauses,
+  analyzeFrameAttribution,
+  analyzeCascades,
+} from 'rn-perf-kit';
+```
+
+- **`generateJsonReport(options)`**: Generates complete session JSON and automatically populates `findings` using all 4 analyzers.
+- **`generatePerfettoTrace()`**: Exports timeline events in Perfetto / Chrome Trace Event Format for viewing in `ui.perfetto.dev`.
+- **`getDeviceReportInfo()`**: Helper retrieving classified tier, OS, and hardware metrics from native telemetry.
+
+---
+
+## 11. CLI Commands
 
 Executed via `npx rn-perf` or `node packages/cli/dist/cli.js`:
 

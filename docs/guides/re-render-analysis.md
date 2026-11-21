@@ -8,16 +8,19 @@ This guide explains how `rn-perf-kit` classifies why components re-render, how i
 
 ## 1. Render Cause Classification
 
-`rn-perf-kit` intercepts fiber commits via the React DevTools hook and compares each fiber with its previous alternate:
+`rn-perf-kit` inspects fiber commits via the versioned React DevTools hook. In `deep` mode, it traverses rendered fibers using a memory-safe **iterative stack** (capped at 300 fibers per commit) that skips bailed-out subtrees where React did not render (`prev && prev.child === fiber.child`).
 
 | Cause | Classification Criteria | Is It Wasted? |
 |---|---|:---:|
 | `parent-rerender` | Props shallow-equal, state unchanged, no context dependency | **YES** |
-| `unstable-reference` | Prop reference changed, but deep content is identical | **YES** |
-| `state-change` | Component hook `memoizedState` list changed | No |
+| `unstable-reference` | Same keys and shape, but reference is new (`() => {}`, `[]`, `{}`) | **YES** |
+| `state-change` | Stateful hook update (`useState`, `useReducer`, `useSyncExternalStore`) | No |
 | `context-change` | Component context dependency value changed | Depends |
 | `store-subscription` | `useSyncExternalStore` emitted an update | Depends |
-| `prop-change` | Props genuinely differ in value | No |
+| `prop-change` | Props genuinely differ in value or key count | No |
+
+### Accurate Hook State Diffing
+React clones the internal hook linked list on every render. To avoid falsely classifying every hook-based component as a `state-change`, `rn-perf-kit` specifically compares stateful hooks that maintain an update `queue` (`h.queue != null`), accurately pinpointing actual state updates.
 
 ---
 
@@ -112,3 +115,17 @@ const activeItems = useCartStore(
   useShallow((state) => state.items.filter((i) => i.active))
 );
 ```
+
+---
+
+## 5. TanStack Query Identical Refetches
+
+When a query refetches data from the network but receives identical payload contents, re-rendering the screen is wasteful. `rn-perf-kit/adapters` tracks queries via a `WeakMap<object, unknown>`. With TanStack Query's default `structuralSharing: true`, reference equality (`prevData === nextData`) proves the data didn't change:
+
+```ts
+import { queryPerf } from 'rn-perf-kit/adapters';
+
+queryPerf(queryClient);
+```
+
+When an identical payload is detected, it logs `[identical-refetch]` on the timeline so the analyzer can alert you to increase `staleTime`.
