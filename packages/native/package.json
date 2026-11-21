@@ -1,6 +1,6 @@
 {
   "name": "@rn-perf-kit/native",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Native TurboModule specifications and helpers for rn-perf-kit",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -17,7 +17,7 @@
     "@types/react-native": "^0.73.0"
   },
   "dependencies": {
-    "@rn-perf-kit/core": "^0.1.3"
+    "@rn-perf-kit/core": "^0.1.4"
   },
   "author": "Arpit Kumar Sahu <aarpitkumarsahu99@gmail.com>",
   "license": "MIT",
