@@ -60,9 +60,11 @@ export function analyzeNavigation(events: PerfEvent[], ctx: AnalyzerContext): Na
   }
 
   for (const [_navId, s] of navSessions) {
+    if (!s.fromRoute) s.fromRoute = '(app start)';
     const { fromRoute, toRoute, tapAt, dispatchAt, firstCommitAt, transitionStartAt, transitionEndAt, contentReadyAt, interactiveAt } = s;
     const tsStart = transitionStartAt ?? firstCommitAt ?? dispatchAt ?? 0;
-    const tsEnd = transitionEndAt ?? contentReadyAt ?? 0;
+    // Tabs/drawers report no transition: judge the window up to `interactive` instead
+    const tsEnd = transitionEndAt ?? interactiveAt ?? contentReadyAt ?? 0;
 
     let dropped = 0, total = 0, jsStall = 0;
     const commitsDuring: Array<{ dur: number; source: string }> = [];
