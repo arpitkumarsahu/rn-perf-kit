@@ -29,5 +29,24 @@ jobs:
       - name: Run Integration Simulation & Generate Report
         run: node scripts/run-integration-tests.js --output session.json
 
-      - name: Enforce Performance Budgets via CLI
-        run: node packages/cli/dist/cli.js check --budgets perf.config.ts --report session.json
+      - name: Build CLI
+        run: pnpm --filter @rn-perf-kit/cli build
+
+      # The JankLab session contains deliberately planted bugs, so a working
+      # budget check MUST fail on it. This step passes only if the CLI exits
+      # non-zero AND names the planted problems; a CLI that stops catching
+      # them (or crashes) fails the workflow.
+      - name: Budget CLI catches the planted JankLab bugs
+        run: |
+          set +e
+          node packages/cli/dist/cli.js check --budgets perf.config.ts --report session.json > budget-check.txt 2>&1
+          status=$?
+          set -e
+          cat budget-check.txt
+          if [ "$status" -ne 1 ]; then
+            echo "::error::Expected the budget check to fail with exit 1 on planted bugs, got exit $status"
+            exit 1
+          fi
+          grep -q "Dropped 18/25 frames during Home → ProductDetail" budget-check.txt || { echo "::error::Navigation jank finding missing"; exit 1; }
+          grep -q "Render storm: ProductCard" budget-check.txt || { echo "::error::Render storm finding missing"; exit 1; }
+          echo "Budget CLI correctly rejected the planted bugs."
