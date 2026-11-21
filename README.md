@@ -12,6 +12,7 @@
 🌐 **Documentation Site**: [arpitkumarsahu.github.io/rn-perf-kit](https://arpitkumarsahu.github.io/rn-perf-kit/)  
 📦 **NPM Registry**: [npmjs.com/package/rn-perf-kit](https://www.npmjs.com/package/rn-perf-kit)  
 🐙 **GitHub Repository**: [github.com/arpitkumarsahu/rn-perf-kit](https://github.com/arpitkumarsahu/rn-perf-kit)  
+📖 **Guides & Docs**: [Documentation Suite](./docs/README.md)  
 🧪 **Demo App**: [JankLab Playground](./example/README.md)
 
 ---

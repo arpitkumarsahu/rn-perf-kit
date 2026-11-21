@@ -2,6 +2,7 @@
 """
 rn-perf-kit Static Documentation Generator
 Compiles Markdown files in docs/ into a search-engine-optimized, responsive HTML site.
+Styles and scripts are embedded directly into each HTML file to guarantee zero cache issues.
 """
 
 import os
@@ -91,6 +92,30 @@ def slugify(text):
     text = re.sub(r'[^\w\s-]', '', text.lower()).strip()
     return re.sub(r'[-\s]+', '-', text)
 
+def inline_format(text):
+    # Inline code: `code`
+    text = re.sub(r'`([^`]+)`', lambda m: f"<code>{html.escape(m.group(1))}</code>", text)
+    # Images with links: [![alt](img)](url)
+    text = re.sub(
+        r'\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)',
+        r'<a href="\3" target="_blank" rel="noopener noreferrer"><img src="\2" alt="\1" /></a>',
+        text
+    )
+    # Images: ![alt](img)
+    text = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', r'<img src="\2" alt="\1" />', text)
+    # Standard Markdown Links: [text](url)
+    def link_repl(m):
+        link_text = m.group(1)
+        url = m.group(2)
+        external = 'target="_blank" rel="noopener noreferrer"' if url.startswith("http") else ''
+        return f'<a href="{url}" {external}>{link_text}</a>'
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', link_repl, text)
+    # Bold: **text**
+    text = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', text)
+    # Italic: *text*
+    text = re.sub(r'(?<!\*)\*([^*]+)\*(?!\*)', r'<em>\1</em>', text)
+    return text
+
 def parse_markdown_to_html(md_content, current_dest):
     # Normalize link destinations: .md -> .html
     def rewrite_links(match):
@@ -148,7 +173,6 @@ def parse_markdown_to_html(md_content, current_dest):
             continue
         elif in_table:
             in_table = False
-            # Render accumulated table
             if len(table_rows) >= 2:
                 headers = [c.strip() for c in table_rows[0].strip("|").split("|")]
                 th_html = "".join(f"<th>{inline_format(h)}</th>" for h in headers)
@@ -215,30 +239,6 @@ def parse_markdown_to_html(md_content, current_dest):
 
     return "\n".join(html_lines), toc_items
 
-def inline_format(text):
-    # Inline code: `code`
-    text = re.sub(r'`([^`]+)`', lambda m: f"<code>{html.escape(m.group(1))}</code>", text)
-    # Images with links: [![alt](img)](url)
-    text = re.sub(
-        r'\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)',
-        r'<a href="\3" target="_blank" rel="noopener noreferrer"><img src="\2" alt="\1" /></a>',
-        text
-    )
-    # Images: ![alt](img)
-    text = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', r'<img src="\2" alt="\1" />', text)
-    # Standard Markdown Links: [text](url)
-    def link_repl(m):
-        link_text = m.group(1)
-        url = m.group(2)
-        external = 'target="_blank" rel="noopener noreferrer"' if url.startswith("http") else ''
-        return f'<a href="{url}" {external}>{link_text}</a>'
-    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', link_repl, text)
-    # Bold: **text**
-    text = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', text)
-    # Italic: *text*
-    text = re.sub(r'(?<!\*)\*([^*]+)\*(?!\*)', r'<em>\1</em>', text)
-    return text
-
 def build_sidebar(current_dest, root_rel):
     categories = {}
     for p in PAGES:
@@ -267,149 +267,18 @@ def build_toc(toc_items):
     toc_html.append('</ul></div>')
     return "\n".join(toc_html)
 
-TEMPLATE = """<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title}</title>
-  <meta name="description" content="{description}">
-  <meta name="keywords" content="{keywords}">
-  <meta name="author" content="Arpit Kumar Sahu">
-  <link rel="canonical" href="https://arpitkumarsahu.github.io/rn-perf-kit/{dest}">
-
-  <!-- OpenGraph / Social Metadata for Google & Sharing -->
-  <meta property="og:type" content="article">
-  <meta property="og:title" content="{title}">
-  <meta property="og:description" content="{description}">
-  <meta property="og:url" content="https://arpitkumarsahu.github.io/rn-perf-kit/{dest}">
-  <meta property="og:site_name" content="rn-perf-kit Documentation">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{title}">
-  <meta name="twitter:description" content="{description}">
-
-  <!-- Schema.org JSON-LD Structured Data for Google Search -->
-  <script type="application/ld+json">
-  {{
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "rn-perf-kit",
-    "operatingSystem": "Android, iOS",
-    "applicationCategory": "DeveloperApplication",
-    "description": "Deep performance profiling toolkit for React Native apps focused on budget Android devices.",
-    "author": {{
-      "@type": "Person",
-      "name": "Arpit Kumar Sahu"
-    }},
-    "offers": {{
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    }},
-    "url": "https://www.npmjs.com/package/rn-perf-kit"
-  }}
-  </script>
-
-  <script>
-    window.DOCS_ROOT = "{root_rel}";
-  </script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{root_rel}assets/styles.css">
-</head>
-<body>
-  <!-- Top Global Navbar -->
-  <header class="top-nav">
-    <div class="nav-container">
-      <div class="nav-left">
-        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <a href="{root_rel}index.html" class="nav-logo">
-          <span class="logo-icon">⚡</span>
-          <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.1</span>
-        </a>
-      </div>
-      
-      <!-- Search Component -->
-      <div class="nav-search">
-        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
-        </svg>
-        <input type="text" id="docSearch" placeholder="Search guides, components, APIs... (Press / to search)" oninput="filterSearch(this.value)" autocomplete="off">
-        <div id="searchResults" class="search-results-dropdown"></div>
-      </div>
-
-      <div class="nav-right">
-        <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
-          <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
-        </a>
-        <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
-          <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-          </svg>
-          <span>GitHub</span>
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Documentation Container -->
-  <div class="doc-layout">
-    <!-- Sidebar -->
-    <aside class="doc-sidebar" id="docSidebar">
-      <div class="sidebar-inner">
-        {sidebar_html}
-      </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="doc-main">
-      <article class="doc-content">
-        {article_html}
-      </article>
-      <footer class="doc-footer">
-        <div class="footer-edit">
-          <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">
-            Edit this guide on GitHub →
-          </a>
-        </div>
-        <p class="footer-copy">MIT Licensed © 2026 Arpit Kumar Sahu. Built for React Native performance excellence.</p>
-      </footer>
-    </main>
-
-    <!-- Table of Contents Sidebar -->
-    <aside class="doc-toc">
-      {toc_html}
-    </aside>
-  </div>
-
-  <script src="{root_rel}assets/script.js"></script>
-</body>
-</html>
-"""
-
-def generate_css():
-    return """/* ==============================================================================
-   rn-perf-kit Documentation Dark-First Theme
-   ============================================================================== */
-
+def get_css():
+    return """
 :root {
   --bg-primary: #0a0e17;
   --bg-surface: #111827;
   --bg-surface-elevated: #1f2937;
   --border-color: #1f293d;
-  --border-highlight: #38bdf8;
   --text-primary: #f3f4f6;
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
   --accent-cyan: #38bdf8;
   --accent-blue: #60a5fa;
-  --accent-green: #34d399;
-  --accent-warning: #fbbf24;
   --code-bg: #030712;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -430,7 +299,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: rgba(10, 14, 23, 0.92);
+  background-color: rgba(10, 14, 23, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   height: 64px;
@@ -442,9 +311,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 100%;
+  height: 64px;
 }
-.nav-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.nav-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .nav-logo {
   display: flex;
   align-items: center;
@@ -465,30 +334,28 @@ body {
   font-family: var(--font-mono);
 }
 
-/* ── Fixed Search Bar Styling ───────────────────────────────────────────── */
+/* ── Fixed Sized Search Box ─────────────────────────────────────────────── */
 .nav-search {
   position: relative;
   flex: 1;
-  max-width: 480px;
-  margin: 0 28px;
-  display: flex;
-  align-items: center;
+  max-width: 440px;
+  height: 38px;
+  margin: 0 24px;
 }
-.search-icon {
+.search-icon-img {
   position: absolute;
   left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 11px;
   width: 16px;
   height: 16px;
-  color: #6b7280;
   pointer-events: none;
   z-index: 2;
+  opacity: 0.6;
 }
 .nav-search input {
   width: 100%;
   height: 38px;
-  padding: 0 14px 0 36px;
+  padding: 0 14px 0 38px;
   border-radius: 8px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -496,30 +363,30 @@ body {
   font-size: 0.88rem;
   font-family: var(--font-sans);
   transition: all 0.2s ease;
+  outline: none;
 }
 .nav-search input:focus {
-  outline: none;
   border-color: var(--accent-cyan);
   background-color: #0b0f19;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
 }
 .nav-search input::placeholder {
   color: var(--text-muted);
 }
 
-/* ── Modern Search Dropdown ─────────────────────────────────────────────── */
+/* ── Dropdown Overlay ───────────────────────────────────────────────────── */
 .search-results-dropdown {
   display: none;
   position: absolute;
-  top: calc(100% + 8px);
+  top: 46px;
   left: 0;
   right: 0;
   background: #111827;
   border: 1px solid #1f293d;
-  border-radius: 10px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  z-index: 1000;
-  max-height: 420px;
+  border-radius: 8px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  z-index: 9999;
+  max-height: 380px;
   overflow-y: auto;
   padding: 6px;
 }
@@ -553,9 +420,7 @@ body {
   font-weight: 600;
   color: #38bdf8 !important;
 }
-.search-item:hover .search-item-title {
-  color: #60a5fa !important;
-}
+.search-item:hover .search-item-title { color: #60a5fa !important; }
 .search-item-category {
   font-size: 0.7rem;
   background: rgba(255, 255, 255, 0.08);
@@ -577,7 +442,7 @@ body {
 }
 
 /* ── Top Nav Right ──────────────────────────────────────────────────────── */
-.nav-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .nav-badge-link { display: flex; align-items: center; }
 .nav-github-link {
   display: flex;
@@ -837,8 +702,8 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 }
 """
 
-def generate_js():
-    return """// Copy code snippet helper
+def get_js():
+    return """
 function copyCode(btn) {
   const code = btn.closest('.code-block-wrapper').querySelector('code').innerText;
   navigator.clipboard.writeText(code).then(() => {
@@ -848,13 +713,11 @@ function copyCode(btn) {
   });
 }
 
-// Mobile sidebar toggle
 function toggleSidebar() {
   const sidebar = document.getElementById('docSidebar');
   sidebar.classList.toggle('open');
 }
 
-// Client-side quick search filtering
 function filterSearch(query) {
   const dropdown = document.getElementById('searchResults');
   if (!query || query.trim().length < 2) {
@@ -944,7 +807,6 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Keyboard shortcuts: '/' or 'Cmd+K' / 'Ctrl+K' to focus search
 document.addEventListener('keydown', (e) => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
     e.preventDefault();
@@ -960,7 +822,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Click outside to close search dropdown
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.nav-search')) {
     const dropdown = document.getElementById('searchResults');
@@ -969,18 +830,147 @@ document.addEventListener('click', (e) => {
 });
 """
 
+TEMPLATE = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content="{description}">
+  <meta name="keywords" content="{keywords}">
+  <meta name="author" content="Arpit Kumar Sahu">
+  <link rel="canonical" href="https://arpitkumarsahu.github.io/rn-perf-kit/{dest}">
+
+  <!-- OpenGraph Metadata -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{title}">
+  <meta property="og:description" content="{description}">
+  <meta property="og:url" content="https://arpitkumarsahu.github.io/rn-perf-kit/{dest}">
+  <meta property="og:site_name" content="rn-perf-kit Documentation">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{title}">
+  <meta name="twitter:description" content="{description}">
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "rn-perf-kit",
+    "operatingSystem": "Android, iOS",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Deep performance profiling toolkit for React Native apps focused on budget Android devices.",
+    "author": {{
+      "@type": "Person",
+      "name": "Arpit Kumar Sahu"
+    }},
+    "url": "https://www.npmjs.com/package/rn-perf-kit"
+  }}
+  </script>
+
+  <script>
+    window.DOCS_ROOT = "{root_rel}";
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+{embedded_css}
+  </style>
+</head>
+<body>
+  <!-- Top Global Navbar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-left">
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="{root_rel}index.html" class="nav-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-title">rn-perf-kit</span>
+          <span class="version-badge">v0.1.1</span>
+        </a>
+      </div>
+      
+      <!-- Search Component -->
+      <div class="nav-search">
+        <svg class="search-icon-img" width="16" height="16" viewBox="0 0 20 20" fill="#6b7280" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+        </svg>
+        <input type="text" id="docSearch" placeholder="Search guides, components, APIs... (Press / to search)" oninput="filterSearch(this.value)" autocomplete="off">
+        <div id="searchResults" class="search-results-dropdown"></div>
+      </div>
+
+      <div class="nav-right">
+        <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
+          <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
+        </a>
+        <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
+          <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Documentation Container -->
+  <div class="doc-layout">
+    <!-- Sidebar -->
+    <aside class="doc-sidebar" id="docSidebar">
+      <div class="sidebar-inner">
+        {sidebar_html}
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="doc-main">
+      <article class="doc-content">
+        {article_html}
+      </article>
+      <footer class="doc-footer">
+        <div class="footer-edit">
+          <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">
+            Edit this guide on GitHub →
+          </a>
+        </div>
+        <p class="footer-copy">MIT Licensed © 2026 Arpit Kumar Sahu. Built for React Native performance excellence.</p>
+      </footer>
+    </main>
+
+    <!-- Table of Contents Sidebar -->
+    <aside class="doc-toc">
+      {toc_html}
+    </aside>
+  </div>
+
+  <script>
+{embedded_js}
+  </script>
+</body>
+</html>
+"""
+
 def main():
     print(f"Building rn-perf-kit documentation site in {OUT_DIR}...")
     if OUT_DIR.exists():
         shutil.rmtree(OUT_DIR)
     OUT_DIR.mkdir(parents=True)
 
+    css_content = get_css()
+    js_content = get_js()
+
+    # Also keep standalone assets for any external references
     assets_dir = OUT_DIR / "assets"
     assets_dir.mkdir(parents=True)
     with open(assets_dir / "styles.css", "w") as f:
-        f.write(generate_css())
+        f.write(css_content)
     with open(assets_dir / "script.js", "w") as f:
-        f.write(generate_js())
+        f.write(js_content)
 
     for page in PAGES:
         src_path = page["src"]
@@ -995,7 +985,6 @@ def main():
         with open(src_path, "r", encoding="utf-8") as f:
             raw_md = f.read()
 
-        # Calculate relative path to root for assets/links
         depth = len(Path(dest_rel).parts) - 1
         root_rel = "../" * depth if depth > 0 else ""
 
@@ -1011,7 +1000,9 @@ def main():
             root_rel=root_rel,
             sidebar_html=sidebar_html,
             article_html=article_html,
-            toc_html=toc_html
+            toc_html=toc_html,
+            embedded_css=css_content,
+            embedded_js=js_content
         )
 
         with open(out_file, "w", encoding="utf-8") as f:
@@ -1019,7 +1010,6 @@ def main():
 
         print(f"  ✓ Rendered {dest_rel}")
 
-    # Add .nojekyll so GitHub Pages doesn't ignore files
     with open(OUT_DIR / ".nojekyll", "w") as f:
         f.write("")
 
