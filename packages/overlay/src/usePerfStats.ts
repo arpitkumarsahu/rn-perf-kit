@@ -6,9 +6,6 @@ import { useState, useEffect, useRef } from 'react';
 import { timeline } from '@rn-perf-kit/core';
 import type { PerfEvent } from '@rn-perf-kit/core';
 
-const UPDATE_INTERVAL_MS = 500;
-const FPS_WINDOW_MS = 1000;
-
 export interface PerfStats {
   jsFps: number;
   uiFps: number;
@@ -17,33 +14,72 @@ export interface PerfStats {
   currentRoute: string;
 }
 
-export function usePerfStats(): PerfStats {
+export function usePerfStats(enabled = true): PerfStats {
   const [stats, setStats] = useState<PerfStats>({
-    jsFps: 60, uiFps: 60, stallCount: 0, jankFrameCount: 0, currentRoute: '',
+    jsFps: 60,
+    uiFps: 60,
+    stallCount: 0,
+    jankFrameCount: 0,
+    currentRoute: '',
   });
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const routeRef = useRef('');
 
   useEffect(() => {
-    timerRef.current = setInterval(() => {
+    return timeline.on('nav', (e) => {
+      if (e.type === 'nav') {
+        routeRef.current = e.route;
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    let rafFrames = 0;
+    let rafId = 0;
+    const loop = () => {
+      rafFrames++;
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
+
+    let refreshRateHz = 60;
+    try {
+      const { NativePerfKit } = require('@rn-perf-kit/native');
+      refreshRateHz = NativePerfKit?.getDeviceInfo?.()?.refreshRateHz ?? 60;
+    } catch {}
+
+    let last = timeline.now();
+    const iv = setInterval(() => {
       const now = timeline.now();
-      const recent = timeline.recent(FPS_WINDOW_MS * 2);
-      const frames = recent.filter(
-        (e): e is Extract<PerfEvent, { type: 'frame' }> => e.type === 'frame' && e.t >= now - FPS_WINDOW_MS
+      const elapsed = now - last;
+      const jsFps =
+        elapsed > 0 ? Math.min(refreshRateHz, Math.round((rafFrames * 1000) / elapsed)) : 60;
+      rafFrames = 0;
+      last = now;
+
+      // Native frames arrive in 250 ms batches, so count the window [now-1250, now-250]
+      const frameEvents = timeline.query(now - 1250, now - 250).filter(
+        (e): e is Extract<PerfEvent, { type: 'frame' }> => e.type === 'frame'
       );
-      const stalls = recent.filter((e) => e.type === 'stall' && e.t >= now - 5000);
-      const jankFrames = frames.filter((f) => f.janky);
-      const navEvents = recent.filter((e) => e.type === 'nav').slice(-1);
-      const currentRoute = navEvents.length > 0 && navEvents[0].type === 'nav' ? navEvents[0].route : '';
+      const jankFrames = frameEvents.filter((f) => f.janky);
+      const stalls = timeline.recent(5000).filter((e) => e.type === 'stall');
+
       setStats({
-        jsFps: Math.min(60, 60 - stalls.length * 5),
-        uiFps: Math.min(60, frames.length),
+        jsFps,
+        uiFps: Math.min(refreshRateHz, frameEvents.length),
         stallCount: stalls.length,
         jankFrameCount: jankFrames.length,
-        currentRoute,
+        currentRoute: routeRef.current,
       });
-    }, UPDATE_INTERVAL_MS);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, []);
+    }, 500);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearInterval(iv);
+    };
+  }, [enabled]);
 
   return stats;
 }

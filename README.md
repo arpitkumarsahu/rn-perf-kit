@@ -67,6 +67,7 @@ import 'rn-perf-kit/install';
 
 ### 2. Wrap your app
 
+#### Standard React Navigation:
 ```tsx
 // App.tsx
 import React, { useRef } from 'react';
@@ -93,6 +94,29 @@ export default function App() {
       </NavigationContainer>
 
       {/* Floating HUD showing live JS/UI FPS, stalls, and active screen */}
+      <PerfOverlay position="top-right" />
+    </PerfProvider>
+  );
+}
+```
+
+#### Expo Router:
+```tsx
+// app/_layout.tsx
+import { Stack } from 'expo-router';
+import { PerfProvider, PerfOverlay } from 'rn-perf-kit';
+import { useExpoRouterPerf } from 'rn-perf-kit/expo-router';
+
+function AppLayout() {
+  useExpoRouterPerf(); // Automatically attaches listeners to Expo Router container
+
+  return <Stack />;
+}
+
+export default function Root() {
+  return (
+    <PerfProvider enabled={__DEV__}>
+      <AppLayout />
       <PerfOverlay position="top-right" />
     </PerfProvider>
   );
@@ -199,19 +223,43 @@ rn-perf html session.json --output report.html
 
 | Mode | Overhead | Use case |
 |---|---|---|
-| `disabled` | Zero (tree-shakeable) | Production builds |
+| `disabled` | Zero (dormant timeline, 0 events recorded) | Production builds |
 | `light` | < 1–2% CPU | QA, dogfood, internal releases |
 | `deep` | Measurable, time-boxed | Local dev, targeted debugging |
+
+### Production Recommendation
+While `<PerfProvider enabled={false}>` keeps all hooks dormant, in production builds you can bypass importing:
+```tsx
+const Perf = __DEV__ || process.env.EXPO_PUBLIC_PERF === '1' ? require('rn-perf-kit') : null;
+```
+
+For QA profiling builds, render timing (`PerfTrace`, commit durations) requires a dev or profiling build of React Native. For Expo and React Native, you can alias to React Fabric's profiling bundle:
+```js
+// metro.config.js
+const { getDefaultConfig } = require('expo/metro-config');
+const config = getDefaultConfig(__dirname);
+
+if (process.env.PERF_PROFILING === '1') {
+  const upstream = config.resolver.resolveRequest;
+  config.resolver.resolveRequest = (context, moduleName, platform) => {
+    const name = moduleName.endsWith('/ReactFabric-prod')
+      ? moduleName.replace(/-prod$/, '-profiling')
+      : moduleName;
+    return (upstream ?? context.resolveRequest)(context, name, platform);
+  };
+}
+module.exports = config;
+```
 
 ---
 
 ## Requirements
 
-- React Native 0.73+
-- New Architecture (Fabric + TurboModules) recommended
+- React Native 0.76+ (New Architecture enabled)
+- React 18.3+ or React 19+
 - Android API 24+ (AndroidX JankStats & FrameMetrics support)
-- iOS 13+ (`CADisplayLink`, `NSProcessInfo.thermalState`)
-- Expo SDK 50+ (Config plugin included: `@rn-perf-kit/native`)
+- iOS 13.4+ (`CADisplayLink`, `NSProcessInfo.thermalState`)
+- Expo SDK 52+ / 53+ (Autolinked automatically without extra plugins)
 
 ---
 

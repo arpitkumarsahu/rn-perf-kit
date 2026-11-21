@@ -1,6 +1,6 @@
 {
   "name": "rn-perf-kit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Deep performance profiling toolkit for React Native apps",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -8,29 +8,48 @@
     ".": "./src/index.ts",
     "./install": "./src/install.ts",
     "./navigation": "./src/navigation.ts",
-    "./adapters": "./src/adapters.ts"
+    "./adapters": "./src/adapters.ts",
+    "./expo-router": "./src/navigation.ts"
+  },
+  "files": [
+    "src",
+    "android",
+    "ios",
+    "RnPerfKit.podspec",
+    "react-native.config.js",
+    "!android/build",
+    "!ios/build"
+  ],
+  "codegenConfig": {
+    "name": "RnPerfKitSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.rnperfkit"
+    }
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck",
     "lint": "eslint src/"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-native": ">=0.73.0"
+    "react": ">=18.3.0",
+    "react-native": ">=0.76.0"
   },
   "devDependencies": {
     "typescript": "^5.3.0",
     "@types/react": "^18.0.0"
   },
   "dependencies": {
-    "@rn-perf-kit/core": "^0.1.1",
-    "@rn-perf-kit/native": "^0.1.1",
-    "@rn-perf-kit/react": "^0.1.1",
-    "@rn-perf-kit/navigation": "^0.1.1",
-    "@rn-perf-kit/adapters": "^0.1.1",
-    "@rn-perf-kit/analyzers": "^0.1.1",
-    "@rn-perf-kit/overlay": "^0.1.1",
-    "@rn-perf-kit/reporters": "^0.1.1"
+    "@rn-perf-kit/core": "^0.1.2",
+    "@rn-perf-kit/native": "^0.1.2",
+    "@rn-perf-kit/react": "^0.1.2",
+    "@rn-perf-kit/navigation": "^0.1.2",
+    "@rn-perf-kit/adapters": "^0.1.2",
+    "@rn-perf-kit/analyzers": "^0.1.2",
+    "@rn-perf-kit/overlay": "^0.1.2",
+    "@rn-perf-kit/reporters": "^0.1.2"
   },
   "author": "Arpit Kumar Sahu <aarpitkumarsahu99@gmail.com>",
   "license": "MIT",
@@ -57,6 +76,7 @@
     "budget-android",
     "react-navigation",
     "navigation",
+    "expo-router",
     "re-render",
     "wasted-renders",
     "fiber-devtools",

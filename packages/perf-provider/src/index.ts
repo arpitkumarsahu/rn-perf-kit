@@ -6,3 +6,16 @@ export { PerfTrace, usePerfScreen, useDiscardedRenderTracker } from '@rn-perf-ki
 export { timeline, perfClock } from '@rn-perf-kit/core';
 export type { PerfEvent, DeviceTier, BudgetConfig, BudgetViolation } from '@rn-perf-kit/core';
 export { generateJsonReport, generatePerfettoTrace, serializeReport } from '@rn-perf-kit/reporters';
+export {
+  analyzeNavigation,
+  analyzeRenderCauses,
+  analyzeFrameAttribution,
+  analyzeCascades,
+} from '@rn-perf-kit/analyzers';
+export {
+  withNavigationPerf,
+  installNavigationListeners,
+  useNavigationPerf,
+  useExpoRouterPerf,
+} from '@rn-perf-kit/navigation';
+export { getDeviceReportInfo } from './device-info';

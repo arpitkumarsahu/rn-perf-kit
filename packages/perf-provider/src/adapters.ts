@@ -1,3 +1,9 @@
-export { reduxPerfMiddleware, zustandPerf, queryPerf, installFetchInterceptor } from '@rn-perf-kit/adapters';
-
-=== PACKAGE B: example/ (JankLab) ===
+export {
+  reduxPerfMiddleware,
+  zustandPerf,
+  queryPerf,
+  installNetworkInterceptor,
+  uninstallNetworkInterceptor,
+  installFetchInterceptor,
+  uninstallFetchInterceptor,
+} from '@rn-perf-kit/adapters';

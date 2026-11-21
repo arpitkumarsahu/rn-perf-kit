@@ -3,6 +3,8 @@
  * Budgets are tier-aware: LOW / MID / HIGH device classifications.
  */
 
+import { perfClock } from './clock';
+
 export type DeviceTier = 'LOW' | 'MID' | 'HIGH';
 
 export interface TieredBudget {
@@ -86,14 +88,16 @@ export class BudgetEngine {
     if (budget === undefined) return null;
     if (type !== 'fps' && actual <= budget) return null;
 
+    const unit = type === 'fps' ? 'fps' : type === 'dropped-frames' ? '%' : 'ms';
+    const op = type === 'fps' ? '<' : '>';
     const violation: BudgetViolation = {
       type,
       budget,
       actual,
       tier: this.tier,
       route: budgetKey,
-      message: `[${type}]${budgetKey ? ` ${budgetKey}` : ''} ${actual.toFixed(0)}ms > budget ${budget}ms (tier: ${this.tier})`,
-      t: t ?? Date.now(),
+      message: `[${type}]${budgetKey ? ` ${budgetKey}` : ''} ${actual.toFixed(0)}${unit} ${op} budget ${budget}${unit} (tier: ${this.tier})`,
+      t: t ?? perfClock.jsNow(),
     };
     this.violations.push(violation);
     this.onViolation?.(violation);

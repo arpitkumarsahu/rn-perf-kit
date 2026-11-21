@@ -6,13 +6,22 @@
  *   <NavigationContainer ref={withNavigationPerf(navigationRef)}>
  */
 import type { NavigationContainerRef, ParamListBase } from '@react-navigation/core';
-import { startNavSession, recordNavPhase, getActiveNavSession } from './nav-state';
-import { timeline } from '@rn-perf-kit/core';
+import { startNavSession, recordNavPhase } from './nav-state';
 
 type NavRef = NavigationContainerRef<ParamListBase>;
+const cache = new WeakMap<object, (instance: NavRef | null) => void>();
 
-export function withNavigationPerf(ref: React.RefObject<NavRef>): React.RefObject<NavRef> {
-  return ref;
+export function withNavigationPerf(ref: { current: NavRef | null }) {
+  const existing = cache.get(ref);
+  if (existing) return existing;
+  let cleanup: (() => void) | undefined;
+  const callbackRef = (instance: NavRef | null) => {
+    ref.current = instance;
+    cleanup?.();
+    cleanup = instance ? installNavigationListeners(instance) : undefined;
+  };
+  cache.set(ref, callbackRef);
+  return callbackRef;
 }
 
 export function installNavigationListeners(nav: NavRef): () => void {
@@ -30,5 +39,8 @@ export function installNavigationListeners(nav: NavRef): () => void {
     recordNavPhase('tap');
   });
 
-  return () => { unsubscribeState(); unsubscribeAction(); };
+  return () => {
+    unsubscribeState();
+    unsubscribeAction();
+  };
 }

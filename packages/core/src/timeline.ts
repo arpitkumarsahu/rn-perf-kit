@@ -16,11 +16,12 @@ export interface TimelineOptions extends RingBufferOptions {
 class Timeline {
   private buffer: RingBuffer;
   private listeners = new Map<PerfEventType | '*', Set<EventListener>>();
-  private _enabled = true;
+  // Default to false: zero overhead until PerfProvider explicitly enables it
+  private _enabled = false;
 
   constructor(options: TimelineOptions = {}) {
     this.buffer = new RingBuffer(options);
-    this._enabled = options.enabled ?? true;
+    this._enabled = options.enabled ?? false;
   }
 
   get enabled(): boolean {
@@ -80,5 +81,5 @@ class Timeline {
   }
 }
 
-export const timeline = new Timeline();
+export const timeline = new Timeline({ enabled: false });
 export type { Timeline };

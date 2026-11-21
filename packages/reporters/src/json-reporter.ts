@@ -1,7 +1,14 @@
 /**
  * JSON Reporter — source-of-truth format for CLI and CI pipeline.
  */
-import { timeline, type PerfEvent } from '@rn-perf-kit/core';
+import { timeline, type PerfEvent, type DeviceTier } from '@rn-perf-kit/core';
+import {
+  analyzeNavigation,
+  analyzeRenderCauses,
+  analyzeFrameAttribution,
+  analyzeCascades,
+  type AnalyzerContext,
+} from '@rn-perf-kit/analyzers';
 
 export interface SessionReport {
   version: '1';
@@ -24,6 +31,26 @@ export interface ReportOptions {
 export function generateJsonReport(options: ReportOptions = {}): SessionReport {
   const events = timeline.recent(options.windowMs ?? 60_000);
   const now = timeline.now();
+  const refreshRateHz = options.device?.refreshRateHz ?? 60;
+  const ctx: AnalyzerContext = {
+    tier: (options.device?.tier as DeviceTier) ?? 'MID',
+    refreshRateHz,
+    frameBudgetMs: 1000 / refreshRateHz,
+  };
+
+  const navResults = analyzeNavigation(events, ctx);
+  const renderCauses = analyzeRenderCauses(events, ctx);
+  const frameAttrib = analyzeFrameAttribution(events, ctx);
+  const cascades = analyzeCascades(events, ctx);
+
+  const findings = [
+    ...navResults.flatMap((r) => r.findings),
+    ...renderCauses.findings,
+    ...frameAttrib.findings,
+    ...cascades,
+    ...(options.findings ?? []),
+  ];
+
   const frames = events.filter((e) => e.type === 'frame') as Extract<PerfEvent, { type: 'frame' }>[];
   const jankFrames = frames.filter((f) => f.janky);
   const commits = events.filter((e) => e.type === 'commit');
@@ -31,6 +58,7 @@ export function generateJsonReport(options: ReportOptions = {}): SessionReport {
   const navEvents = events.filter((e) => e.type === 'nav' && e.phase === 'dispatch');
   const firstT = events[0]?.t ?? now;
   const lastT = events[events.length - 1]?.t ?? now;
+
   return {
     version: '1',
     capturedAt: new Date().toISOString(),
@@ -38,7 +66,7 @@ export function generateJsonReport(options: ReportOptions = {}): SessionReport {
     device: options.device ?? { tier: 'UNKNOWN', os: 'unknown', osVersion: 'unknown' },
     build: { isDebug: typeof __DEV__ !== 'undefined' ? __DEV__ : true, ...options.build },
     events,
-    findings: options.findings ?? [],
+    findings,
     summary: {
       totalFrames: frames.length,
       jankFrames: jankFrames.length,

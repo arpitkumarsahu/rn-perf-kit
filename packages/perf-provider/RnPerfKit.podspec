@@ -6,11 +6,11 @@ Pod::Spec.new do |s|
   s.name         = "RnPerfKit"
   s.version      = package["version"]
   s.summary      = package["description"]
-  s.homepage     = "https://github.com/rn-perf-kit/rn-perf-kit"
-  s.license      = "MIT"
-  s.authors      = { "rn-perf-kit team" => "contact@rn-perf-kit.dev" }
+  s.homepage     = package["homepage"]
+  s.license      = package["license"]
+  s.authors      = package["author"]
   s.platforms    = { :ios => "13.4" }
-  s.source       = { :git => "https://github.com/rn-perf-kit/rn-perf-kit.git", :tag => "#{s.version}" }
+  s.source       = { :git => package["repository"]["url"].sub(/^git\+/, ""), :tag => "v#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 

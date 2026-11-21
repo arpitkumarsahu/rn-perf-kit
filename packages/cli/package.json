@@ -1,6 +1,6 @@
 {
   "name": "@rn-perf-kit/cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "CLI for rn-perf-kit: compare sessions, check budgets, generate HTML reports",
   "bin": {
     "rn-perf": "./dist/cli.js"
@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck",
     "lint": "eslint src/"
   },
   "devDependencies": {
@@ -16,7 +17,7 @@
     "@types/node": "^20.0.0"
   },
   "dependencies": {
-    "@rn-perf-kit/core": "^0.1.1"
+    "@rn-perf-kit/core": "^0.1.2"
   },
   "author": "Arpit Kumar Sahu <aarpitkumarsahu99@gmail.com>",
   "license": "MIT",
