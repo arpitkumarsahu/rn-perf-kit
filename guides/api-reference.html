@@ -709,7 +709,7 @@ img {
         <a href="../index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.2</span>
+          <span class="version-badge">v0.1.3</span>
         </a>
       </div>
       
@@ -834,6 +834,8 @@ img {
     <tbody><tr><td><code>position</code></td><td>`'top-right' \</td><td>'top-left' \</td><td>'bottom-right' \</td><td>'bottom-left'`</td><td><code>&#x27;top-right&#x27;</code></td><td>Screen corner placement.</td></tr><tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Hides HUD and halts all internal timers and animation frame loops.</td></tr><tr><td><code>insets</code></td><td><code>{ top: number; bottom: number }</code></td><td>Auto</td><td>Safe area insets (pass <code>useSafeAreaInsets()</code> from <code>react-native-safe-area-context</code>). Defaults to <code>StatusBar.currentHeight</code>.</td></tr></tbody>
   </table>
 </div>
+<p><strong>UI FPS</strong> is the refresh rate minus the rate of dropped frames, so an idle screen reads full FPS on both platforms (Android only reports frames it actually draws; iOS reports every vsync).</p>
+<p><strong>The HUD does not measure itself.</strong> Its own re-renders are excluded from commits, render causes and findings. To exclude your own debug UI the same way, set <code>MyDebugPanel.__rnPerfKitIgnore = true</code> (works through <code>memo()</code> and <code>forwardRef()</code>).</p>
 <hr />
 <h2 id="4-perftrace"><a href="#4-perftrace" class="anchor-link">#</a> 4. <code>&lt;PerfTrace&gt;</code></h2>
 <p>Lightweight wrapper around React's <code>&lt;Profiler&gt;</code> for targeted subtree measurement.</p>
