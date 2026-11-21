@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnosing & Fixing Navigation Jank in React Native</title>
+  <meta name="description" content="Phase-by-phase routing analysis: tap, dispatch, first-commit, transition, content-ready. Eliminate transition stutter on low-end Android devices.">
+  <meta name="keywords" content="react navigation lag, react native navigation jank, transition stutter android, defer mounts during transition">
+  <meta name="author" content="Arpit Kumar Sahu">
+  <link rel="canonical" href="https://arpitkumarsahu.github.io/rn-perf-kit/guides/navigation-profiling.html">
+
+  <!-- OpenGraph / Social Metadata for Google & Sharing -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Diagnosing & Fixing Navigation Jank in React Native">
+  <meta property="og:description" content="Phase-by-phase routing analysis: tap, dispatch, first-commit, transition, content-ready. Eliminate transition stutter on low-end Android devices.">
+  <meta property="og:url" content="https://arpitkumarsahu.github.io/rn-perf-kit/guides/navigation-profiling.html">
+  <meta property="og:site_name" content="rn-perf-kit Documentation">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Diagnosing & Fixing Navigation Jank in React Native">
+  <meta name="twitter:description" content="Phase-by-phase routing analysis: tap, dispatch, first-commit, transition, content-ready. Eliminate transition stutter on low-end Android devices.">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Search -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "rn-perf-kit",
+    "operatingSystem": "Android, iOS",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Deep performance profiling toolkit for React Native apps focused on budget Android devices.",
+    "author": {
+      "@type": "Person",
+      "name": "Arpit Kumar Sahu"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://www.npmjs.com/package/rn-perf-kit"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <!-- Top Global Navbar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-left">
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="../index.html" class="nav-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-title">rn-perf-kit</span>
+          <span class="version-badge">v0.1.1</span>
+        </a>
+      </div>
+      <div class="nav-search">
+        <input type="text" id="docSearch" placeholder="Search guides, components, APIs..." oninput="filterSearch(this.value)">
+        <div id="searchResults" class="search-results-dropdown"></div>
+      </div>
+      <div class="nav-right">
+        <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
+          <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
+        </a>
+        <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
+          <svg height="22" width="22" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Documentation Container -->
+  <div class="doc-layout">
+    <!-- Sidebar -->
+    <aside class="doc-sidebar" id="docSidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-group"><div class="sidebar-heading">Getting Started</div><ul class="sidebar-links">
+<li><a href="../index.html">Overview</a></li>
+<li><a href="../getting-started.html">Quick Start Guide</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Guides</div><ul class="sidebar-links">
+<li><a href="../guides/navigation-profiling.html" class="active">Navigation Profiling</a></li>
+<li><a href="../guides/re-render-analysis.html">Re-render Analysis</a></li>
+<li><a href="../guides/frame-attribution-and-concurrency.html">Frame Attribution</a></li>
+<li><a href="../guides/ci-performance-budgets.html">CI Performance Budgets</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Reference</div><ul class="sidebar-links">
+<li><a href="../guides/api-reference.html">Full API Reference</a></li>
+</ul></div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="doc-main">
+      <article class="doc-content">
+        <h1 id="diagnosing-fixing-navigation-jank"><a href="#diagnosing-fixing-navigation-jank" class="anchor-link">#</a> Diagnosing & Fixing Navigation Jank</h1>
+<p>Navigation is the most visible interaction in a mobile app. On low-end Android devices, screen transitions frequently suffer from stutter, frozen touch responses, and blank white screens.</p>
+<p>This guide explains how <code>rn-perf-kit</code> measures navigation phases and how to eliminate the most common cause of transition jank: <strong>heavy subtrees mounting during the transition animation</strong>.</p>
+<hr />
+<h2 id="the-6-navigation-phases"><a href="#the-6-navigation-phases" class="anchor-link">#</a> The 6 Navigation Phases</h2>
+<p>When a user taps a button to open a new screen, the transition moves through six distinct phases:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">[ tap ] ──► [ dispatch ] ──► [ first-commit ] ──► [ transition-start ] ──► [ transition-end ] ──► [ content-ready ] ──► [ interactive ]</code></pre>
+</div>
+<div class="table-container">
+  <table>
+    <thead><tr><th>Phase</th><th>Description</th><th>How <code>rn-perf-kit</code> captures it</th></tr></thead>
+    <tbody><tr><td><strong>Tap → Dispatch</strong></td><td>Time between touch event and navigation action trigger</td><td>Intercepts <code>__unsafe_action__</code> on <code>navigationRef</code></td></tr><tr><td><strong>Dispatch → First Commit</strong></td><td>Time taken for React to mount the root container of the new route</td><td>Fiber commit hook detects first commit containing new route</td></tr><tr><td><strong>Transition Start → End</strong></td><td>The native/JS slide or fade animation duration</td><td>Screen focus / transition listeners (<code>transitionStart</code>, <code>transitionEnd</code>)</td></tr><tr><td><strong>Content Ready</strong></td><td>When primary data/UI has loaded</td><td>Triggered when <code>markReady()</code> is called from <code>usePerfScreen</code></td></tr><tr><td><strong>Interactive</strong></td><td>Screen is stable with no frames dropped or JS stalls for 300ms</td><td>Timeline analyzer evaluates frame rate & stall sentinel</td></tr></tbody>
+  </table>
+</div>
+<hr />
+<h2 id="common-cause-1-mounting-heavy-subtrees-during-animation"><a href="#common-cause-1-mounting-heavy-subtrees-during-animation" class="anchor-link">#</a> Common Cause 1: Mounting Heavy Subtrees During Animation</h2>
+<h3 id="the-symptom"><a href="#the-symptom" class="anchor-link">#</a> The Symptom</h3>
+<p>The screen slides in, freezes halfway across the screen for 200ms, and drops 15+ frames.</p>
+<h3 id="the-finding-from-rn-perf-kit"><a href="#the-finding-from-rn-perf-kit" class="anchor-link">#</a> The Finding from <code>rn-perf-kit</code></h3>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">[CRITICAL] Dropped 18/25 frames during Home → ProductDetail
+  72% frame drop rate during transition.
+  Commit: ReviewsList (121ms commit at +1100ms).
+  💡 Defer heavy component mounts until after transitionEnd.</code></pre>
+</div>
+<h3 id="the-solution-defer-subtrees"><a href="#the-solution-defer-subtrees" class="anchor-link">#</a> The Solution: Defer Subtrees</h3>
+<p>Never mount heavy lists, charts, or below-the-fold content while the transition animation is running.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import React, { useState } from &#x27;react&#x27;;
+import { View, Text } from &#x27;react-native&#x27;;
+import { useFocusEffect } from &#x27;@react-navigation/native&#x27;;
+
+export function ProductDetailScreen({ route }) {
+  const [transitionDone, setTransitionDone] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() =&gt; {
+      // Defer heavy mounting until the screen animation finishes
+      setTransitionDone(true);
+    }, [])
+  );
+
+  return (
+    &lt;View style={{ flex: 1 }}&gt;
+      {/* 1. Fast, critical header mounts immediately */}
+      &lt;ProductHeader id={route.params.id} /&gt;
+
+      {/* 2. Heavy list deferred until animation finishes */}
+      {transitionDone ? (
+        &lt;ReviewsList productId={route.params.id} /&gt;
+      ) : (
+        &lt;ReviewsPlaceholder /&gt;
+      )}
+    &lt;/View&gt;
+  );
+}</code></pre>
+</div>
+<hr />
+<h2 id="common-cause-2-blurred-screens-re-rendering-in-the-background"><a href="#common-cause-2-blurred-screens-re-rendering-in-the-background" class="anchor-link">#</a> Common Cause 2: Blurred Screens Re-rendering in the Background</h2>
+<h3 id="the-symptom"><a href="#the-symptom" class="anchor-link">#</a> The Symptom</h3>
+<p>While viewing <code>ProductDetail</code>, actions (like adding an item to the cart) cause dropped frames, even though the current screen's UI is simple.</p>
+<h3 id="the-finding-from-rn-perf-kit"><a href="#the-finding-from-rn-perf-kit" class="anchor-link">#</a> The Finding from <code>rn-perf-kit</code></h3>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">[WARNING] Background renders on blurred screen &#x27;Home&#x27; (cartStore.items)
+  Home rendered 4 times while hidden behind ProductDetail.
+  💡 Enable freezeOnBlur in screen options or narrow store selectors.</code></pre>
+</div>
+<h3 id="the-solution-freezeonblur"><a href="#the-solution-freezeonblur" class="anchor-link">#</a> The Solution: <code>freezeOnBlur</code></h3>
+<p>Ensure blurred screens are frozen so they do not execute render work while hidden in the stack:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import { createNativeStackNavigator } from &#x27;@react-navigation/native-stack&#x27;;
+
+&lt;Stack.Navigator
+  screenOptions={{
+    // Freezes unmounted/blurred screen hierarchies (requires react-native-screens)
+    freezeOnBlur: true,
+  }}
+&gt;
+  ...
+&lt;/Stack.Navigator&gt;</code></pre>
+</div>
+<hr />
+<h2 id="common-cause-3-js-stack-vs-native-stack-transitions"><a href="#common-cause-3-js-stack-vs-native-stack-transitions" class="anchor-link">#</a> Common Cause 3: JS Stack vs. Native Stack Transitions</h2>
+<p>In React Navigation, the JavaScript-driven <code>@react-navigation/stack</code> runs animations on the JS thread. If any React render or data parsing occurs during the transition, the animation stutters.</p>
+<h3 id="recommendation"><a href="#recommendation" class="anchor-link">#</a> Recommendation</h3>
+<p>Always use <code>@react-navigation/native-stack</code> (backed by <code>react-native-screens</code>). It executes transitions using native Android fragments and iOS view controllers, isolating animation smoothness from JS thread load.</p>
+      </article>
+      <footer class="doc-footer">
+        <div class="footer-edit">
+          <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">
+            Edit this guide on GitHub →
+          </a>
+        </div>
+        <p class="footer-copy">MIT Licensed © 2026 Arpit Kumar Sahu. Built for React Native performance excellence.</p>
+      </footer>
+    </main>
+
+    <!-- Table of Contents Sidebar -->
+    <aside class="doc-toc">
+      <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
+<li class="toc-l2"><a href="#the-6-navigation-phases">The 6 Navigation Phases</a></li>
+<li class="toc-l2"><a href="#common-cause-1-mounting-heavy-subtrees-during-animation">Common Cause 1: Mounting Heavy Subtrees During Animation</a></li>
+<li class="toc-l3"><a href="#the-symptom">The Symptom</a></li>
+<li class="toc-l3"><a href="#the-finding-from-rn-perf-kit">The Finding from `rn-perf-kit`</a></li>
+<li class="toc-l3"><a href="#the-solution-defer-subtrees">The Solution: Defer Subtrees</a></li>
+<li class="toc-l2"><a href="#common-cause-2-blurred-screens-re-rendering-in-the-background">Common Cause 2: Blurred Screens Re-rendering in the Background</a></li>
+<li class="toc-l3"><a href="#the-symptom">The Symptom</a></li>
+<li class="toc-l3"><a href="#the-finding-from-rn-perf-kit">The Finding from `rn-perf-kit`</a></li>
+<li class="toc-l3"><a href="#the-solution-freezeonblur">The Solution: `freezeOnBlur`</a></li>
+<li class="toc-l2"><a href="#common-cause-3-js-stack-vs-native-stack-transitions">Common Cause 3: JS Stack vs. Native Stack Transitions</a></li>
+<li class="toc-l3"><a href="#recommendation">Recommendation</a></li>
+</ul></div>
+    </aside>
+  </div>
+
+  <script src="../assets/script.js"></script>
+</body>
+</html>

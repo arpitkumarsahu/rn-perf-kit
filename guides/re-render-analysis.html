@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eliminating Render Storms & Wasted Re-renders in React Native</title>
+  <meta name="description" content="Pinpoint re-render causes, unstable hook references, Context fan-outs, and store selector instability in React Native apps.">
+  <meta name="keywords" content="react native wasted renders, render storm detector, selector instability redux zustand, react native profiler">
+  <meta name="author" content="Arpit Kumar Sahu">
+  <link rel="canonical" href="https://arpitkumarsahu.github.io/rn-perf-kit/guides/re-render-analysis.html">
+
+  <!-- OpenGraph / Social Metadata for Google & Sharing -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Eliminating Render Storms & Wasted Re-renders in React Native">
+  <meta property="og:description" content="Pinpoint re-render causes, unstable hook references, Context fan-outs, and store selector instability in React Native apps.">
+  <meta property="og:url" content="https://arpitkumarsahu.github.io/rn-perf-kit/guides/re-render-analysis.html">
+  <meta property="og:site_name" content="rn-perf-kit Documentation">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Eliminating Render Storms & Wasted Re-renders in React Native">
+  <meta name="twitter:description" content="Pinpoint re-render causes, unstable hook references, Context fan-outs, and store selector instability in React Native apps.">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Search -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "rn-perf-kit",
+    "operatingSystem": "Android, iOS",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Deep performance profiling toolkit for React Native apps focused on budget Android devices.",
+    "author": {
+      "@type": "Person",
+      "name": "Arpit Kumar Sahu"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://www.npmjs.com/package/rn-perf-kit"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <!-- Top Global Navbar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-left">
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="../index.html" class="nav-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-title">rn-perf-kit</span>
+          <span class="version-badge">v0.1.1</span>
+        </a>
+      </div>
+      <div class="nav-search">
+        <input type="text" id="docSearch" placeholder="Search guides, components, APIs..." oninput="filterSearch(this.value)">
+        <div id="searchResults" class="search-results-dropdown"></div>
+      </div>
+      <div class="nav-right">
+        <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
+          <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
+        </a>
+        <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
+          <svg height="22" width="22" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Documentation Container -->
+  <div class="doc-layout">
+    <!-- Sidebar -->
+    <aside class="doc-sidebar" id="docSidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-group"><div class="sidebar-heading">Getting Started</div><ul class="sidebar-links">
+<li><a href="../index.html">Overview</a></li>
+<li><a href="../getting-started.html">Quick Start Guide</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Guides</div><ul class="sidebar-links">
+<li><a href="../guides/navigation-profiling.html">Navigation Profiling</a></li>
+<li><a href="../guides/re-render-analysis.html" class="active">Re-render Analysis</a></li>
+<li><a href="../guides/frame-attribution-and-concurrency.html">Frame Attribution</a></li>
+<li><a href="../guides/ci-performance-budgets.html">CI Performance Budgets</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Reference</div><ul class="sidebar-links">
+<li><a href="../guides/api-reference.html">Full API Reference</a></li>
+</ul></div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="doc-main">
+      <article class="doc-content">
+        <h1 id="eliminating-render-storms-unstable-references"><a href="#eliminating-render-storms-unstable-references" class="anchor-link">#</a> Eliminating Render Storms & Unstable References</h1>
+<p>React's render cycle is fast, but on budget Android devices with 2–4 GB RAM and limited CPU clocks, excessive re-renders degrade responsiveness, induce scroll stutter, and drain battery life.</p>
+<p>This guide explains how <code>rn-perf-kit</code> classifies why components re-render, how it distinguishes between <strong>wasted</strong> and <strong>genuine</strong> renders, and how to fix common pitfalls.</p>
+<hr />
+<h2 id="1-render-cause-classification"><a href="#1-render-cause-classification" class="anchor-link">#</a> 1. Render Cause Classification</h2>
+<p><code>rn-perf-kit</code> intercepts fiber commits via the React DevTools hook and compares each fiber with its previous alternate:</p>
+<div class="table-container">
+  <table>
+    <thead><tr><th>Cause</th><th>Classification Criteria</th><th>Is It Wasted?</th></tr></thead>
+    <tbody><tr><td><code>parent-rerender</code></td><td>Props shallow-equal, state unchanged, no context dependency</td><td><strong>YES</strong></td></tr><tr><td><code>unstable-reference</code></td><td>Prop reference changed, but deep content is identical</td><td><strong>YES</strong></td></tr><tr><td><code>state-change</code></td><td>Component hook <code>memoizedState</code> list changed</td><td>No</td></tr><tr><td><code>context-change</code></td><td>Component context dependency value changed</td><td>Depends</td></tr><tr><td><code>store-subscription</code></td><td><code>useSyncExternalStore</code> emitted an update</td><td>Depends</td></tr><tr><td><code>prop-change</code></td><td>Props genuinely differ in value</td><td>No</td></tr></tbody>
+  </table>
+</div>
+<hr />
+<h2 id="2-common-pitfall-unstable-inline-callbacks"><a href="#2-common-pitfall-unstable-inline-callbacks" class="anchor-link">#</a> 2. Common Pitfall: Unstable Inline Callbacks</h2>
+<h3 id="the-problem"><a href="#the-problem" class="anchor-link">#</a> The Problem</h3>
+<p>Passing an inline arrow function or newly constructed object/array to a memoized child component breaks <code>React.memo</code>, forcing a full re-render every time the parent renders.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">// ❌ BAD: New function reference created on every render
+&lt;ProductCard
+  item={item}
+  onPress={() =&gt; navigation.navigate(&#x27;Detail&#x27;, { id: item.id })}
+/&gt;</code></pre>
+</div>
+<h3 id="the-finding-from-rn-perf-kit"><a href="#the-finding-from-rn-perf-kit" class="anchor-link">#</a> The Finding from <code>rn-perf-kit</code></h3>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">[CRITICAL] Render storm: ProductCard rendered 80x in 2s (40 renders/second)
+  92% wasted renders detected.
+  Unstable reference detected: onPress
+  💡 Wrap with React.memo() and stabilize callbacks with useCallback().</code></pre>
+</div>
+<h3 id="the-fix-usecallback"><a href="#the-fix-usecallback" class="anchor-link">#</a> The Fix: <code>useCallback</code></h3>
+<p>Stabilize the callback reference:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">// ✅ GOOD: Stable function reference across parent renders
+const handlePress = useCallback((id: string) =&gt; {
+  navigation.navigate(&#x27;Detail&#x27;, { id });
+}, [navigation]);
+
+&lt;ProductCard item={item} onPress={handlePress} /&gt;</code></pre>
+</div>
+<hr />
+<h2 id="3-common-pitfall-context-fan-out"><a href="#3-common-pitfall-context-fan-out" class="anchor-link">#</a> 3. Common Pitfall: Context Fan-Out</h2>
+<h3 id="the-problem"><a href="#the-problem" class="anchor-link">#</a> The Problem</h3>
+<p>Storing frequently updating state (like a shopping cart or user activity status) in a top-level React Context causes <strong>every consumer of that context to re-render</strong>, even if they only read a static field.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">// ❌ BAD: Modifying cart.items re-renders UserAvatar, ThemeToggle, and Feed
+const AppContext = createContext&lt;{ user: User; cart: Cart; theme: string }&gt;(...);</code></pre>
+</div>
+<h3 id="the-finding-from-rn-perf-kit"><a href="#the-finding-from-rn-perf-kit" class="anchor-link">#</a> The Finding from <code>rn-perf-kit</code></h3>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">[WARNING] Fan-out: cart update caused 21 component renders
+  Store: context/cart
+  Components: ProductCard, ConsumerComponent_0, ConsumerComponent_1, HeaderBadge...
+  💡 Split large contexts into smaller ones. Use fine-grained selectors.</code></pre>
+</div>
+<h3 id="the-fix-context-splitting-or-zustand-selectors"><a href="#the-fix-context-splitting-or-zustand-selectors" class="anchor-link">#</a> The Fix: Context Splitting or Zustand Selectors</h3>
+<p>Split the Context into separate providers, or switch to a selector-based store like Zustand:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">typescript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-typescript">// ✅ GOOD: Only components subscribing to `items` will re-render
+export const useCartStore = create((set) =&gt; ({
+  items: [],
+  addItem: (item) =&gt; set((s) =&gt; ({ items: [...s.items, item] })),
+}));
+
+// In CartBadge:
+function CartBadge() {
+  const itemCount = useCartStore((state) =&gt; state.items.length);
+  return &lt;Text&gt;{itemCount}&lt;/Text&gt;;
+}</code></pre>
+</div>
+<hr />
+<h2 id="4-common-pitfall-selector-instability"><a href="#4-common-pitfall-selector-instability" class="anchor-link">#</a> 4. Common Pitfall: Selector Instability</h2>
+<h3 id="the-problem"><a href="#the-problem" class="anchor-link">#</a> The Problem</h3>
+<p>Returning a new object or filtered array directly inside a Zustand or Redux selector causes <code>useSyncExternalStore</code> to receive a new reference on every store update:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">// ❌ BAD: [item1, item2] is a brand new array reference every time
+const activeItems = useCartStore((state) =&gt; state.items.filter((i) =&gt; i.active));</code></pre>
+</div>
+<h3 id="the-fix-useshallow-or-memoized-selectors"><a href="#the-fix-useshallow-or-memoized-selectors" class="anchor-link">#</a> The Fix: <code>useShallow</code> or Memoized Selectors</h3>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import { useShallow } from &#x27;zustand/react/shallow&#x27;;
+
+// ✅ GOOD: Performs shallow comparison on the resulting array
+const activeItems = useCartStore(
+  useShallow((state) =&gt; state.items.filter((i) =&gt; i.active))
+);</code></pre>
+</div>
+      </article>
+      <footer class="doc-footer">
+        <div class="footer-edit">
+          <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">
+            Edit this guide on GitHub →
+          </a>
+        </div>
+        <p class="footer-copy">MIT Licensed © 2026 Arpit Kumar Sahu. Built for React Native performance excellence.</p>
+      </footer>
+    </main>
+
+    <!-- Table of Contents Sidebar -->
+    <aside class="doc-toc">
+      <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
+<li class="toc-l2"><a href="#1-render-cause-classification">1. Render Cause Classification</a></li>
+<li class="toc-l2"><a href="#2-common-pitfall-unstable-inline-callbacks">2. Common Pitfall: Unstable Inline Callbacks</a></li>
+<li class="toc-l3"><a href="#the-problem">The Problem</a></li>
+<li class="toc-l3"><a href="#the-finding-from-rn-perf-kit">The Finding from `rn-perf-kit`</a></li>
+<li class="toc-l3"><a href="#the-fix-usecallback">The Fix: `useCallback`</a></li>
+<li class="toc-l2"><a href="#3-common-pitfall-context-fan-out">3. Common Pitfall: Context Fan-Out</a></li>
+<li class="toc-l3"><a href="#the-problem">The Problem</a></li>
+<li class="toc-l3"><a href="#the-finding-from-rn-perf-kit">The Finding from `rn-perf-kit`</a></li>
+<li class="toc-l3"><a href="#the-fix-context-splitting-or-zustand-selectors">The Fix: Context Splitting or Zustand Selectors</a></li>
+<li class="toc-l2"><a href="#4-common-pitfall-selector-instability">4. Common Pitfall: Selector Instability</a></li>
+<li class="toc-l3"><a href="#the-problem">The Problem</a></li>
+<li class="toc-l3"><a href="#the-fix-useshallow-or-memoized-selectors">The Fix: `useShallow` or Memoized Selectors</a></li>
+</ul></div>
+    </aside>
+  </div>
+
+  <script src="../assets/script.js"></script>
+</body>
+</html>

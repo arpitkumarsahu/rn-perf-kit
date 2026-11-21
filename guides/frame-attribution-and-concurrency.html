@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frame Attribution & Interrupted Renders | React Native</title>
+  <meta name="description" content="Correlate dropped UI frames with long JavaScript commits, Concurrent Mode discarded renders, and useLayoutEffect cascades.">
+  <meta name="keywords" content="react native dropped frames, frame attribution, concurrent react discarded renders, uselayouteffect cascade jank">
+  <meta name="author" content="Arpit Kumar Sahu">
+  <link rel="canonical" href="https://arpitkumarsahu.github.io/rn-perf-kit/guides/frame-attribution-and-concurrency.html">
+
+  <!-- OpenGraph / Social Metadata for Google & Sharing -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Frame Attribution & Interrupted Renders | React Native">
+  <meta property="og:description" content="Correlate dropped UI frames with long JavaScript commits, Concurrent Mode discarded renders, and useLayoutEffect cascades.">
+  <meta property="og:url" content="https://arpitkumarsahu.github.io/rn-perf-kit/guides/frame-attribution-and-concurrency.html">
+  <meta property="og:site_name" content="rn-perf-kit Documentation">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Frame Attribution & Interrupted Renders | React Native">
+  <meta name="twitter:description" content="Correlate dropped UI frames with long JavaScript commits, Concurrent Mode discarded renders, and useLayoutEffect cascades.">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Search -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "rn-perf-kit",
+    "operatingSystem": "Android, iOS",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Deep performance profiling toolkit for React Native apps focused on budget Android devices.",
+    "author": {
+      "@type": "Person",
+      "name": "Arpit Kumar Sahu"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://www.npmjs.com/package/rn-perf-kit"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <!-- Top Global Navbar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-left">
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="../index.html" class="nav-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-title">rn-perf-kit</span>
+          <span class="version-badge">v0.1.1</span>
+        </a>
+      </div>
+      <div class="nav-search">
+        <input type="text" id="docSearch" placeholder="Search guides, components, APIs..." oninput="filterSearch(this.value)">
+        <div id="searchResults" class="search-results-dropdown"></div>
+      </div>
+      <div class="nav-right">
+        <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
+          <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
+        </a>
+        <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
+          <svg height="22" width="22" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Documentation Container -->
+  <div class="doc-layout">
+    <!-- Sidebar -->
+    <aside class="doc-sidebar" id="docSidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-group"><div class="sidebar-heading">Getting Started</div><ul class="sidebar-links">
+<li><a href="../index.html">Overview</a></li>
+<li><a href="../getting-started.html">Quick Start Guide</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Guides</div><ul class="sidebar-links">
+<li><a href="../guides/navigation-profiling.html">Navigation Profiling</a></li>
+<li><a href="../guides/re-render-analysis.html">Re-render Analysis</a></li>
+<li><a href="../guides/frame-attribution-and-concurrency.html" class="active">Frame Attribution</a></li>
+<li><a href="../guides/ci-performance-budgets.html">CI Performance Budgets</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Reference</div><ul class="sidebar-links">
+<li><a href="../guides/api-reference.html">Full API Reference</a></li>
+</ul></div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="doc-main">
+      <article class="doc-content">
+        <h1 id="interrupted-renders-cascades-frame-attribution"><a href="#interrupted-renders-cascades-frame-attribution" class="anchor-link">#</a> Interrupted Renders, Cascades & Frame Attribution</h1>
+<p>In React Native's New Architecture (Fabric + Concurrent React), performance issues are not limited to long JavaScript renders. Work can be <strong>interrupted, thrown away, or triggered synchronously before paint</strong>, competing with native drawing.</p>
+<p>This guide explains how <code>rn-perf-kit</code> detects discarded renders, cascading effect chains, and attributes dropped frames to JS vs. native-side bottlenecks.</p>
+<hr />
+<h2 id="1-discarded-renders-in-concurrent-react"><a href="#1-discarded-renders-in-concurrent-react" class="anchor-link">#</a> 1. Discarded Renders in Concurrent React</h2>
+<h3 id="how-it-works"><a href="#how-it-works" class="anchor-link">#</a> How It Works</h3>
+<p>With features like <code>startTransition</code>, <code>useDeferredValue</code>, and Suspense, React can start rendering a component tree, yield execution to a higher-priority task (like user input), and <strong>discard the previous render work without committing it to the screen</strong>.</p>
+<p>While this prevents input lag, on low-end multi-core devices it burns valuable CPU cycles.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">Keystroke 1 ──► Render SearchResults (interrupted!) ──► DISCARDED
+Keystroke 2 ──► Render SearchResults (interrupted!) ──► DISCARDED
+Keystroke 3 ──► Render SearchResults (committed)   ──► PAINT</code></pre>
+</div>
+<h3 id="how-rn-perf-kit-detects-it"><a href="#how-rn-perf-kit-detects-it" class="anchor-link">#</a> How <code>rn-perf-kit</code> Detects It</h3>
+<p><code>rn-perf-kit</code> registers a token during the component's render phase and checks for its resolution in <code>useLayoutEffect</code> (which only runs if committed). Stale tokens that never commit are recorded as discarded renders.</p>
+<h3 id="the-finding-from-rn-perf-kit"><a href="#the-finding-from-rn-perf-kit" class="anchor-link">#</a> The Finding from <code>rn-perf-kit</code></h3>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">[WARNING] SearchResults: 4 discarded renders
+  React started 4 renders of SearchResults that were discarded without committing.
+  💡 Check for expensive operations or heavy subtrees inside startTransition.</code></pre>
+</div>
+<hr />
+<h2 id="2-cascading-updates-uselayouteffect-vs-useeffect"><a href="#2-cascading-updates-uselayouteffect-vs-useeffect" class="anchor-link">#</a> 2. Cascading Updates (<code>useLayoutEffect</code> vs <code>useEffect</code>)</h2>
+<h3 id="synchronous-nested-commits-uselayouteffect"><a href="#synchronous-nested-commits-uselayouteffect" class="anchor-link">#</a> Synchronous Nested Commits (<code>useLayoutEffect</code>)</h3>
+<p>Calling <code>setState</code> inside <code>useLayoutEffect</code> forces React to run a second, synchronous re-render <strong>before the browser/native paint occurs</strong>:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">// ❌ BAD: Forces an immediate synchronous second commit
+useLayoutEffect(() =&gt; {
+  setTitle(`Product ${productId}`);
+}, [productId]);</code></pre>
+</div>
+<p><code>rn-perf-kit</code> flags this as <code>phase: &#x27;nested-update&#x27;</code>.</p>
+<h3 id="the-finding-from-rn-perf-kit"><a href="#the-finding-from-rn-perf-kit" class="anchor-link">#</a> The Finding from <code>rn-perf-kit</code></h3>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">[WARNING] Cascading update detected (setState in useLayoutEffect)
+  Two commits within 8.0ms. Second commit is nested-update.
+  💡 Move state update to useEffect or derive value during render instead.</code></pre>
+</div>
+<h3 id="the-solution-derive-during-render"><a href="#the-solution-derive-during-render" class="anchor-link">#</a> The Solution: Derive During Render</h3>
+<p>If a value can be derived from props or state, compute it directly during render without calling <code>setState</code>:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">// ✅ GOOD: Zero extra commit overhead
+const title = `Product ${productId}`;</code></pre>
+</div>
+<hr />
+<h2 id="3-frame-attribution-js-vs-native-side-jank"><a href="#3-frame-attribution-js-vs-native-side-jank" class="anchor-link">#</a> 3. Frame Attribution (JS vs. Native-Side Jank)</h2>
+<p>When Android <code>FrameMetrics</code> or iOS <code>CADisplayLink</code> reports that a frame took > 16.6ms (at 60 Hz), <code>rn-perf-kit</code> checks the timeline for overlapping JS thread activity:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-text">Timeline:
+[ Frame #812 (94ms) ───────────────────────────── ]
+    └── [ Commit: ReviewsList (88ms) ]  &lt;-- JS Caused!</code></pre>
+</div>
+<p>If a janky frame has <strong>no overlapping JS commit, stall, or GC event</strong>, <code>rn-perf-kit</code> classifies it as <strong><code>native-side</code> jank</strong>.</p>
+<h3 id="typical-causes-of-native-side-jank"><a href="#typical-causes-of-native-side-jank" class="anchor-link">#</a> Typical Causes of Native-Side Jank:</h3>
+<p>1. <strong>Large Image Decoding:</strong> Loading unscaled 4K images into small 80x80 thumbnails on the UI thread.</p>
+<p>2. <strong>Deep Layout Hierarchies:</strong> Over-nested <code>View</code> hierarchies causing costly measure/layout passes in Yoga.</p>
+<p>3. <strong>Overdraw:</strong> Multiple opaque full-screen backgrounds drawn on top of each other.</p>
+      </article>
+      <footer class="doc-footer">
+        <div class="footer-edit">
+          <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">
+            Edit this guide on GitHub →
+          </a>
+        </div>
+        <p class="footer-copy">MIT Licensed © 2026 Arpit Kumar Sahu. Built for React Native performance excellence.</p>
+      </footer>
+    </main>
+
+    <!-- Table of Contents Sidebar -->
+    <aside class="doc-toc">
+      <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
+<li class="toc-l2"><a href="#1-discarded-renders-in-concurrent-react">1. Discarded Renders in Concurrent React</a></li>
+<li class="toc-l3"><a href="#how-it-works">How It Works</a></li>
+<li class="toc-l3"><a href="#how-rn-perf-kit-detects-it">How `rn-perf-kit` Detects It</a></li>
+<li class="toc-l3"><a href="#the-finding-from-rn-perf-kit">The Finding from `rn-perf-kit`</a></li>
+<li class="toc-l2"><a href="#2-cascading-updates-uselayouteffect-vs-useeffect">2. Cascading Updates (`useLayoutEffect` vs `useEffect`)</a></li>
+<li class="toc-l3"><a href="#synchronous-nested-commits-uselayouteffect">Synchronous Nested Commits (`useLayoutEffect`)</a></li>
+<li class="toc-l3"><a href="#the-finding-from-rn-perf-kit">The Finding from `rn-perf-kit`</a></li>
+<li class="toc-l3"><a href="#the-solution-derive-during-render">The Solution: Derive During Render</a></li>
+<li class="toc-l2"><a href="#3-frame-attribution-js-vs-native-side-jank">3. Frame Attribution (JS vs. Native-Side Jank)</a></li>
+<li class="toc-l3"><a href="#typical-causes-of-native-side-jank">Typical Causes of Native-Side Jank:</a></li>
+</ul></div>
+    </aside>
+  </div>
+
+  <script src="../assets/script.js"></script>
+</body>
+</html>

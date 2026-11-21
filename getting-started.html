@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started with rn-perf-kit | React Native Setup Guide</title>
+  <meta name="description" content="Step-by-step 5-minute setup guide for rn-perf-kit in bare React Native and Expo projects. Register the Fiber hook and configure budgets.">
+  <meta name="keywords" content="react native install profiler, expo performance, perfprovider setup, react native fiber hook">
+  <meta name="author" content="Arpit Kumar Sahu">
+  <link rel="canonical" href="https://arpitkumarsahu.github.io/rn-perf-kit/getting-started.html">
+
+  <!-- OpenGraph / Social Metadata for Google & Sharing -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Getting Started with rn-perf-kit | React Native Setup Guide">
+  <meta property="og:description" content="Step-by-step 5-minute setup guide for rn-perf-kit in bare React Native and Expo projects. Register the Fiber hook and configure budgets.">
+  <meta property="og:url" content="https://arpitkumarsahu.github.io/rn-perf-kit/getting-started.html">
+  <meta property="og:site_name" content="rn-perf-kit Documentation">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Getting Started with rn-perf-kit | React Native Setup Guide">
+  <meta name="twitter:description" content="Step-by-step 5-minute setup guide for rn-perf-kit in bare React Native and Expo projects. Register the Fiber hook and configure budgets.">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Search -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "rn-perf-kit",
+    "operatingSystem": "Android, iOS",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Deep performance profiling toolkit for React Native apps focused on budget Android devices.",
+    "author": {
+      "@type": "Person",
+      "name": "Arpit Kumar Sahu"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://www.npmjs.com/package/rn-perf-kit"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <!-- Top Global Navbar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-left">
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="index.html" class="nav-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-title">rn-perf-kit</span>
+          <span class="version-badge">v0.1.1</span>
+        </a>
+      </div>
+      <div class="nav-search">
+        <input type="text" id="docSearch" placeholder="Search guides, components, APIs..." oninput="filterSearch(this.value)">
+        <div id="searchResults" class="search-results-dropdown"></div>
+      </div>
+      <div class="nav-right">
+        <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
+          <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
+        </a>
+        <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
+          <svg height="22" width="22" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Documentation Container -->
+  <div class="doc-layout">
+    <!-- Sidebar -->
+    <aside class="doc-sidebar" id="docSidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-group"><div class="sidebar-heading">Getting Started</div><ul class="sidebar-links">
+<li><a href="index.html">Overview</a></li>
+<li><a href="getting-started.html" class="active">Quick Start Guide</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Guides</div><ul class="sidebar-links">
+<li><a href="guides/navigation-profiling.html">Navigation Profiling</a></li>
+<li><a href="guides/re-render-analysis.html">Re-render Analysis</a></li>
+<li><a href="guides/frame-attribution-and-concurrency.html">Frame Attribution</a></li>
+<li><a href="guides/ci-performance-budgets.html">CI Performance Budgets</a></li>
+</ul></div>
+<div class="sidebar-group"><div class="sidebar-heading">Reference</div><ul class="sidebar-links">
+<li><a href="guides/api-reference.html">Full API Reference</a></li>
+</ul></div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="doc-main">
+      <article class="doc-content">
+        <h1 id="getting-started-with-rn-perf-kit"><a href="#getting-started-with-rn-perf-kit" class="anchor-link">#</a> Getting Started with rn-perf-kit</h1>
+<p><a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version" /></a></p>
+<p><a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/npm/dm/rn-perf-kit.svg?style=flat-square&color=blue" alt="npm downloads" /></a></p>
+<p>This guide walks you through setting up <code>rn-perf-kit</code> in your React Native or Expo application in under 5 minutes.</p>
+<p>📦 <strong>NPM Package</strong>: <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer">npmjs.com/package/rn-perf-kit</a></p>
+<hr />
+<h2 id="1-installation"><a href="#1-installation" class="anchor-link">#</a> 1. Installation</h2>
+<p>Install the package into your project:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">bash</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-bash"># Using npm
+npm install rn-perf-kit
+
+# Using pnpm
+pnpm add rn-perf-kit
+
+# Using yarn
+yarn add rn-perf-kit</code></pre>
+</div>
+<h3 id="expo-projects"><a href="#expo-projects" class="anchor-link">#</a> Expo Projects</h3>
+<p>If you use Expo, the included Config Plugin automatically configures Android and iOS build settings:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">json</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-json">// app.json
+{
+  &quot;expo&quot;: {
+    &quot;plugins&quot;: [&quot;@rn-perf-kit/native&quot;]
+  }
+}</code></pre>
+</div>
+<hr />
+<h2 id="2-install-the-react-fiber-hook-crucial-step"><a href="#2-install-the-react-fiber-hook-crucial-step" class="anchor-link">#</a> 2. Install the React Fiber Hook (Crucial Step)</h2>
+<p>To capture React commit times, component names, and re-render causes, <code>rn-perf-kit/install</code> <strong>must be the very first import</strong> in your application entry point before <code>react</code> or <code>react-native</code> are loaded.</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">javascript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-javascript">// index.js (Bare React Native) or index.ts (Expo)
+import &#x27;rn-perf-kit/install&#x27;; // &lt;--- MUST BE LINE 1
+
+import { registerRootComponent } from &#x27;expo&#x27;;
+import App from &#x27;./src/App&#x27;;
+
+registerRootComponent(App);</code></pre>
+</div>
+<blockquote><p><strong>Why?</strong> React checks for <code>__REACT_DEVTOOLS_GLOBAL_HOOK__</code> at module initialization time. Importing this first registers the hook before React creates its internal Fiber renderer.</p></blockquote>
+<hr />
+<h2 id="3-wrap-your-root-component"><a href="#3-wrap-your-root-component" class="anchor-link">#</a> 3. Wrap Your Root Component</h2>
+<p>In your root <code>App.tsx</code>, wrap your navigation tree with <code>&lt;PerfProvider&gt;</code>:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import React, { useRef } from &#x27;react&#x27;;
+import { NavigationContainer } from &#x27;@react-navigation/native&#x27;;
+import { createNativeStackNavigator } from &#x27;@react-navigation/native-stack&#x27;;
+import { PerfProvider, PerfOverlay } from &#x27;rn-perf-kit&#x27;;
+import { withNavigationPerf } from &#x27;rn-perf-kit/navigation&#x27;;
+
+const Stack = createNativeStackNavigator();
+
+export default function App() {
+  const navigationRef = useRef(null);
+
+  return (
+    &lt;PerfProvider
+      enabled={__DEV__ || Boolean(process.env.IS_QA_BUILD)}
+      mode=&quot;light&quot; // or &quot;deep&quot; for full fiber prop diffing
+      budgets={{
+        startup: { LOW: 3000, MID: 2000, HIGH: 1500 },
+        screens: { Home: 800, ProductDetail: 600 },
+        droppedFramesPct: { LOW: 15, MID: 5, HIGH: 2 },
+      }}
+      onViolation={(violation) =&gt; {
+        console.warn(&#x27;[perf:violation]&#x27;, violation.message);
+      }}
+    &gt;
+      &lt;NavigationContainer ref={withNavigationPerf(navigationRef)}&gt;
+        &lt;Stack.Navigator&gt;
+          &lt;Stack.Screen name=&quot;Home&quot; component={HomeScreen} /&gt;
+          &lt;Stack.Screen name=&quot;ProductDetail&quot; component={ProductDetailScreen} /&gt;
+        &lt;/Stack.Navigator&gt;
+      &lt;/NavigationContainer&gt;
+
+      {/* Floating HUD showing live JS/UI FPS, stalls, and active route */}
+      &lt;PerfOverlay position=&quot;top-right&quot; /&gt;
+    &lt;/PerfProvider&gt;
+  );
+}</code></pre>
+</div>
+<hr />
+<h2 id="4-instrumenting-screens-and-subtrees"><a href="#4-instrumenting-screens-and-subtrees" class="anchor-link">#</a> 4. Instrumenting Screens and Subtrees</h2>
+<h3 id="tracking-screen-readiness-useperfscreen"><a href="#tracking-screen-readiness-useperfscreen" class="anchor-link">#</a> Tracking Screen Readiness (<code>usePerfScreen</code>)</h3>
+<p>Use <code>usePerfScreen</code> to mark when a screen has finished loading its essential content:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import React, { useEffect } from &#x27;react&#x27;;
+import { View, Text } from &#x27;react-native&#x27;;
+import { usePerfScreen } from &#x27;rn-perf-kit&#x27;;
+
+export function ProductDetailScreen({ route }) {
+  const { markReady } = usePerfScreen(&#x27;ProductDetail&#x27;);
+  const { data, isLoading } = useProductQuery(route.params.id);
+
+  useEffect(() =&gt; {
+    if (!isLoading &amp;&amp; data) {
+      markReady(); // Measures Time-To-Content-Ready
+    }
+  }, [isLoading, data, markReady]);
+
+  return &lt;View&gt;...&lt;/View&gt;;
+}</code></pre>
+</div>
+<h3 id="wrapping-expensive-subtrees-perftrace"><a href="#wrapping-expensive-subtrees-perftrace" class="anchor-link">#</a> Wrapping Expensive Subtrees (<code>&lt;PerfTrace&gt;</code>)</h3>
+<p>Wrap suspect components to record render duration without fiber-hook overhead:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import { PerfTrace } from &#x27;rn-perf-kit&#x27;;
+
+&lt;PerfTrace id=&quot;ReviewsSection&quot;&gt;
+  &lt;ReviewsList productId={id} /&gt;
+&lt;/PerfTrace&gt;</code></pre>
+</div>
+<hr />
+<h2 id="5-hooking-up-store-adapters"><a href="#5-hooking-up-store-adapters" class="anchor-link">#</a> 5. Hooking Up Store Adapters</h2>
+<p>Link your state stores so the analyzer can pinpoint which action or state key triggered a re-render cascade:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">typescript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-typescript">// Redux Toolkit
+import { reduxPerfMiddleware } from &#x27;rn-perf-kit/adapters&#x27;;
+
+const store = configureStore({
+  reducer,
+  middleware: (getDefault) =&gt; getDefault().concat(reduxPerfMiddleware),
+});
+
+// Zustand
+import { zustandPerf } from &#x27;rn-perf-kit/adapters&#x27;;
+
+export const useCartStore = create(
+  zustandPerf(&#x27;cart&#x27;, (set) =&gt; ({
+    items: [],
+    addItem: (item) =&gt; set((s) =&gt; ({ items: [...s.items, item] })),
+  }))
+);
+
+// TanStack Query
+import { queryPerf } from &#x27;rn-perf-kit/adapters&#x27;;
+
+queryPerf(queryClient);</code></pre>
+</div>
+<hr />
+<h2 id="next-steps"><a href="#next-steps" class="anchor-link">#</a> Next Steps</h2>
+<ul>
+<li>Learn how to diagnose navigation stutter in <a href="./guides/navigation-profiling.html" ><strong>Diagnosing & Fixing Navigation Jank</strong></a>.</li>
+<li>Understand why components re-render in <a href="./guides/re-render-analysis.html" ><strong>Eliminating Render Storms</strong></a>.</li>
+</ul>
+      </article>
+      <footer class="doc-footer">
+        <div class="footer-edit">
+          <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer">
+            Edit this guide on GitHub →
+          </a>
+        </div>
+        <p class="footer-copy">MIT Licensed © 2026 Arpit Kumar Sahu. Built for React Native performance excellence.</p>
+      </footer>
+    </main>
+
+    <!-- Table of Contents Sidebar -->
+    <aside class="doc-toc">
+      <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
+<li class="toc-l2"><a href="#1-installation">1. Installation</a></li>
+<li class="toc-l3"><a href="#expo-projects">Expo Projects</a></li>
+<li class="toc-l2"><a href="#2-install-the-react-fiber-hook-crucial-step">2. Install the React Fiber Hook (Crucial Step)</a></li>
+<li class="toc-l2"><a href="#3-wrap-your-root-component">3. Wrap Your Root Component</a></li>
+<li class="toc-l2"><a href="#4-instrumenting-screens-and-subtrees">4. Instrumenting Screens and Subtrees</a></li>
+<li class="toc-l3"><a href="#tracking-screen-readiness-useperfscreen">Tracking Screen Readiness (`usePerfScreen`)</a></li>
+<li class="toc-l3"><a href="#wrapping-expensive-subtrees-perftrace">Wrapping Expensive Subtrees (``)</a></li>
+<li class="toc-l2"><a href="#5-hooking-up-store-adapters">5. Hooking Up Store Adapters</a></li>
+<li class="toc-l2"><a href="#next-steps">Next Steps</a></li>
+</ul></div>
+    </aside>
+  </div>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>
