@@ -1,0 +1,10 @@
+{
+  "name": "@rn-perf-kit/analyzers",
+  "version": "0.1.0",
+  "description": "Event analyzers for rn-perf-kit: navigation, render-cause, frame attribution",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": { "typecheck": "tsc --noEmit", "lint": "eslint src/" },
+  "devDependencies": { "typescript": "^5.3.0" },
+  "dependencies": { "@rn-perf-kit/core": "workspace:*" }
+}
