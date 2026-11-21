@@ -46,5 +46,33 @@ export function analyzeCascades(events: PerfEvent[], ctx: AnalyzerContext): Find
     }
   }
 
+  // Suspense thrash: a boundary falling back to its loading state again and again
+  const fallbacks = new Map<string, number[]>();
+  for (const ev of events) {
+    if (ev.type !== 'suspense' || !ev.showingFallback) continue;
+    if (!fallbacks.has(ev.boundary)) fallbacks.set(ev.boundary, []);
+    fallbacks.get(ev.boundary)!.push(ev.t);
+  }
+  for (const [boundary, times] of fallbacks) {
+    for (let i = 0; i + SUSPENSE_THRASH_COUNT - 1 < times.length; i++) {
+      if (times[i + SUSPENSE_THRASH_COUNT - 1] - times[i] > SUSPENSE_THRASH_WINDOW_MS) continue;
+      const count = times.filter((t) => t >= times[i] && t <= times[i] + SUSPENSE_THRASH_WINDOW_MS).length;
+      findings.push({
+        id: `cascade:suspense-thrash:${boundary}`,
+        severity: 'warning',
+        category: 'cascade',
+        title: `Suspense thrash: ${boundary} showed its fallback ${count}x in ${SUSPENSE_THRASH_WINDOW_MS / 1000}s`,
+        detail: 'The boundary kept switching between its loading fallback and content.',
+        suggestion: 'Wrap the update that suspends in startTransition (keeps old content on screen), or cache the data so it does not re-suspend.',
+        component: boundary,
+        t: times[i],
+      });
+      break;
+    }
+  }
+
   return findings;
 }
+
+const SUSPENSE_THRASH_COUNT = 3;
+const SUSPENSE_THRASH_WINDOW_MS = 2000;
