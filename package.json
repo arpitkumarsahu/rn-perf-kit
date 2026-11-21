@@ -1,0 +1,30 @@
+{
+  "name": "rn-perf-kit",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Deep performance profiling toolkit for React Native apps",
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:core": "node packages/core/test-runner.js",
+    "test:integration": "node scripts/run-integration-tests.js",
+    "report:html": "node packages/cli/dist/cli.js html session.json --output report.html",
+    "check:perf": "node packages/cli/dist/cli.js check --budgets perf.config.ts --report session.json",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "dev": "turbo run dev --parallel",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
