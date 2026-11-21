@@ -9,6 +9,18 @@ const STORM_THRESHOLD_PER_SEC = 30;
 const FAN_OUT_THRESHOLD = 15;
 const WINDOW_MS = 2000;
 
+// React Native building blocks. They re-render whenever their parent does, so a "storm"
+// on View/Text is always a symptom; the component that owns them is the finding.
+const PRIMITIVES: ReadonlySet<string> = new Set([
+  'View', 'Text', 'TextImpl', 'Image', 'ScrollView', 'FlatList', 'VirtualizedList',
+  'Pressable', 'TouchableOpacity', 'TouchableHighlight', 'TouchableWithoutFeedback',
+  'TextInput', 'Modal', 'SafeAreaView', 'KeyboardAvoidingView', 'ActivityIndicator',
+]);
+
+function isPrimitive(name: string): boolean {
+  return PRIMITIVES.has(name) || /^Animated(Component)?\(.+\)$/.test(name);
+}
+
 export interface RenderCauseReport {
   findings: Finding[];
   stats: { totalCommits: number; totalFibers: number; wastedFibers: number; wastedPct: number };
@@ -23,9 +35,13 @@ export function analyzeRenderCauses(events: PerfEvent[], _ctx: AnalyzerContext):
   const componentRenders = new Map<string, number[]>();
 
   for (const ev of commitEvents) {
+    // Count commits, not fibers: 60 Views rendering in ONE commit is not 60 renders of "View".
+    const seen = new Set<string>();
     for (const fiber of ev.fibers) {
       totalFibers++;
       if (fiber.wasted) wastedFibers++;
+      if (seen.has(fiber.name) || isPrimitive(fiber.name)) continue;
+      seen.add(fiber.name);
       if (!componentRenders.has(fiber.name)) componentRenders.set(fiber.name, []);
       componentRenders.get(fiber.name)!.push(ev.t);
     }

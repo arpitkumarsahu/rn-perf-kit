@@ -1,6 +1,7 @@
 #import "RnPerfKit.h"
 #import <QuartzCore/QuartzCore.h>
 #import <mach/mach.h>
+#import <os/proc.h>
 #import <UIKit/UIKit.h>
 
 @implementation RnPerfKit {
@@ -45,12 +46,12 @@ RCT_EXPORT_MODULE(RnPerfKit)
   int usedMb = 0;
   int availableMb = 0;
   
+  // usedMb = this app's resident memory (same meaning as Android's RSS).
   if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&info, &count) == KERN_SUCCESS) {
     usedMb = (int)(info.resident_size / 1024 / 1024);
-    uint64_t totalRam = [NSProcessInfo processInfo].physicalMemory;
-    int totalMb = (int)(totalRam / 1024 / 1024);
-    availableMb = MAX(0, totalMb - usedMb);
   }
+  // availableMb = how much more this app can allocate before iOS kills it (iOS 13+).
+  availableMb = (int)(os_proc_available_memory() / 1024 / 1024);
 
   return @{
     @"t": @(CACurrentMediaTime() * 1000.0),

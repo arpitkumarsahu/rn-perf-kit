@@ -7,6 +7,7 @@ import {
   timeline,
   perfClock,
   BudgetEngine,
+  computeFrameStats,
   type BudgetConfig,
   type DeviceTier,
   type BudgetViolation,
@@ -18,6 +19,8 @@ import {
   stopStallDetector,
   startFrameCollection,
   stopFrameCollection,
+  startSystemMonitoring,
+  stopSystemMonitoring,
   classifyDeviceTier,
   warnNativeMissing,
 } from '@rn-perf-kit/native';
@@ -50,11 +53,14 @@ export function PerfProvider({
   deviceTier,
 }: PerfProviderConfig & { children: ReactNode }): React.JSX.Element {
   const [tier, setTier] = useState<DeviceTier>(deviceTier ?? 'MID');
+  const [refreshRateHz, setRefreshRateHz] = useState(60);
 
   useEffect(() => {
-    if (deviceTier || !NativePerfKit) return;
+    if (!NativePerfKit) return;
     try {
-      setTier(classifyDeviceTier(NativePerfKit.getDeviceInfo()));
+      const info = NativePerfKit.getDeviceInfo();
+      if (info.refreshRateHz > 0) setRefreshRateHz(info.refreshRateHz);
+      if (!deviceTier) setTier(classifyDeviceTier(info));
     } catch {}
   }, [deviceTier]);
 
@@ -70,12 +76,14 @@ export function PerfProvider({
     if (native) {
       perfClock.install(() => native.nativeNow());
       startFrameCollection();
+      startSystemMonitoring();
     } else {
       warnNativeMissing();
     }
 
     return () => {
       if (native) {
+        stopSystemMonitoring();
         stopFrameCollection();
         perfClock.uninstall();
       }
@@ -108,16 +116,18 @@ export function PerfProvider({
         }
       }),
     ];
+    // Native frames arrive in 250 ms batches: judge the 1 s window [now-1250, now-250].
+    // Idle windows (nothing drawn) are skipped — an idle screen is not a slow screen.
     const fpsTimer = setInterval(() => {
       const now = timeline.now();
-      const frames = timeline.query(now - 1250, now - 250).filter((e) => e.type === 'frame').length;
-      if (frames > 0) engine.check('fps', frames, undefined, now);
+      const stats = computeFrameStats(timeline.query(now - 1250, now - 250), 1000, refreshRateHz);
+      if (stats.active) engine.check('fps', stats.uiFps, undefined, now);
     }, 1000);
     return () => {
       offs.forEach((off) => off());
       clearInterval(fpsTimer);
     };
-  }, [enabled, budgetsKey, tier]);
+  }, [enabled, budgetsKey, tier, refreshRateHz]);
 
   return (
     <PerfContext.Provider value={{ enabled, mode, tier }}>

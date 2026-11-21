@@ -3,8 +3,7 @@
  * Updates at ~2 Hz to minimize overhead.
  */
 import { useState, useEffect, useRef } from 'react';
-import { timeline } from '@rn-perf-kit/core';
-import type { PerfEvent } from '@rn-perf-kit/core';
+import { timeline, computeFrameStats } from '@rn-perf-kit/core';
 
 export interface PerfStats {
   jsFps: number;
@@ -59,18 +58,16 @@ export function usePerfStats(enabled = true): PerfStats {
       rafFrames = 0;
       last = now;
 
-      // Native frames arrive in 250 ms batches, so count the window [now-1250, now-250]
-      const frameEvents = timeline.query(now - 1250, now - 250).filter(
-        (e): e is Extract<PerfEvent, { type: 'frame' }> => e.type === 'frame'
-      );
-      const jankFrames = frameEvents.filter((f) => f.janky);
+      // Native frames arrive in 250 ms batches, so read the 1 s window [now-1250, now-250].
+      // UI fps comes from dropped frames: an idle screen (no frames drawn) reads full fps.
+      const frames = computeFrameStats(timeline.query(now - 1250, now - 250), 1000, refreshRateHz);
       const stalls = timeline.recent(5000).filter((e) => e.type === 'stall');
 
       setStats({
         jsFps,
-        uiFps: Math.min(refreshRateHz, frameEvents.length),
+        uiFps: frames.uiFps,
         stallCount: stalls.length,
-        jankFrameCount: jankFrames.length,
+        jankFrameCount: frames.jankFrames,
         currentRoute: routeRef.current,
       });
     }, 500);

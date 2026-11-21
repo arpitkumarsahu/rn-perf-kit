@@ -103,9 +103,11 @@ export function setFiberHookEnabled(value: boolean, deep = false): void {
 function processCommit(root: FiberRoot): void {
   const now = timeline.now();
   const current = root.current;
-  const dur = typeof current.actualDuration === 'number' ? current.actualDuration : -1;
   const fibers: RenderedFiber[] = [];
-  if (deepMode) collectRendered(current, fibers);
+  // Commits where only ignored subtrees rendered (e.g. the PerfOverlay HUD) are the
+  // profiler measuring itself: drop them so they never reach the timeline.
+  if (!walkCommit(current, deepMode ? fibers : null)) return;
+  const dur = typeof current.actualDuration === 'number' ? current.actualDuration : -1;
   timeline.add({
     type: 'commit',
     t: dur > 0 ? now - dur : now,
@@ -115,24 +117,54 @@ function processCommit(root: FiberRoot): void {
   });
 }
 
-function collectRendered(root: Fiber, out: RenderedFiber[]): void {
+/** Components opt out of profiling with `Component.__rnPerfKitIgnore = true`. */
+const IGNORE_KEY = '__rnPerfKitIgnore';
+
+function isIgnored(fiber: Fiber): boolean {
+  const type = fiber.type as any;
+  if (!type || (typeof type !== 'function' && typeof type !== 'object')) return false;
+  return (
+    type[IGNORE_KEY] === true ||
+    type.type?.[IGNORE_KEY] === true || // memo(Component)
+    type.render?.[IGNORE_KEY] === true // forwardRef(Component)
+  );
+}
+
+/**
+ * Walks the fibers that took part in this commit, skipping ignored subtrees.
+ * Returns true if any non-ignored component mounted or rendered.
+ * With `out`, also records re-rendered components (deep mode); without it, stops at
+ * the first piece of real work, so light mode stays cheap.
+ */
+function walkCommit(root: Fiber, out: RenderedFiber[] | null): boolean {
+  let hasWork = false;
   const stack: Fiber[] = [root];
-  while (stack.length > 0 && out.length < MAX_FIBERS_PER_COMMIT) {
+  while (stack.length > 0) {
     const fiber = stack.pop()!;
+    if (fiber.sibling) stack.push(fiber.sibling);
+    if (isIgnored(fiber)) continue;
     const prev = fiber.alternate;
-    if (prev && COMPONENT_TAGS.has(fiber.tag) && (fiber.flags & PerformedWork) !== 0) {
-      const cause = classifyRenderCause(fiber, prev);
-      out.push({
-        name: getFiberName(fiber),
-        cause,
-        actualDuration: fiber.actualDuration ?? 0,
-        wasted: isWasted(cause),
-      });
+    if (COMPONENT_TAGS.has(fiber.tag)) {
+      // No alternate on a fiber reached by this walk = it mounted in this commit
+      const rendered = !prev || (fiber.flags & PerformedWork) !== 0;
+      if (rendered) {
+        hasWork = true;
+        if (!out || out.length >= MAX_FIBERS_PER_COMMIT) return true;
+        if (prev) {
+          const cause = classifyRenderCause(fiber, prev);
+          out.push({
+            name: getFiberName(fiber),
+            cause,
+            actualDuration: fiber.actualDuration ?? 0,
+            wasted: isWasted(cause),
+          });
+        }
+      }
     }
     // A bailed-out subtree shares its child with the previous tree: nothing below it rendered
     if (fiber.child && !(prev && prev.child === fiber.child)) stack.push(fiber.child);
-    if (fiber.sibling) stack.push(fiber.sibling);
   }
+  return hasWork;
 }
 
 function stateChanged(fiber: Fiber, prev: Fiber): boolean {

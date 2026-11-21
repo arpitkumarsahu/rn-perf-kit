@@ -32,6 +32,8 @@ export interface BudgetViolation {
   t: number;
 }
 
+const MAX_VIOLATIONS = 500;
+
 export function resolveBudget(
   budget: TieredBudget | number | undefined,
   tier: DeviceTier
@@ -100,6 +102,8 @@ export class BudgetEngine {
       t: t ?? perfClock.jsNow(),
     };
     this.violations.push(violation);
+    // Long sessions must not grow without bound
+    if (this.violations.length > MAX_VIOLATIONS) this.violations.shift();
     this.onViolation?.(violation);
     return violation;
   }

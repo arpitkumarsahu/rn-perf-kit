@@ -16,4 +16,5 @@ export function warnNativeMissing(): void {
 export * from './device-tier';
 export * from './stall-detector';
 export * from './frame-collector';
+export * from './system-monitor';
 export type { DeviceInfo, FrameEvent, FrameBatch, MemoryEvent, ThermalEvent } from './NativeRnPerfKit';

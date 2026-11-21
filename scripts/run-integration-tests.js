@@ -18,6 +18,12 @@ const path = require('path');
 const STORM_THRESHOLD_PER_SEC = 30;
 const FAN_OUT_THRESHOLD = 15;
 const WINDOW_MS = 2000;
+const PRIMITIVES = new Set([
+  'View', 'Text', 'TextImpl', 'Image', 'ScrollView', 'FlatList', 'VirtualizedList',
+  'Pressable', 'TouchableOpacity', 'TouchableHighlight', 'TouchableWithoutFeedback',
+  'TextInput', 'Modal', 'SafeAreaView', 'KeyboardAvoidingView', 'ActivityIndicator',
+]);
+const isPrimitive = (name) => PRIMITIVES.has(name) || /^Animated(Component)?\(.+\)$/.test(name);
 
 function analyzeNavigation(events, ctx) {
   const reports = [];
@@ -103,7 +109,11 @@ function analyzeRenderCauses(events, _ctx) {
   const componentRenders = new Map();
 
   for (const ev of commitEvents) {
+    // One count per commit per component; React Native primitives are never the cause
+    const seen = new Set();
     for (const fiber of ev.fibers || []) {
+      if (seen.has(fiber.name) || isPrimitive(fiber.name)) continue;
+      seen.add(fiber.name);
       if (!componentRenders.has(fiber.name)) componentRenders.set(fiber.name, []);
       componentRenders.get(fiber.name).push(ev.t);
     }
@@ -323,6 +333,19 @@ const renderReport = analyzeRenderCauses(simulatedEvents, ctx);
 assertFinding(
   'Planted Bug 2: Detects render storm for ProductCard (unstable reference)',
   renderReport.findings.some((f) => f.id.includes('render:storm:ProductCard'))
+);
+
+// Regression: many instances of a primitive in ordinary commits is not a storm
+// (0.1.2 reported "Render storm: View rendered 68x in 2s" on a real app at startup).
+const busyScreenCommits = [];
+for (let c = 0; c < 20; c++) {
+  const fibers = [{ name: 'HomeScreen', cause: 'state-change', actualDuration: 3, wasted: false }];
+  for (let i = 0; i < 68; i++) fibers.push({ name: 'View', cause: 'parent-rerender', actualDuration: 0.1, wasted: true });
+  busyScreenCommits.push({ type: 'commit', t: 10000 + c * 100, dur: 5, phase: 'update', fibers });
+}
+assertFinding(
+  'No false render storm from many View instances in one commit',
+  analyzeRenderCauses(busyScreenCommits, ctx).findings.length === 0
 );
 
 assertFinding(

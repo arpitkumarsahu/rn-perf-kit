@@ -8,6 +8,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.hardware.display.DisplayManager
+import android.view.Display
+import androidx.metrics.performance.FrameDataApi31
 import androidx.metrics.performance.JankStats
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
@@ -47,7 +50,7 @@ class RnPerfKitModule(reactContext: ReactApplicationContext) :
         val cpuCores = Runtime.getRuntime().availableProcessors()
         val isLowRam = am?.isLowRamDevice ?: false
         val mediaPerf = if (Build.VERSION.SDK_INT >= 31) Build.VERSION.MEDIA_PERFORMANCE_CLASS else -1
-        val refreshRate = if (Build.VERSION.SDK_INT >= 30) ctx.display?.refreshRate?.toInt() ?: 60 else 60
+        val refreshRate = getRefreshRate()
 
         return Arguments.createMap().apply {
             putInt("totalRamMb", totalRamMb)
@@ -60,12 +63,42 @@ class RnPerfKitModule(reactContext: ReactApplicationContext) :
         }
     }
 
+    // The application context has no display: Context.getDisplay() throws on API 30+.
+    // Prefer the Activity's display (correct on multi-display devices), else the default one.
+    private fun getRefreshRate(): Int {
+        return try {
+            val activityDisplay = if (Build.VERSION.SDK_INT >= 30) {
+                reactApplicationContext.currentActivity?.display
+            } else null
+            val display = activityDisplay
+                ?: (reactApplicationContext.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager)
+                    ?.getDisplay(Display.DEFAULT_DISPLAY)
+            display?.refreshRate?.let { Math.round(it) } ?: 60
+        } catch (_: Exception) {
+            60
+        }
+    }
+
+    // usedMb = this app's resident memory (RSS), same meaning as iOS resident_size.
+    // availableMb = memory the system can still hand out.
+    // /proc/self/statm is cheap, unlike Debug.getMemoryInfo() or the rate-limited
+    // ActivityManager.getProcessMemoryInfo(), so this is safe to call from the JS thread.
+    private fun readRssMb(): Int {
+        return try {
+            val pages = java.io.File("/proc/self/statm").readText().trim().split(" ")[1].toLong()
+            val pageSize = android.system.Os.sysconf(android.system.OsConstants._SC_PAGESIZE)
+            (pages * pageSize / 1024 / 1024).toInt()
+        } catch (_: Exception) {
+            0
+        }
+    }
+
     override fun getMemorySnapshot(): WritableMap {
         val ctx = reactApplicationContext
         val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
         val mi = ActivityManager.MemoryInfo()
         am?.getMemoryInfo(mi)
-        val usedMb = ((mi.totalMem - mi.availMem) / 1024 / 1024).toInt()
+        val usedMb = readRssMb()
         val availableMb = (mi.availMem / 1024 / 1024).toInt()
         return Arguments.createMap().apply {
             putDouble("t", nativeNow())
@@ -118,8 +151,16 @@ class RnPerfKitModule(reactContext: ReactApplicationContext) :
         jankStats?.isTrackingEnabled = false
         try {
             jankStats = JankStats.createAndTrack(window) { f ->
+                // API 31+: total frame time (UI + RenderThread + GPU) and whether the frame
+                // missed its deadline, which is how Android's own frame stats (gfxinfo) count jank.
+                // Older APIs only report UI-thread time, so fall back to JankStats' heuristic.
+                val frame = if (f is FrameDataApi31) {
+                    Frame(f.frameStartNanos, f.frameDurationTotalNanos, f.frameOverrunNanos > 0)
+                } else {
+                    Frame(f.frameStartNanos, f.frameDurationUiNanos, f.isJank)
+                }
                 synchronized(pending) {
-                    pending.add(Frame(f.frameStartNanos, f.frameDurationUiNanos, f.isJank))
+                    pending.add(frame)
                 }
             }
         } catch (_: Exception) {}
@@ -163,6 +204,8 @@ class RnPerfKitModule(reactContext: ReactApplicationContext) :
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {}
+
+    @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
     override fun onLowMemory() {
         onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
     }

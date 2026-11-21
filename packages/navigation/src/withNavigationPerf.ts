@@ -6,7 +6,7 @@
  *   <NavigationContainer ref={withNavigationPerf(navigationRef)}>
  */
 import type { NavigationContainerRef, ParamListBase } from '@react-navigation/core';
-import { startNavSession, recordNavPhase } from './nav-state';
+import { startNavSession, notePendingTap } from './nav-state';
 
 type NavRef = NavigationContainerRef<ParamListBase>;
 const cache = new WeakMap<object, (instance: NavRef | null) => void>();
@@ -35,8 +35,9 @@ export function installNavigationListeners(nav: NavRef): () => void {
     }
   });
 
+  // Fires before the state change; startNavSession() attaches it to the new session
   const unsubscribeAction = nav.addListener('__unsafe_action__' as any, () => {
-    recordNavPhase('tap');
+    notePendingTap();
   });
 
   return () => {
