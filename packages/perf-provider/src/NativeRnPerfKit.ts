@@ -18,6 +18,8 @@ export type ThermalEvent = { t: number; status: string };
 
 export interface Spec extends TurboModule {
   nativeNow(): number;
+  /** When this process started, on the nativeNow() clock (ms). -1 when unknown. */
+  getProcessStartTime(): number;
   getDeviceInfo(): DeviceInfo;
   getMemorySnapshot(): MemoryEvent;
   getThermalStatus(): ThermalEvent;

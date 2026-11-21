@@ -9,7 +9,8 @@
     "./install": "./src/install.ts",
     "./navigation": "./src/navigation.ts",
     "./adapters": "./src/adapters.ts",
-    "./expo-router": "./src/navigation.ts"
+    "./expo-router": "./src/navigation.ts",
+    "./package.json": "./package.json"
   },
   "files": [
     "src",
