@@ -1,4 +1,4 @@
-// Copy code snippet helper
+
 function copyCode(btn) {
   const code = btn.closest('.code-block-wrapper').querySelector('code').innerText;
   navigator.clipboard.writeText(code).then(() => {
@@ -8,13 +8,11 @@ function copyCode(btn) {
   });
 }
 
-// Mobile sidebar toggle
 function toggleSidebar() {
   const sidebar = document.getElementById('docSidebar');
   sidebar.classList.toggle('open');
 }
 
-// Client-side quick search filtering
 function filterSearch(query) {
   const dropdown = document.getElementById('searchResults');
   if (!query || query.trim().length < 2) {
@@ -104,7 +102,6 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Keyboard shortcuts: '/' or 'Cmd+K' / 'Ctrl+K' to focus search
 document.addEventListener('keydown', (e) => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
     e.preventDefault();
@@ -120,7 +117,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Click outside to close search dropdown
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.nav-search')) {
     const dropdown = document.getElementById('searchResults');
