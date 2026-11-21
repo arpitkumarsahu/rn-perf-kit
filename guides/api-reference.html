@@ -491,7 +491,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
         <a href="../index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.1</span>
+          <span class="version-badge">v0.1.2</span>
         </a>
       </div>
       
@@ -552,13 +552,14 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 <p>4. <a href="#4-perftrace" ><code>&lt;PerfTrace&gt;</code></a></p>
 <p>5. <a href="#5-useperfscreen" ><code>usePerfScreen</code></a></p>
 <p>6. <a href="#6-usediscardedrendertracker" ><code>useDiscardedRenderTracker</code></a></p>
-<p>7. <a href="#7-withnavigationperf" ><code>withNavigationPerf</code></a></p>
+<p>7. <a href="#7-navigation-hooks--adapters" >Navigation Hooks & Adapters</a></p>
 <p>8. <a href="#8-perf-tracing-utility" ><code>perf</code> Tracing Utility</a></p>
-<p>9. <a href="#9-store-adapters" >Store Adapters</a></p>
-<p>10. <a href="#10-cli-commands" >CLI Commands</a></p>
+<p>9. <a href="#9-store--network-adapters" >Store & Network Adapters</a></p>
+<p>10. <a href="#10-analyzers--session-reports" >Analyzers & Session Reports</a></p>
+<p>11. <a href="#11-cli-commands" >CLI Commands</a></p>
 <hr />
 <h2 id="1-rn-perf-kitinstall"><a href="#1-rn-perf-kitinstall" class="anchor-link">#</a> 1. <code>rn-perf-kit/install</code></h2>
-<p>Installs the React DevTools Fiber hook before React loads. <strong>Must be the very first line of your entry point.</strong></p>
+<p>Installs the React DevTools Fiber hook before React initializes. <strong>Must be the very first import in your application entry point.</strong></p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">typescript</span>
@@ -568,7 +569,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 </div>
 <hr />
 <h2 id="2-perfprovider"><a href="#2-perfprovider" class="anchor-link">#</a> 2. <code>&lt;PerfProvider&gt;</code></h2>
-<p>Top-level context provider that configures and manages the lifecycle of the timeline, stall detectors, and fiber hooks.</p>
+<p>Top-level context provider that manages timeline lifecycle, high-precision clock synchronization, frame listeners, and budget monitoring.</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">tsx</span>
@@ -588,24 +589,28 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 <div class="table-container">
   <table>
     <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-    <tbody><tr><td><code>enabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Enables/disables all monitoring. Tree-shakeable when <code>false</code>.</td></tr><tr><td><code>mode</code></td><td>`'light' \</td><td>'deep'`</td><td><code>&#x27;light&#x27;</code></td><td><code>&#x27;light&#x27;</code> (<2% CPU, frames/stalls/sampled commits); <code>&#x27;deep&#x27;</code> (full fiber walk & prop diffing).</td></tr><tr><td><code>budgets</code></td><td><code>BudgetConfig</code></td><td><code>undefined</code></td><td>Hardware-tier aware budget thresholds.</td></tr><tr><td><code>onViolation</code></td><td><code>(v) =&gt; void</code></td><td><code>undefined</code></td><td>Callback fired when a budget violation is detected.</td></tr><tr><td><code>deviceTier</code></td><td>`'LOW' \</td><td>'MID' \</td><td>'HIGH'`</td><td>Auto</td><td>Overrides device tier classification for testing.</td></tr></tbody>
+    <tbody><tr><td><code>enabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Enables/disables all collectors. When <code>false</code>, the timeline stays dormant with 0 CPU overhead.</td></tr><tr><td><code>mode</code></td><td>`'light' \</td><td>'deep'`</td><td><code>&#x27;light&#x27;</code></td><td><code>&#x27;light&#x27;</code> (<2% CPU, frames/stalls/sampled commits); <code>&#x27;deep&#x27;</code> (bounded iterative fiber walking & prop diffing).</td></tr><tr><td><code>budgets</code></td><td><code>BudgetConfig</code></td><td><code>undefined</code></td><td>Hardware-tier aware budget thresholds.</td></tr><tr><td><code>onViolation</code></td><td><code>(v) =&gt; void</code></td><td><code>undefined</code></td><td>Callback fired when a budget violation is detected.</td></tr><tr><td><code>deviceTier</code></td><td>`'LOW' \</td><td>'MID' \</td><td>'HIGH'`</td><td>Auto</td><td>Overrides device hardware classification.</td></tr></tbody>
   </table>
 </div>
 <hr />
 <h2 id="3-perfoverlay"><a href="#3-perfoverlay" class="anchor-link">#</a> 3. <code>&lt;PerfOverlay&gt;</code></h2>
-<p>Floating, on-device HUD displaying live performance statistics.</p>
+<p>Floating, on-device HUD displaying live JS FPS (via <code>requestAnimationFrame</code>), UI FPS (via native hardware frame emitter), JS thread stalls, and the active route.</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">tsx</span>
     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
   </div>
-  <pre><code class="language-tsx">&lt;PerfOverlay position=&quot;top-right&quot; disabled={false} /&gt;</code></pre>
+  <pre><code class="language-tsx">&lt;PerfOverlay
+  position=&quot;top-right&quot;
+  disabled={false}
+  insets={{ top: 48, bottom: 34 }}
+/&gt;</code></pre>
 </div>
 <h3 id="props"><a href="#props" class="anchor-link">#</a> Props</h3>
 <div class="table-container">
   <table>
     <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-    <tbody><tr><td><code>position</code></td><td>`'top-right' \</td><td>'top-left' \</td><td>'bottom-right' \</td><td>'bottom-left'`</td><td><code>&#x27;top-right&#x27;</code></td><td>Screen corner placement.</td></tr><tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Hides the HUD.</td></tr></tbody>
+    <tbody><tr><td><code>position</code></td><td>`'top-right' \</td><td>'top-left' \</td><td>'bottom-right' \</td><td>'bottom-left'`</td><td><code>&#x27;top-right&#x27;</code></td><td>Screen corner placement.</td></tr><tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Hides HUD and halts all internal timers and animation frame loops.</td></tr><tr><td><code>insets</code></td><td><code>{ top: number; bottom: number }</code></td><td>Auto</td><td>Safe area insets (pass <code>useSafeAreaInsets()</code> from <code>react-native-safe-area-context</code>). Defaults to <code>StatusBar.currentHeight</code>.</td></tr></tbody>
   </table>
 </div>
 <hr />
@@ -631,11 +636,11 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
   <pre><code class="language-tsx">const { markReady } = usePerfScreen(screenName: string);</code></pre>
 </div>
 <ul>
-<li><strong><code>markReady()</code></strong>: Call when primary data and UI elements have completed loading.</li>
+<li><strong><code>markReady()</code></strong>: Call when primary data and UI elements have completed loading. Dispatches a <code>screen:ready:&lt;screenName&gt;</code> mark on the timeline.</li>
 </ul>
 <hr />
 <h2 id="6-usediscardedrendertracker"><a href="#6-usediscardedrendertracker" class="anchor-link">#</a> 6. <code>useDiscardedRenderTracker</code></h2>
-<p>Detects interim renders that were started by Concurrent React but discarded without committing.</p>
+<p>Detects renders started by Concurrent React that were discarded before committing to screen.</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">tsx</span>
@@ -644,8 +649,9 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
   <pre><code class="language-tsx">useDiscardedRenderTracker(componentName: string);</code></pre>
 </div>
 <hr />
-<h2 id="7-withnavigationperf"><a href="#7-withnavigationperf" class="anchor-link">#</a> 7. <code>withNavigationPerf</code></h2>
-<p>Wraps a React Navigation container reference to instrument routing lifecycle events.</p>
+<h2 id="7-navigation-hooks-adapters"><a href="#7-navigation-hooks-adapters" class="anchor-link">#</a> 7. Navigation Hooks & Adapters</h2>
+<h3 id="withnavigationperfref-react-navigation"><a href="#withnavigationperfref-react-navigation" class="anchor-link">#</a> <code>withNavigationPerf(ref)</code> (React Navigation)</h3>
+<p>Wraps a <code>useRef</code> pointing to <code>NavigationContainer</code>. Returns a cached callback ref that automatically binds listeners when the container mounts:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
     <span class="code-lang">tsx</span>
@@ -653,9 +659,23 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
   </div>
   <pre><code class="language-tsx">import { withNavigationPerf } from &#x27;rn-perf-kit/navigation&#x27;;
 
-&lt;NavigationContainer ref={withNavigationPerf(navigationRef)}&gt;
-  ...
-&lt;/NavigationContainer&gt;</code></pre>
+const navigationRef = useRef(null);
+&lt;NavigationContainer ref={withNavigationPerf(navigationRef)}&gt;</code></pre>
+</div>
+<h3 id="useexporouterperf-expo-router"><a href="#useexporouterperf-expo-router" class="anchor-link">#</a> <code>useExpoRouterPerf()</code> (Expo Router)</h3>
+<p>Hook for Expo Router applications. Automatically attaches listeners to Expo Router's navigation container:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">// app/_layout.tsx
+import { useExpoRouterPerf } from &#x27;rn-perf-kit/expo-router&#x27;;
+
+export default function RootLayout() {
+  useExpoRouterPerf();
+  return &lt;Stack /&gt;;
+}</code></pre>
 </div>
 <hr />
 <h2 id="8-perf-tracing-utility"><a href="#8-perf-tracing-utility" class="anchor-link">#</a> 8. <code>perf</code> Tracing Utility</h2>
@@ -675,7 +695,7 @@ trace.end({ success: true });
 perf.mark(&#x27;checkpoint-reached&#x27;);</code></pre>
 </div>
 <hr />
-<h2 id="9-store-adapters"><a href="#9-store-adapters" class="anchor-link">#</a> 9. Store Adapters</h2>
+<h2 id="9-store-network-adapters"><a href="#9-store-network-adapters" class="anchor-link">#</a> 9. Store & Network Adapters</h2>
 <p>Import from <code>rn-perf-kit/adapters</code>:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
@@ -683,20 +703,45 @@ perf.mark(&#x27;checkpoint-reached&#x27;);</code></pre>
     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
   </div>
   <pre><code class="language-typescript">import {
+  installNetworkInterceptor,
+  uninstallNetworkInterceptor,
   reduxPerfMiddleware,
   zustandPerf,
   queryPerf,
-  installFetchInterceptor
 } from &#x27;rn-perf-kit/adapters&#x27;;</code></pre>
 </div>
 <ul>
+<li><strong><code>installNetworkInterceptor()</code></strong>: Unified <code>XMLHttpRequest</code> interceptor covering both <code>axios</code> and <code>fetch</code>. Redacts query parameters and records response size.</li>
+<li><strong><code>uninstallNetworkInterceptor()</code></strong>: Safely removes network hooks if no newer wrapper is layered on top.</li>
 <li><strong><code>reduxPerfMiddleware</code></strong>: Dispatches Redux action types to timeline.</li>
 <li><strong><code>zustandPerf(name, creator)</code></strong>: Records changed store keys.</li>
-<li><strong><code>queryPerf(queryClient)</code></strong>: Subscribes to TanStack QueryCache and flags identical refetches.</li>
-<li><strong><code>installFetchInterceptor()</code></strong>: Intercepts <code>global.fetch</code> with automatic URL parameter redaction.</li>
+<li><strong><code>queryPerf(queryClient)</code></strong>: Subscribes to TanStack QueryCache using a <code>WeakMap</code>, flagging identical refetches with <code>[identical-refetch]</code>.</li>
 </ul>
 <hr />
-<h2 id="10-cli-commands"><a href="#10-cli-commands" class="anchor-link">#</a> 10. CLI Commands</h2>
+<h2 id="10-analyzers-session-reports"><a href="#10-analyzers-session-reports" class="anchor-link">#</a> 10. Analyzers & Session Reports</h2>
+<p>Import from <code>rn-perf-kit</code>:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">typescript</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-typescript">import {
+  generateJsonReport,
+  generatePerfettoTrace,
+  getDeviceReportInfo,
+  analyzeNavigation,
+  analyzeRenderCauses,
+  analyzeFrameAttribution,
+  analyzeCascades,
+} from &#x27;rn-perf-kit&#x27;;</code></pre>
+</div>
+<ul>
+<li><strong><code>generateJsonReport(options)</code></strong>: Generates complete session JSON and automatically populates <code>findings</code> using all 4 analyzers.</li>
+<li><strong><code>generatePerfettoTrace()</code></strong>: Exports timeline events in Perfetto / Chrome Trace Event Format for viewing in <code>ui.perfetto.dev</code>.</li>
+<li><strong><code>getDeviceReportInfo()</code></strong>: Helper retrieving classified tier, OS, and hardware metrics from native telemetry.</li>
+</ul>
+<hr />
+<h2 id="11-cli-commands"><a href="#11-cli-commands" class="anchor-link">#</a> 11. CLI Commands</h2>
 <p>Executed via <code>npx rn-perf</code> or <code>node packages/cli/dist/cli.js</code>:</p>
 <div class="code-block-wrapper">
   <div class="code-block-header">
@@ -735,10 +780,13 @@ rn-perf html session.json --output report.html</code></pre>
 <li class="toc-l2"><a href="#4-perftrace">4. ``</a></li>
 <li class="toc-l2"><a href="#5-useperfscreen">5. `usePerfScreen`</a></li>
 <li class="toc-l2"><a href="#6-usediscardedrendertracker">6. `useDiscardedRenderTracker`</a></li>
-<li class="toc-l2"><a href="#7-withnavigationperf">7. `withNavigationPerf`</a></li>
+<li class="toc-l2"><a href="#7-navigation-hooks-adapters">7. Navigation Hooks & Adapters</a></li>
+<li class="toc-l3"><a href="#withnavigationperfref-react-navigation">`withNavigationPerf(ref)` (React Navigation)</a></li>
+<li class="toc-l3"><a href="#useexporouterperf-expo-router">`useExpoRouterPerf()` (Expo Router)</a></li>
 <li class="toc-l2"><a href="#8-perf-tracing-utility">8. `perf` Tracing Utility</a></li>
-<li class="toc-l2"><a href="#9-store-adapters">9. Store Adapters</a></li>
-<li class="toc-l2"><a href="#10-cli-commands">10. CLI Commands</a></li>
+<li class="toc-l2"><a href="#9-store-network-adapters">9. Store & Network Adapters</a></li>
+<li class="toc-l2"><a href="#10-analyzers-session-reports">10. Analyzers & Session Reports</a></li>
+<li class="toc-l2"><a href="#11-cli-commands">11. CLI Commands</a></li>
 </ul></div>
     </aside>
   </div>
@@ -780,44 +828,44 @@ function filterSearch(query) {
     {
       title: 'Quick Start Installation',
       category: 'Getting Started',
-      desc: '5-minute setup in React Native and Expo, fiber hook registration',
+      desc: '5-minute setup in React Native and Expo, fiber hook registration, autolinking',
       url: root + 'getting-started.html',
-      keywords: 'install setup fiber hook perfprovider expo npm yarn pnpm'
+      keywords: 'install setup fiber hook perfprovider expo router expo-router autolinking npm yarn pnpm new architecture'
     },
     {
       title: 'Navigation Profiling',
       category: 'Guides',
-      desc: '6-phase routing breakdown, mount-during-transition jank detection',
+      desc: '6-phase routing breakdown, Expo Router and React Navigation deferral',
       url: root + 'guides/navigation-profiling.html',
-      keywords: 'navigation jank lag transition stutter defer mount tap dispatch'
+      keywords: 'navigation jank lag transition stutter defer mount tap dispatch expo router expo-router withnavigationperf useexporouterperf'
     },
     {
       title: 'Re-render Analysis',
       category: 'Guides',
       desc: 'Eliminating render storms, wasted re-renders, and selector instability',
       url: root + 'guides/re-render-analysis.html',
-      keywords: 're-render render storm wasted selector redux zustand context'
+      keywords: 're-render render storm wasted selector redux zustand context query tanstack identical refetch'
     },
     {
       title: 'Frame Attribution & Concurrency',
       category: 'Guides',
-      desc: 'Correlate dropped frames with JS commits, stalls, and layout cascades',
+      desc: 'Correlate dropped frames with JS commits, stalls, JankStats, and layout cascades',
       url: root + 'guides/frame-attribution-and-concurrency.html',
-      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect'
+      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect jankstats cadisplaylink clock sync'
     },
     {
       title: 'CI Performance Budgets',
       category: 'Guides',
       desc: 'Automated performance regression checks in GitHub Actions PRs',
       url: root + 'guides/ci-performance-budgets.html',
-      keywords: 'ci budgets github actions regression check cli rn-perf'
+      keywords: 'ci budgets github actions regression check cli rn-perf hardware tiers low mid high'
     },
     {
       title: 'Full API Reference',
       category: 'Reference',
-      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, hooks',
+      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, useExpoRouterPerf, adapters',
       url: root + 'guides/api-reference.html',
-      keywords: 'api reference perfprovider withnavigationperf useperfscreen perftrace'
+      keywords: 'api reference perfprovider withnavigationperf useexporouterperf useperfscreen perftrace network query store analyzers'
     }
   ];
 

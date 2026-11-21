@@ -491,7 +491,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
         <a href="index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.1</span>
+          <span class="version-badge">v0.1.2</span>
         </a>
       </div>
       
@@ -566,19 +566,19 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 </ul>
 <h3 id="3-reference"><a href="#3-reference" class="anchor-link">#</a> 3. Reference</h3>
 <ul>
-<li><a href="./guides/api-reference.html" ><strong>Full API Reference</strong></a> — Complete documentation for all exports, hooks, components, adapters, and CLI commands.</li>
+<li><a href="./guides/api-reference.html" ><strong>Full API Reference</strong></a> — Complete documentation for all exports, hooks, components, adapters, analyzers, and CLI commands.</li>
 </ul>
 <hr />
 <h2 id="architectural-principles"><a href="#architectural-principles" class="anchor-link">#</a> Architectural Principles</h2>
 <p>1. <strong>Correlation Over Collection:</strong> A dropped frame or slow commit alone doesn't explain <em>why</em> it happened. rn-perf-kit synchronizes native frame timestamps with JS commits, store updates, and navigation lifecycle events onto a single unified timeline.</p>
-<p>2. <strong>Minimal Overhead:</strong> Light mode operates with < 2% CPU overhead by keeping prop diffing off the hot path and throttling HUD updates to 2 Hz.</p>
+<p>2. <strong>Minimal Overhead:</strong> Light mode operates with < 2% CPU overhead by keeping prop diffing off the hot path and throttling HUD updates to 2 Hz. In disabled mode, the timeline is completely dormant.</p>
 <p>3. <strong>Hardware Context:</strong> A 400ms transition may be acceptable on a budget Android phone ($100 device with 2GB RAM) but unacceptable on a flagship phone. All metrics are tagged with device capability tiers (<code>LOW</code>, <code>MID</code>, <code>HIGH</code>).</p>
 <hr />
-<h2 id="packages"><a href="#packages" class="anchor-link">#</a> Packages</h2>
+<h2 id="packages-monorepo"><a href="#packages-monorepo" class="anchor-link">#</a> Packages (Monorepo)</h2>
 <div class="table-container">
   <table>
     <thead><tr><th>Package</th><th>NPM Link</th><th>Description</th></tr></thead>
-    <tbody><tr><td><code>rn-perf-kit</code></td><td><a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer">npm/rn-perf-kit</a></td><td>Top-level provider bundle</td></tr><tr><td><code>@rn-perf-kit/core</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/core" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/core</a></td><td>Timeline, ring buffer, clock sync, budgets</td></tr><tr><td><code>@rn-perf-kit/native</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/native" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/native</a></td><td>TurboModule native bridge (AndroidX FrameMetrics, CADisplayLink)</td></tr><tr><td><code>@rn-perf-kit/react</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/react" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/react</a></td><td>Fiber hook adapter, <code>&lt;PerfTrace&gt;</code>, <code>usePerfScreen</code></td></tr><tr><td><code>@rn-perf-kit/navigation</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/navigation" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/navigation</a></td><td>6-phase React Navigation + Expo Router adapter</td></tr><tr><td><code>@rn-perf-kit/adapters</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/adapters" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/adapters</a></td><td>Redux, Zustand, React Query, fetch adapters</td></tr><tr><td><code>@rn-perf-kit/analyzers</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/analyzers" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/analyzers</a></td><td>Navigation, render storms, frame attribution</td></tr><tr><td><code>@rn-perf-kit/overlay</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/overlay" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/overlay</a></td><td>In-app 2 Hz floating HUD overlay</td></tr><tr><td><code>@rn-perf-kit/reporters</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/reporters" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/reporters</a></td><td>JSON, Perfetto trace, standalone HTML report</td></tr><tr><td><code>@rn-perf-kit/cli</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/cli" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/cli</a></td><td>CLI: <code>compare</code>, <code>check</code>, <code>html</code></td></tr></tbody>
+    <tbody><tr><td><code>rn-perf-kit</code></td><td><a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer">npm/rn-perf-kit</a></td><td>Top-level drop-in provider & native TurboModule bundle</td></tr><tr><td><code>@rn-perf-kit/core</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/core" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/core</a></td><td>Timeline, ring buffer, clock sync, budgets</td></tr><tr><td><code>@rn-perf-kit/native</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/native" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/native</a></td><td>TurboModule spec & device tier classification helpers</td></tr><tr><td><code>@rn-perf-kit/react</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/react" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/react</a></td><td>Fiber hook adapter, <code>&lt;PerfTrace&gt;</code>, <code>usePerfScreen</code></td></tr><tr><td><code>@rn-perf-kit/navigation</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/navigation" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/navigation</a></td><td>6-phase React Navigation + Expo Router adapter</td></tr><tr><td><code>@rn-perf-kit/adapters</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/adapters" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/adapters</a></td><td>Redux, Zustand, React Query, XHR/network adapters</td></tr><tr><td><code>@rn-perf-kit/analyzers</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/analyzers" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/analyzers</a></td><td>Navigation, render storms, frame attribution</td></tr><tr><td><code>@rn-perf-kit/overlay</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/overlay" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/overlay</a></td><td>In-app 2 Hz floating HUD overlay (<code>PerfOverlay</code>)</td></tr><tr><td><code>@rn-perf-kit/reporters</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/reporters" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/reporters</a></td><td>JSON, Perfetto trace, standalone HTML report</td></tr><tr><td><code>@rn-perf-kit/cli</code></td><td><a href="https://www.npmjs.com/package/@rn-perf-kit/cli" target="_blank" rel="noopener noreferrer">npm/@rn-perf-kit/cli</a></td><td>CLI: <code>compare</code>, <code>check</code>, <code>html</code></td></tr></tbody>
   </table>
 </div>
       </article>
@@ -600,7 +600,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 <li class="toc-l3"><a href="#2-deep-dive-guides">2. Deep Dive Guides</a></li>
 <li class="toc-l3"><a href="#3-reference">3. Reference</a></li>
 <li class="toc-l2"><a href="#architectural-principles">Architectural Principles</a></li>
-<li class="toc-l2"><a href="#packages">Packages</a></li>
+<li class="toc-l2"><a href="#packages-monorepo">Packages (Monorepo)</a></li>
 </ul></div>
     </aside>
   </div>
@@ -642,44 +642,44 @@ function filterSearch(query) {
     {
       title: 'Quick Start Installation',
       category: 'Getting Started',
-      desc: '5-minute setup in React Native and Expo, fiber hook registration',
+      desc: '5-minute setup in React Native and Expo, fiber hook registration, autolinking',
       url: root + 'getting-started.html',
-      keywords: 'install setup fiber hook perfprovider expo npm yarn pnpm'
+      keywords: 'install setup fiber hook perfprovider expo router expo-router autolinking npm yarn pnpm new architecture'
     },
     {
       title: 'Navigation Profiling',
       category: 'Guides',
-      desc: '6-phase routing breakdown, mount-during-transition jank detection',
+      desc: '6-phase routing breakdown, Expo Router and React Navigation deferral',
       url: root + 'guides/navigation-profiling.html',
-      keywords: 'navigation jank lag transition stutter defer mount tap dispatch'
+      keywords: 'navigation jank lag transition stutter defer mount tap dispatch expo router expo-router withnavigationperf useexporouterperf'
     },
     {
       title: 'Re-render Analysis',
       category: 'Guides',
       desc: 'Eliminating render storms, wasted re-renders, and selector instability',
       url: root + 'guides/re-render-analysis.html',
-      keywords: 're-render render storm wasted selector redux zustand context'
+      keywords: 're-render render storm wasted selector redux zustand context query tanstack identical refetch'
     },
     {
       title: 'Frame Attribution & Concurrency',
       category: 'Guides',
-      desc: 'Correlate dropped frames with JS commits, stalls, and layout cascades',
+      desc: 'Correlate dropped frames with JS commits, stalls, JankStats, and layout cascades',
       url: root + 'guides/frame-attribution-and-concurrency.html',
-      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect'
+      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect jankstats cadisplaylink clock sync'
     },
     {
       title: 'CI Performance Budgets',
       category: 'Guides',
       desc: 'Automated performance regression checks in GitHub Actions PRs',
       url: root + 'guides/ci-performance-budgets.html',
-      keywords: 'ci budgets github actions regression check cli rn-perf'
+      keywords: 'ci budgets github actions regression check cli rn-perf hardware tiers low mid high'
     },
     {
       title: 'Full API Reference',
       category: 'Reference',
-      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, hooks',
+      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, useExpoRouterPerf, adapters',
       url: root + 'guides/api-reference.html',
-      keywords: 'api reference perfprovider withnavigationperf useperfscreen perftrace'
+      keywords: 'api reference perfprovider withnavigationperf useexporouterperf useperfscreen perftrace network query store analyzers'
     }
   ];
 

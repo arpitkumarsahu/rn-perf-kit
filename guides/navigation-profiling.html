@@ -491,7 +491,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
         <a href="../index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.1</span>
+          <span class="version-badge">v0.1.2</span>
         </a>
       </div>
       
@@ -558,8 +558,46 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 <div class="table-container">
   <table>
     <thead><tr><th>Phase</th><th>Description</th><th>How <code>rn-perf-kit</code> captures it</th></tr></thead>
-    <tbody><tr><td><strong>Tap → Dispatch</strong></td><td>Time between touch event and navigation action trigger</td><td>Intercepts <code>__unsafe_action__</code> on <code>navigationRef</code></td></tr><tr><td><strong>Dispatch → First Commit</strong></td><td>Time taken for React to mount the root container of the new route</td><td>Fiber commit hook detects first commit containing new route</td></tr><tr><td><strong>Transition Start → End</strong></td><td>The native/JS slide or fade animation duration</td><td>Screen focus / transition listeners (<code>transitionStart</code>, <code>transitionEnd</code>)</td></tr><tr><td><strong>Content Ready</strong></td><td>When primary data/UI has loaded</td><td>Triggered when <code>markReady()</code> is called from <code>usePerfScreen</code></td></tr><tr><td><strong>Interactive</strong></td><td>Screen is stable with no frames dropped or JS stalls for 300ms</td><td>Timeline analyzer evaluates frame rate & stall sentinel</td></tr></tbody>
+    <tbody><tr><td><strong>Tap → Dispatch</strong></td><td>Time between touch event and navigation action trigger</td><td>Intercepts navigation dispatch on <code>navigationRef</code> or Expo Router ref</td></tr><tr><td><strong>Dispatch → First Commit</strong></td><td>Time taken for React to mount the root container of the new route</td><td>Fiber commit hook detects first commit containing new route</td></tr><tr><td><strong>Transition Start → End</strong></td><td>The native/JS slide or fade animation duration</td><td>Screen focus / transition listeners (<code>transitionStart</code>, <code>transitionEnd</code>)</td></tr><tr><td><strong>Content Ready</strong></td><td>When primary data/UI has loaded</td><td>Triggered when <code>markReady()</code> is called from <code>usePerfScreen</code></td></tr><tr><td><strong>Interactive</strong></td><td>Screen is stable with no frames dropped or JS stalls for 300ms</td><td>Timeline analyzer evaluates frame rate & stall sentinel</td></tr></tbody>
   </table>
+</div>
+<hr />
+<h2 id="setting-up-navigation-instrumentation"><a href="#setting-up-navigation-instrumentation" class="anchor-link">#</a> Setting Up Navigation Instrumentation</h2>
+<h3 id="standard-react-navigation"><a href="#standard-react-navigation" class="anchor-link">#</a> Standard React Navigation</h3>
+<p><code>withNavigationPerf(ref)</code> returns a cached callback ref that automatically binds all required state listeners when <code>&lt;NavigationContainer&gt;</code> mounts:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import { NavigationContainer } from &#x27;@react-navigation/native&#x27;;
+import { withNavigationPerf } from &#x27;rn-perf-kit/navigation&#x27;;
+
+export function RootNavigator() {
+  const navRef = useRef(null);
+
+  return (
+    &lt;NavigationContainer ref={withNavigationPerf(navRef)}&gt;
+      {/* Screens */}
+    &lt;/NavigationContainer&gt;
+  );
+}</code></pre>
+</div>
+<h3 id="expo-router"><a href="#expo-router" class="anchor-link">#</a> Expo Router</h3>
+<p>In Expo Router apps, call <code>useExpoRouterPerf()</code> inside your root <code>_layout.tsx</code>:</p>
+<div class="code-block-wrapper">
+  <div class="code-block-header">
+    <span class="code-lang">tsx</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code class="language-tsx">import { Stack } from &#x27;expo-router&#x27;;
+import { useExpoRouterPerf } from &#x27;rn-perf-kit/expo-router&#x27;;
+
+export default function Layout() {
+  useExpoRouterPerf(); // Listens to Expo Router navigation container
+
+  return &lt;Stack /&gt;;
+}</code></pre>
 </div>
 <hr />
 <h2 id="common-cause-1-mounting-heavy-subtrees-during-animation"><a href="#common-cause-1-mounting-heavy-subtrees-during-animation" class="anchor-link">#</a> Common Cause 1: Mounting Heavy Subtrees During Animation</h2>
@@ -664,6 +702,9 @@ export function ProductDetailScreen({ route }) {
     <aside class="doc-toc">
       <div class="toc-wrapper"><div class="toc-title">On this page</div><ul class="toc-list">
 <li class="toc-l2"><a href="#the-6-navigation-phases">The 6 Navigation Phases</a></li>
+<li class="toc-l2"><a href="#setting-up-navigation-instrumentation">Setting Up Navigation Instrumentation</a></li>
+<li class="toc-l3"><a href="#standard-react-navigation">Standard React Navigation</a></li>
+<li class="toc-l3"><a href="#expo-router">Expo Router</a></li>
 <li class="toc-l2"><a href="#common-cause-1-mounting-heavy-subtrees-during-animation">Common Cause 1: Mounting Heavy Subtrees During Animation</a></li>
 <li class="toc-l3"><a href="#the-symptom">The Symptom</a></li>
 <li class="toc-l3"><a href="#the-finding-from-rn-perf-kit">The Finding from `rn-perf-kit`</a></li>
@@ -715,44 +756,44 @@ function filterSearch(query) {
     {
       title: 'Quick Start Installation',
       category: 'Getting Started',
-      desc: '5-minute setup in React Native and Expo, fiber hook registration',
+      desc: '5-minute setup in React Native and Expo, fiber hook registration, autolinking',
       url: root + 'getting-started.html',
-      keywords: 'install setup fiber hook perfprovider expo npm yarn pnpm'
+      keywords: 'install setup fiber hook perfprovider expo router expo-router autolinking npm yarn pnpm new architecture'
     },
     {
       title: 'Navigation Profiling',
       category: 'Guides',
-      desc: '6-phase routing breakdown, mount-during-transition jank detection',
+      desc: '6-phase routing breakdown, Expo Router and React Navigation deferral',
       url: root + 'guides/navigation-profiling.html',
-      keywords: 'navigation jank lag transition stutter defer mount tap dispatch'
+      keywords: 'navigation jank lag transition stutter defer mount tap dispatch expo router expo-router withnavigationperf useexporouterperf'
     },
     {
       title: 'Re-render Analysis',
       category: 'Guides',
       desc: 'Eliminating render storms, wasted re-renders, and selector instability',
       url: root + 'guides/re-render-analysis.html',
-      keywords: 're-render render storm wasted selector redux zustand context'
+      keywords: 're-render render storm wasted selector redux zustand context query tanstack identical refetch'
     },
     {
       title: 'Frame Attribution & Concurrency',
       category: 'Guides',
-      desc: 'Correlate dropped frames with JS commits, stalls, and layout cascades',
+      desc: 'Correlate dropped frames with JS commits, stalls, JankStats, and layout cascades',
       url: root + 'guides/frame-attribution-and-concurrency.html',
-      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect'
+      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect jankstats cadisplaylink clock sync'
     },
     {
       title: 'CI Performance Budgets',
       category: 'Guides',
       desc: 'Automated performance regression checks in GitHub Actions PRs',
       url: root + 'guides/ci-performance-budgets.html',
-      keywords: 'ci budgets github actions regression check cli rn-perf'
+      keywords: 'ci budgets github actions regression check cli rn-perf hardware tiers low mid high'
     },
     {
       title: 'Full API Reference',
       category: 'Reference',
-      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, hooks',
+      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, useExpoRouterPerf, adapters',
       url: root + 'guides/api-reference.html',
-      keywords: 'api reference perfprovider withnavigationperf useperfscreen perftrace'
+      keywords: 'api reference perfprovider withnavigationperf useexporouterperf useperfscreen perftrace network query store analyzers'
     }
   ];
 
