@@ -10,8 +10,38 @@ function copyCode(btn) {
 
 function toggleSidebar() {
   const sidebar = document.getElementById('docSidebar');
-  sidebar.classList.toggle('open');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const toggleBtn = document.querySelector('.mobile-toggle');
+  if (sidebar) sidebar.classList.toggle('open');
+  if (backdrop) backdrop.classList.toggle('active');
+  if (toggleBtn) toggleBtn.classList.toggle('active');
 }
+
+function updateSearchPlaceholder() {
+  const input = document.getElementById('docSearch');
+  if (input) {
+    if (window.innerWidth <= 640) {
+      input.placeholder = "Search docs...";
+    } else {
+      input.placeholder = "Search guides, components, APIs... (Press / to search)";
+    }
+  }
+}
+window.addEventListener('resize', updateSearchPlaceholder);
+document.addEventListener('DOMContentLoaded', () => {
+  updateSearchPlaceholder();
+  const sidebarLinks = document.querySelectorAll('.doc-sidebar a');
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('docSidebar');
+        if (sidebar && sidebar.classList.contains('open')) {
+          toggleSidebar();
+        }
+      }
+    });
+  });
+});
 
 function filterSearch(query) {
   const dropdown = document.getElementById('searchResults');
