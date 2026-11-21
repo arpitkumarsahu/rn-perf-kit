@@ -1,6 +1,6 @@
 {
   "name": "@rn-perf-kit/cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "CLI for rn-perf-kit: compare sessions, check budgets, generate HTML reports",
   "bin": {
     "rn-perf": "./dist/cli.js"
@@ -17,7 +17,7 @@
     "@types/node": "^20.0.0"
   },
   "dependencies": {
-    "@rn-perf-kit/core": "^0.1.2"
+    "@rn-perf-kit/core": "^0.1.3"
   },
   "author": "Arpit Kumar Sahu <aarpitkumarsahu99@gmail.com>",
   "license": "MIT",
