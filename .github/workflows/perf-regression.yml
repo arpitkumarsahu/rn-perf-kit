@@ -49,4 +49,6 @@ jobs:
           fi
           grep -q "Dropped 18/25 frames during Home → ProductDetail" budget-check.txt || { echo "::error::Navigation jank finding missing"; exit 1; }
           grep -q "Render storm: ProductCard" budget-check.txt || { echo "::error::Render storm finding missing"; exit 1; }
+          # The budgets in perf.config.ts must actually be applied, not just the findings
+          grep -q "\[commit\] 1 commit(s) 121ms > budget 32ms" budget-check.txt || { echo "::error::Commit budget from perf.config.ts was not applied"; exit 1; }
           echo "Budget CLI correctly rejected the planted bugs."

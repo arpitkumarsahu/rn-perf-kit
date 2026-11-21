@@ -31,8 +31,14 @@ jobs:
       - name: Typecheck packages
         run: pnpm typecheck
 
+      - name: Build CLI
+        run: pnpm --filter @rn-perf-kit/cli build
+
       - name: Run Core Unit Tests
         run: node packages/core/test-runner.js
+
+      - name: Run Unit Tests (real package sources)
+        run: node scripts/run-unit-tests.js
 
       - name: Run JankLab Integration Tests
         run: node scripts/run-integration-tests.js
