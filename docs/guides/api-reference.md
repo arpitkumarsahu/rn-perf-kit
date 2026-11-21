@@ -85,7 +85,7 @@ Floating, on-device HUD displaying live JS FPS (via `requestAnimationFrame`), UI
 
 ## 4. `<PerfTrace>`
 
-Lightweight wrapper around React's `<Profiler>` for targeted subtree measurement.
+Lightweight wrapper around React's `<Profiler>` for targeted subtree measurement. Each render of the subtree is recorded as a `trace` event named by `id` (shown as `trace:<id>` in Perfetto); it is not counted as an extra commit. Requires a dev or profiling build.
 
 ```tsx
 <PerfTrace id="ReviewsList" disabled={false}>
@@ -175,11 +175,11 @@ import {
 } from 'rn-perf-kit/adapters';
 ```
 
-- **`installNetworkInterceptor()`**: Unified `XMLHttpRequest` interceptor covering both `axios` and `fetch`. Redacts query parameters and records response size.
+- **`installNetworkInterceptor()`**: Unified `XMLHttpRequest` interceptor covering both `axios` and `fetch`. Records response size, and redacts query strings and id-like path segments (long numbers, UUIDs, tokens, emails become `:id`). `redactUrl(url)` is exported.
 - **`uninstallNetworkInterceptor()`**: Safely removes network hooks if no newer wrapper is layered on top.
 - **`reduxPerfMiddleware`**: Dispatches Redux action types to timeline.
-- **`zustandPerf(name, creator)`**: Records changed store keys.
-- **`queryPerf(queryClient)`**: Subscribes to TanStack QueryCache using a `WeakMap`, flagging identical refetches with `[identical-refetch]`.
+- **`zustandPerf(name, creator)`**: Records changed store keys. Supports `set(state, true)` (replace).
+- **`queryPerf(queryClient, { formatKey? })`**: Subscribes to TanStack QueryCache, flagging identical refetches with `[identical-refetch]`. Keys are recorded as `first-segment(+N)` by default because they often contain user data; pass `formatKey: (q) => q.queryHash` to record full keys.
 
 ---
 
@@ -210,10 +210,10 @@ import {
 Executed via `npx rn-perf` or `node packages/cli/dist/cli.js`:
 
 ```bash
-# 1. Compare two session reports
-rn-perf compare base.json pr.json
+# 1. Compare two session reports (exits 1 on new findings or a jank regression)
+rn-perf compare base.json pr.json [--max-jank-increase 2] [--report-only]
 
-# 2. Check a session against performance budgets (exits 1 on critical violation)
+# 2. Apply perf.config budgets to a session (exits 1 on any violation or critical finding)
 rn-perf check --budgets perf.config.ts --report session.json
 
 # 3. Generate interactive HTML performance report

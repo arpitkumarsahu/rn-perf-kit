@@ -26,7 +26,7 @@ Create a `perf.config.ts` file in the root of your project:
 import type { BudgetConfig } from 'rn-perf-kit';
 
 const config: BudgetConfig = {
-  // App startup to interactive (ms)
+  // Process start -> first usePerfScreen().markReady() (ms)
   startup: {
     LOW: 3000,
     MID: 2000,
@@ -58,7 +58,7 @@ export default config;
 ## 3. Using the CLI
 
 ### Budget Checking (`rn-perf check`)
-Evaluates a recorded session against your budget configuration. If any **critical findings** or budget violations occur, the process exits with exit code `1`, failing the CI step:
+Applies the budgets in your config (`.ts`, `.js` or `.json`, default export) to a recorded session, using the session's device tier. Any budget violation or **critical finding** exits with code `1`, failing the CI step:
 
 ```bash
 # In CI:
@@ -70,13 +70,17 @@ rn-perf check --budgets perf.config.ts --report session.json
 🔍 rn-perf budget check
 Budgets: perf.config.ts
 
+Device tier: LOW
+
+❌ 2 budget violation(s):
+
+  [fps] 42fps < budget 45fps (tier: LOW)
+  [screen] ProductDetail 940ms > budget 900ms (tier: LOW)
+
 ❌ 2 critical finding(s):
 
-  [fps] 42fps < budget 55fps (tier: LOW)
-  [screen] ProductDetail 940ms > budget 600ms (tier: LOW)
-
   [navigation] Dropped 18/25 frames during Home → ProductDetail
-    72% frame drop rate during transition. Commit time: 121ms.
+    72% drop rate. Commit time: 121ms. JS stall: 0ms.
     💡 Defer heavy component mounts until after transitionEnd.
 
   [render] Render storm: ProductCard rendered 80x in 2s
@@ -85,7 +89,7 @@ Budgets: perf.config.ts
 ```
 
 ### PR Regression Comparison (`rn-perf compare`)
-Compares performance metrics between the base branch and the current PR branch:
+Compares performance metrics between the base branch and the current PR branch. Exits `1` when the PR adds critical/warning findings or raises jank % by more than `--max-jank-increase` points (default 2); add `--report-only` to only print. Findings are matched without their timestamps, so the same problem in both sessions is not reported as new:
 
 ```bash
 rn-perf compare base-session.json pr-session.json

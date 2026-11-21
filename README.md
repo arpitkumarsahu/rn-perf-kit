@@ -33,9 +33,9 @@ React Native apps often feel smooth on a developer's flagship phone, then lag an
 
 ## Features
 
-- 📍 **Navigation profiling** — phase-by-phase breakdown: tap → dispatch → first commit → transition → content ready → interactive
-- 🔁 **Re-render analysis** — detects wasted renders, unstable references, fan-outs, selector instability
-- ⚡ **Interruption detection** — discarded renders, cascading updates, Suspense thrash, long commits
+- 📍 **Navigation profiling** — phase-by-phase breakdown: tap → dispatch → first commit → transition start/end → content ready → interactive, recorded automatically from the navigation container (React Navigation 7 / Expo Router)
+- 🔁 **Re-render analysis** — wasted renders, unstable props, store fan-outs, selector instability (`deep` mode)
+- ⚡ **Interruption detection** — cascading updates, long commits, Suspense thrash (`deep` mode), discarded renders (`useDiscardedRenderTracker`)
 - 🖥️ **Frame attribution** — every dropped frame linked to a JS cause, or labeled native-side
 - 📱 **Device-tier-aware** — LOW / MID / HIGH classification with tier-specific budgets
 - 🔧 **Low overhead** — light mode runs in QA/release builds at under 2% CPU
@@ -139,6 +139,8 @@ export default function Root() {
 }
 ```
 
+`useExpoRouterPerf()` / `withNavigationPerf()` record every navigation phase from the container; no per-screen hook is needed. Stack navigators report transition start/end; tabs and drawers have no transition, so their navigations end at `interactive` (no React commits for 250 ms). On React Navigation 6, add `useNavigationPerf()` to screens to get transition timings.
+
 Remember the `index.js` entry from step 1 — `import 'rn-perf-kit/install'` at the top of `_layout.tsx` is too late for release builds.
 
 ### 3. Mark screen readiness
@@ -147,6 +149,7 @@ Remember the `index.js` entry from step 1 — `import 'rn-perf-kit/install'` at 
 import { usePerfScreen, PerfTrace } from 'rn-perf-kit';
 
 function HomeScreen() {
+  // Use the route name, so this also becomes the navigation's "content ready" phase
   const { markReady } = usePerfScreen('Home');
   const { data } = useFeed();
 
@@ -176,9 +179,12 @@ const store = configureStore({
 // Zustand
 const useCart = create(zustandPerf('cart', (set) => ({ items: [] })));
 
-// TanStack Query
+// TanStack Query. Keys are recorded as 'portfolio(+2)' by default: query keys often
+// hold user data (ids, phone numbers). Pass { formatKey: (q) => q.queryHash } for full keys.
 queryPerf(queryClient);
 ```
+
+Network requests are recorded automatically. Query strings and id-like path segments (long numbers, UUIDs, tokens, emails) are replaced before they reach the timeline: `/users/9876543210/orders?x=1` → `/users/:id/orders?[redacted]`.
 
 ### 5. Custom traces
 
@@ -187,8 +193,21 @@ import { perf } from 'rn-perf-kit';
 
 const t = perf.start('parse-catalog');
 parseCatalog(json);
-t.end();
+t.end(); // appears as a slice in the JSON report and the Perfetto trace
 ```
+
+### Budgets: what each one measures
+
+| Budget | Measured as | Needs |
+|---|---|---|
+| `startup` | Process start → the first `usePerfScreen().markReady()` | `markReady()` on your first screen |
+| `screens[name]` | Screen mount → its `markReady()` | `usePerfScreen(name)` |
+| `navigation['From→To']` | Tap (or dispatch) → interactive | Navigation listeners (step 2) |
+| `minFps` | UI fps per second that drew frames (idle seconds are skipped) | Native module |
+| `droppedFramesPct` | Dropped frames ÷ refresh rate, per active second | Native module |
+| `maxCommitDuration` | Each React commit's duration | Dev or profiling build |
+
+Budgets are values or `{ LOW, MID, HIGH }` by device tier. Violations go to `onViolation` in the app, and `rn-perf check` applies the same budgets to a saved session in CI.
 
 ---
 
@@ -214,15 +233,19 @@ Published packages on npm under the [`@rn-perf-kit`](https://www.npmjs.com/org/r
 ## CLI & CI Integration
 
 ```sh
-# Compare PR session against baseline
+# Compare PR session against baseline. Exits 1 on new critical/warning findings or if
+# jank % rises by more than --max-jank-increase points (default 2). --report-only never fails.
 rn-perf compare base-session.json pr-session.json
 
-# Check against budgets in perf.config.ts (exits with code 1 on regression)
+# Apply the budgets in perf.config.ts (.ts, .js or .json) to a session.
+# Exits 1 on any budget violation or critical finding.
 rn-perf check --budgets perf.config.ts --report session.json
 
-# Generate a standalone interactive HTML dashboard
+# Generate a standalone HTML dashboard
 rn-perf html session.json --output report.html
 ```
+
+A session file is the JSON from `serializeReport(generateJsonReport({ device: getDeviceReportInfo() }))` (all exported from `rn-perf-kit`), saved or uploaded by your app or test run.
 
 ---
 
@@ -243,7 +266,7 @@ rn-perf html session.json --output report.html
 |---|---|---|
 | `disabled` | Zero (dormant timeline, 0 events recorded) | Production builds |
 | `light` | < 1–2% CPU | QA, dogfood, internal releases |
-| `deep` | Measurable, time-boxed | Local dev, targeted debugging |
+| `deep` | Measurable, time-boxed | Local dev, targeted debugging. Needed for render causes, wasted renders, selector instability and Suspense thrash |
 
 ### Production Recommendation
 While `<PerfProvider enabled={false}>` keeps all hooks dormant, in production builds you can bypass importing:
