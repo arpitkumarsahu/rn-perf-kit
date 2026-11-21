@@ -9,6 +9,7 @@
     "test:core": "node packages/core/test-runner.js",
     "test:integration": "node scripts/run-integration-tests.js",
     "report:html": "node packages/cli/dist/cli.js html session.json --output report.html",
+    "publish:all": "bash scripts/publish-all.sh",
     "check:perf": "node packages/cli/dist/cli.js check --budgets perf.config.ts --report session.json",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",

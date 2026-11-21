@@ -10,17 +10,26 @@
     "./navigation": "./src/navigation.ts",
     "./adapters": "./src/adapters.ts"
   },
-  "scripts": { "typecheck": "tsc --noEmit", "lint": "eslint src/" },
-  "peerDependencies": { "react": ">=18.0.0", "react-native": ">=0.73.0" },
-  "devDependencies": { "typescript": "^5.3.0", "@types/react": "^18.0.0" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-native": ">=0.73.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/react": "^18.0.0"
+  },
   "dependencies": {
-    "@rn-perf-kit/core": "workspace:*",
-    "@rn-perf-kit/native": "workspace:*",
-    "@rn-perf-kit/react": "workspace:*",
-    "@rn-perf-kit/navigation": "workspace:*",
-    "@rn-perf-kit/adapters": "workspace:*",
-    "@rn-perf-kit/analyzers": "workspace:*",
-    "@rn-perf-kit/overlay": "workspace:*",
-    "@rn-perf-kit/reporters": "workspace:*"
+    "@rn-perf-kit/core": "^0.1.0",
+    "@rn-perf-kit/native": "^0.1.0",
+    "@rn-perf-kit/react": "^0.1.0",
+    "@rn-perf-kit/navigation": "^0.1.0",
+    "@rn-perf-kit/adapters": "^0.1.0",
+    "@rn-perf-kit/analyzers": "^0.1.0",
+    "@rn-perf-kit/overlay": "^0.1.0",
+    "@rn-perf-kit/reporters": "^0.1.0"
   }
 }

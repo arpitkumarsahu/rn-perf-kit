@@ -16,6 +16,6 @@
     "@types/react-native": "^0.73.0"
   },
   "dependencies": {
-    "@rn-perf-kit/core": "workspace:*"
+    "@rn-perf-kit/core": "^0.1.0"
   }
 }
