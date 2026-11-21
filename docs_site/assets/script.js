@@ -17,33 +17,110 @@ function toggleSidebar() {
 // Client-side quick search filtering
 function filterSearch(query) {
   const dropdown = document.getElementById('searchResults');
-  if (!query || query.length < 2) {
+  if (!query || query.trim().length < 2) {
     dropdown.style.display = 'none';
     dropdown.innerHTML = '';
     return;
   }
 
+  const root = window.DOCS_ROOT || '';
+
   const searchable = [
-    { title: 'Overview & Features', url: 'index.html', text: 'what is slow why what to change architecture' },
-    { title: 'Quick Start Installation', url: 'getting-started.html', text: 'install fiber hook setup perfprovider' },
-    { title: 'Navigation Profiling', url: 'guides/navigation-profiling.html', text: 'tap dispatch first commit transition end jank defer' },
-    { title: 'Re-render Analysis', url: 'guides/re-render-analysis.html', text: 'render storms wasted renders selector instability redux zustand' },
-    { title: 'Frame Attribution & Concurrency', url: 'guides/frame-attribution-and-concurrency.html', text: 'dropped frames discarded renders uselayouteffect native stalls' },
-    { title: 'CI Performance Budgets', url: 'guides/ci-performance-budgets.html', text: 'ci budgets github actions pr regression rn-perf check' },
-    { title: 'API Reference', url: 'guides/api-reference.html', text: 'PerfProvider PerfOverlay withNavigationPerf usePerfScreen' }
+    {
+      title: 'Overview & Architecture',
+      category: 'Getting Started',
+      desc: 'Unified timeline, budget tiers (LOW/MID/HIGH), minimal overhead',
+      url: root + 'index.html',
+      keywords: 'overview what is slow why what to change architecture core'
+    },
+    {
+      title: 'Quick Start Installation',
+      category: 'Getting Started',
+      desc: '5-minute setup in React Native and Expo, fiber hook registration',
+      url: root + 'getting-started.html',
+      keywords: 'install setup fiber hook perfprovider expo npm yarn pnpm'
+    },
+    {
+      title: 'Navigation Profiling',
+      category: 'Guides',
+      desc: '6-phase routing breakdown, mount-during-transition jank detection',
+      url: root + 'guides/navigation-profiling.html',
+      keywords: 'navigation jank lag transition stutter defer mount tap dispatch'
+    },
+    {
+      title: 'Re-render Analysis',
+      category: 'Guides',
+      desc: 'Eliminating render storms, wasted re-renders, and selector instability',
+      url: root + 'guides/re-render-analysis.html',
+      keywords: 're-render render storm wasted selector redux zustand context'
+    },
+    {
+      title: 'Frame Attribution & Concurrency',
+      category: 'Guides',
+      desc: 'Correlate dropped frames with JS commits, stalls, and layout cascades',
+      url: root + 'guides/frame-attribution-and-concurrency.html',
+      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect'
+    },
+    {
+      title: 'CI Performance Budgets',
+      category: 'Guides',
+      desc: 'Automated performance regression checks in GitHub Actions PRs',
+      url: root + 'guides/ci-performance-budgets.html',
+      keywords: 'ci budgets github actions regression check cli rn-perf'
+    },
+    {
+      title: 'Full API Reference',
+      category: 'Reference',
+      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, hooks',
+      url: root + 'guides/api-reference.html',
+      keywords: 'api reference perfprovider withnavigationperf useperfscreen perftrace'
+    }
   ];
 
-  const q = query.toLowerCase();
-  const matches = searchable.filter(s => s.title.toLowerCase().includes(q) || s.text.toLowerCase().includes(q));
+  const q = query.trim().toLowerCase();
+  const matches = searchable.filter(s =>
+    s.title.toLowerCase().includes(q) ||
+    s.desc.toLowerCase().includes(q) ||
+    s.keywords.toLowerCase().includes(q)
+  );
 
   if (matches.length === 0) {
-    dropdown.innerHTML = '<div class="search-item-empty">No results found</div>';
+    dropdown.innerHTML = '<div class="search-item-empty">No results found for &ldquo;' + escapeHtml(query) + '&rdquo;</div>';
   } else {
-    dropdown.innerHTML = matches.map(m => `<a href="${m.url}" class="search-item"><strong>${m.title}</strong></a>`).join('');
+    dropdown.innerHTML = matches.map(m => `
+      <a href="${m.url}" class="search-item">
+        <div class="search-item-header">
+          <span class="search-item-title">${m.title}</span>
+          <span class="search-item-category">${m.category}</span>
+        </div>
+        <span class="search-item-desc">${m.desc}</span>
+      </a>
+    `).join('');
   }
   dropdown.style.display = 'block';
 }
 
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Keyboard shortcuts: '/' or 'Cmd+K' / 'Ctrl+K' to focus search
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    const searchInput = document.getElementById('docSearch');
+    if (searchInput) { searchInput.focus(); searchInput.select(); }
+  } else if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    const searchInput = document.getElementById('docSearch');
+    if (searchInput) { searchInput.focus(); searchInput.select(); }
+  } else if (e.key === 'Escape') {
+    const dropdown = document.getElementById('searchResults');
+    if (dropdown) dropdown.style.display = 'none';
+  }
+});
+
+// Click outside to close search dropdown
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.nav-search')) {
     const dropdown = document.getElementById('searchResults');

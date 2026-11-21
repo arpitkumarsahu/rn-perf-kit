@@ -310,6 +310,10 @@ TEMPLATE = """<!DOCTYPE html>
   }}
   </script>
 
+  <script>
+    window.DOCS_ROOT = "{root_rel}";
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -329,16 +333,22 @@ TEMPLATE = """<!DOCTYPE html>
           <span class="version-badge">v0.1.1</span>
         </a>
       </div>
+      
+      <!-- Search Component -->
       <div class="nav-search">
-        <input type="text" id="docSearch" placeholder="Search guides, components, APIs..." oninput="filterSearch(this.value)">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+        </svg>
+        <input type="text" id="docSearch" placeholder="Search guides, components, APIs... (Press / to search)" oninput="filterSearch(this.value)" autocomplete="off">
         <div id="searchResults" class="search-results-dropdown"></div>
       </div>
+
       <div class="nav-right">
         <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
           <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
         </a>
         <a href="https://github.com/arpitkumarsahu/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-github-link">
-          <svg height="22" width="22" viewBox="0 0 16 16" fill="currentColor">
+          <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
           </svg>
           <span>GitHub</span>
@@ -420,7 +430,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: rgba(10, 14, 23, 0.85);
+  background-color: rgba(10, 14, 23, 0.92);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   height: 64px;
@@ -434,7 +444,7 @@ body {
   justify-content: space-between;
   height: 100%;
 }
-.nav-left { display: flex; align-items: center; gap: 16px; }
+.nav-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 .nav-logo {
   display: flex;
   align-items: center;
@@ -454,28 +464,121 @@ body {
   border-radius: 9999px;
   font-family: var(--font-mono);
 }
+
+/* ── Fixed Search Bar Styling ───────────────────────────────────────────── */
 .nav-search {
   position: relative;
   flex: 1;
-  max-width: 440px;
-  margin: 0 32px;
+  max-width: 480px;
+  margin: 0 28px;
+  display: flex;
+  align-items: center;
+}
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 2;
 }
 .nav-search input {
   width: 100%;
-  padding: 8px 14px;
+  height: 38px;
+  padding: 0 14px 0 36px;
   border-radius: 8px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  font-family: var(--font-sans);
   transition: all 0.2s ease;
 }
 .nav-search input:focus {
   outline: none;
   border-color: var(--accent-cyan);
+  background-color: #0b0f19;
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
 }
-.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-search input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Modern Search Dropdown ─────────────────────────────────────────────── */
+.search-results-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #111827;
+  border: 1px solid #1f293d;
+  border-radius: 10px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  z-index: 1000;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 6px;
+}
+.search-item {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 10px 14px !important;
+  border-radius: 6px !important;
+  text-decoration: none !important;
+  color: #f3f4f6 !important;
+  background: transparent !important;
+  transition: all 0.15s ease !important;
+  margin-bottom: 2px !important;
+  border-left: 3px solid transparent !important;
+}
+.search-item:last-child { margin-bottom: 0 !important; }
+.search-item:hover, .search-item:focus {
+  background: #1f2937 !important;
+  border-left-color: #38bdf8 !important;
+  color: #ffffff !important;
+  outline: none !important;
+}
+.search-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.search-item-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #38bdf8 !important;
+}
+.search-item:hover .search-item-title {
+  color: #60a5fa !important;
+}
+.search-item-category {
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+}
+.search-item-desc {
+  font-size: 0.8rem;
+  color: #9ca3af !important;
+  line-height: 1.4;
+}
+.search-item-empty {
+  padding: 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+/* ── Top Nav Right ──────────────────────────────────────────────────────── */
+.nav-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.nav-badge-link { display: flex; align-items: center; }
 .nav-github-link {
   display: flex;
   align-items: center;
@@ -483,7 +586,7 @@ body {
   color: var(--text-primary);
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   padding: 6px 12px;
   border-radius: 6px;
   background: var(--bg-surface);
@@ -754,33 +857,110 @@ function toggleSidebar() {
 // Client-side quick search filtering
 function filterSearch(query) {
   const dropdown = document.getElementById('searchResults');
-  if (!query || query.length < 2) {
+  if (!query || query.trim().length < 2) {
     dropdown.style.display = 'none';
     dropdown.innerHTML = '';
     return;
   }
 
+  const root = window.DOCS_ROOT || '';
+
   const searchable = [
-    { title: 'Overview & Features', url: 'index.html', text: 'what is slow why what to change architecture' },
-    { title: 'Quick Start Installation', url: 'getting-started.html', text: 'install fiber hook setup perfprovider' },
-    { title: 'Navigation Profiling', url: 'guides/navigation-profiling.html', text: 'tap dispatch first commit transition end jank defer' },
-    { title: 'Re-render Analysis', url: 'guides/re-render-analysis.html', text: 'render storms wasted renders selector instability redux zustand' },
-    { title: 'Frame Attribution & Concurrency', url: 'guides/frame-attribution-and-concurrency.html', text: 'dropped frames discarded renders uselayouteffect native stalls' },
-    { title: 'CI Performance Budgets', url: 'guides/ci-performance-budgets.html', text: 'ci budgets github actions pr regression rn-perf check' },
-    { title: 'API Reference', url: 'guides/api-reference.html', text: 'PerfProvider PerfOverlay withNavigationPerf usePerfScreen' }
+    {
+      title: 'Overview & Architecture',
+      category: 'Getting Started',
+      desc: 'Unified timeline, budget tiers (LOW/MID/HIGH), minimal overhead',
+      url: root + 'index.html',
+      keywords: 'overview what is slow why what to change architecture core'
+    },
+    {
+      title: 'Quick Start Installation',
+      category: 'Getting Started',
+      desc: '5-minute setup in React Native and Expo, fiber hook registration',
+      url: root + 'getting-started.html',
+      keywords: 'install setup fiber hook perfprovider expo npm yarn pnpm'
+    },
+    {
+      title: 'Navigation Profiling',
+      category: 'Guides',
+      desc: '6-phase routing breakdown, mount-during-transition jank detection',
+      url: root + 'guides/navigation-profiling.html',
+      keywords: 'navigation jank lag transition stutter defer mount tap dispatch'
+    },
+    {
+      title: 'Re-render Analysis',
+      category: 'Guides',
+      desc: 'Eliminating render storms, wasted re-renders, and selector instability',
+      url: root + 'guides/re-render-analysis.html',
+      keywords: 're-render render storm wasted selector redux zustand context'
+    },
+    {
+      title: 'Frame Attribution & Concurrency',
+      category: 'Guides',
+      desc: 'Correlate dropped frames with JS commits, stalls, and layout cascades',
+      url: root + 'guides/frame-attribution-and-concurrency.html',
+      keywords: 'frame attribution dropped frames stalls concurrent discarded uselayouteffect'
+    },
+    {
+      title: 'CI Performance Budgets',
+      category: 'Guides',
+      desc: 'Automated performance regression checks in GitHub Actions PRs',
+      url: root + 'guides/ci-performance-budgets.html',
+      keywords: 'ci budgets github actions regression check cli rn-perf'
+    },
+    {
+      title: 'Full API Reference',
+      category: 'Reference',
+      desc: 'Complete reference for PerfProvider, PerfOverlay, withNavigationPerf, hooks',
+      url: root + 'guides/api-reference.html',
+      keywords: 'api reference perfprovider withnavigationperf useperfscreen perftrace'
+    }
   ];
 
-  const q = query.toLowerCase();
-  const matches = searchable.filter(s => s.title.toLowerCase().includes(q) || s.text.toLowerCase().includes(q));
+  const q = query.trim().toLowerCase();
+  const matches = searchable.filter(s =>
+    s.title.toLowerCase().includes(q) ||
+    s.desc.toLowerCase().includes(q) ||
+    s.keywords.toLowerCase().includes(q)
+  );
 
   if (matches.length === 0) {
-    dropdown.innerHTML = '<div class="search-item-empty">No results found</div>';
+    dropdown.innerHTML = '<div class="search-item-empty">No results found for &ldquo;' + escapeHtml(query) + '&rdquo;</div>';
   } else {
-    dropdown.innerHTML = matches.map(m => `<a href="${m.url}" class="search-item"><strong>${m.title}</strong></a>`).join('');
+    dropdown.innerHTML = matches.map(m => `
+      <a href="${m.url}" class="search-item">
+        <div class="search-item-header">
+          <span class="search-item-title">${m.title}</span>
+          <span class="search-item-category">${m.category}</span>
+        </div>
+        <span class="search-item-desc">${m.desc}</span>
+      </a>
+    `).join('');
   }
   dropdown.style.display = 'block';
 }
 
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Keyboard shortcuts: '/' or 'Cmd+K' / 'Ctrl+K' to focus search
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    const searchInput = document.getElementById('docSearch');
+    if (searchInput) { searchInput.focus(); searchInput.select(); }
+  } else if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    const searchInput = document.getElementById('docSearch');
+    if (searchInput) { searchInput.focus(); searchInput.select(); }
+  } else if (e.key === 'Escape') {
+    const dropdown = document.getElementById('searchResults');
+    if (dropdown) dropdown.style.display = 'none';
+  }
+});
+
+// Click outside to close search dropdown
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.nav-search')) {
     const dropdown = document.getElementById('searchResults');
