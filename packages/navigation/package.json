@@ -1,6 +1,6 @@
 {
   "name": "@rn-perf-kit/navigation",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "React Navigation + Expo Router adapter for rn-perf-kit",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -28,7 +28,7 @@
     "@types/react": "^18.0.0"
   },
   "dependencies": {
-    "@rn-perf-kit/core": "^0.1.4"
+    "@rn-perf-kit/core": "^0.1.5"
   },
   "author": "Arpit Kumar Sahu <aarpitkumarsahu99@gmail.com>",
   "license": "MIT",

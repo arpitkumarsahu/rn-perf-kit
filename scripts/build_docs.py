@@ -444,6 +444,21 @@ body {
 /* ── Top Nav Right ──────────────────────────────────────────────────────── */
 .nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .nav-badge-link { display: flex; align-items: center; }
+.nav-demo-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  transition: background 0.2s, border-color 0.2s;
+}
+.nav-demo-link:hover { background: var(--bg-surface-elevated); border-color: var(--accent); }
 .nav-github-link {
   display: flex;
   align-items: center;
@@ -830,6 +845,13 @@ img {
   .nav-badge-link {
     display: none;
   }
+  .nav-demo-link {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  .nav-demo-link .demo-text {
+    display: none;
+  }
   .nav-github-link {
     padding: 6px;
     width: 36px;
@@ -1139,7 +1161,7 @@ TEMPLATE = """<!DOCTYPE html>
         <a href="{root_rel}index.html" class="nav-logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-title">rn-perf-kit</span>
-          <span class="version-badge">v0.1.4</span>
+          <span class="version-badge">v0.1.5</span>
         </a>
       </div>
       
@@ -1153,6 +1175,10 @@ TEMPLATE = """<!DOCTYPE html>
       </div>
 
       <div class="nav-right">
+        <a href="https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/example" target="_blank" rel="noopener noreferrer" class="nav-demo-link" title="JankLab Demo Playground">
+          <span>🧪</span>
+          <span class="demo-text">Demo App</span>
+        </a>
         <a href="https://www.npmjs.com/package/rn-perf-kit" target="_blank" rel="noopener noreferrer" class="nav-badge-link">
           <img src="https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square&color=CB3837" alt="npm version">
         </a>

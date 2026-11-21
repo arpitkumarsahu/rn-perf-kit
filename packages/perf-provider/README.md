@@ -12,8 +12,8 @@
 🌐 **Documentation Site**: [arpitkumarsahu.github.io/rn-perf-kit](https://arpitkumarsahu.github.io/rn-perf-kit/)  
 📦 **NPM Registry**: [npmjs.com/package/rn-perf-kit](https://www.npmjs.com/package/rn-perf-kit)  
 🐙 **GitHub Repository**: [github.com/arpitkumarsahu/rn-perf-kit](https://github.com/arpitkumarsahu/rn-perf-kit)  
-📖 **Guides & Docs**: [Documentation Suite](./docs/README.md)  
-🧪 **Demo App**: [JankLab Playground](./example/README.md)
+📖 **Guides & Docs**: [Documentation Suite](https://arpitkumarsahu.github.io/rn-perf-kit/)  
+🧪 **Demo App**: [JankLab Playground](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/example)
 
 ---
 
@@ -217,16 +217,16 @@ Published packages on npm under the [`@rn-perf-kit`](https://www.npmjs.com/org/r
 
 | Package | Version / Registry Link | Source Path | Description |
 |---|---|---|---|
-| **`rn-perf-kit`** | [![npm](https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square)](https://www.npmjs.com/package/rn-perf-kit) | [`packages/perf-provider`](./packages/perf-provider) | Main drop-in package: `<PerfProvider>`, `<PerfOverlay>`, `/install`, `/navigation`, `/adapters` |
-| **`@rn-perf-kit/core`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/core.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/core) | [`packages/core`](./packages/core) | Timeline, ring buffer, event model, monotonic clock sync, tier budgets |
-| **`@rn-perf-kit/native`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/native.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/native) | [`packages/native`](./packages/native) | TurboModule: `nativeNow()`, AndroidX FrameMetrics, iOS CADisplayLink, memory, thermal, device tier |
-| **`@rn-perf-kit/react`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/react.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/react) | [`packages/react`](./packages/react) | Versioned fiber hook adapter (`__REACT_DEVTOOLS_GLOBAL_HOOK__`), `<PerfTrace>`, `usePerfScreen` |
-| **`@rn-perf-kit/navigation`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/navigation.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/navigation) | [`packages/navigation`](./packages/navigation) | 6-phase React Navigation + Expo Router adapter (`withNavigationPerf`) |
-| **`@rn-perf-kit/adapters`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/adapters.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/adapters) | [`packages/adapters`](./packages/adapters) | Middleware for Redux Toolkit, Zustand, TanStack Query, and fetch/XHR interceptor |
-| **`@rn-perf-kit/analyzers`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/analyzers.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/analyzers) | [`packages/analyzers`](./packages/analyzers) | Navigation drop-rate, render storm/fan-out, cascade, and frame attribution analyzers |
-| **`@rn-perf-kit/overlay`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/overlay.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/overlay) | [`packages/overlay`](./packages/overlay) | In-app 2 Hz floating performance HUD overlay (`PerfOverlay`) |
-| **`@rn-perf-kit/reporters`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/reporters.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/reporters) | [`packages/reporters`](./packages/reporters) | JSON session exporter, Perfetto/Chrome trace exporter, standalone HTML report generator |
-| **`@rn-perf-kit/cli`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/cli.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/cli) | [`packages/cli`](./packages/cli) | CLI binary (`rn-perf`): `compare`, `check` (CI budgets), and `html` report generation |
+| **`rn-perf-kit`** | [![npm](https://img.shields.io/npm/v/rn-perf-kit.svg?style=flat-square)](https://www.npmjs.com/package/rn-perf-kit) | [`packages/perf-provider`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/perf-provider) | Main drop-in package: `<PerfProvider>`, `<PerfOverlay>`, `/install`, `/navigation`, `/adapters` |
+| **`@rn-perf-kit/core`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/core.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/core) | [`packages/core`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/core) | Timeline, ring buffer, event model, monotonic clock sync, tier budgets |
+| **`@rn-perf-kit/native`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/native.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/native) | [`packages/native`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/native) | TurboModule: `nativeNow()`, AndroidX FrameMetrics, iOS CADisplayLink, memory, thermal, device tier |
+| **`@rn-perf-kit/react`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/react.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/react) | [`packages/react`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/react) | Versioned fiber hook adapter (`__REACT_DEVTOOLS_GLOBAL_HOOK__`), `<PerfTrace>`, `usePerfScreen` |
+| **`@rn-perf-kit/navigation`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/navigation.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/navigation) | [`packages/navigation`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/navigation) | 6-phase React Navigation + Expo Router adapter (`withNavigationPerf`) |
+| **`@rn-perf-kit/adapters`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/adapters.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/adapters) | [`packages/adapters`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/adapters) | Middleware for Redux Toolkit, Zustand, TanStack Query, and fetch/XHR interceptor |
+| **`@rn-perf-kit/analyzers`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/analyzers.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/analyzers) | [`packages/analyzers`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/analyzers) | Navigation drop-rate, render storm/fan-out, cascade, and frame attribution analyzers |
+| **`@rn-perf-kit/overlay`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/overlay.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/overlay) | [`packages/overlay`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/overlay) | In-app 2 Hz floating performance HUD overlay (`PerfOverlay`) |
+| **`@rn-perf-kit/reporters`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/reporters.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/reporters) | [`packages/reporters`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/reporters) | JSON session exporter, Perfetto/Chrome trace exporter, standalone HTML report generator |
+| **`@rn-perf-kit/cli`** | [![npm](https://img.shields.io/npm/v/@rn-perf-kit/cli.svg?style=flat-square)](https://www.npmjs.com/package/@rn-perf-kit/cli) | [`packages/cli`](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/packages/cli) | CLI binary (`rn-perf`): `compare`, `check` (CI budgets), and `html` report generation |
 
 ---
 
@@ -251,12 +251,12 @@ A session file is the JSON from `serializeReport(generateJsonReport({ device: ge
 
 ## Documentation Guides
 
-- [**Getting Started**](./docs/getting-started.md) — 5-minute setup in bare React Native and Expo apps
-- [**Diagnosing & Fixing Navigation Jank**](./docs/guides/navigation-profiling.md) — 6-phase breakdown and mount deferral
-- [**Eliminating Render Storms & Wasted Re-renders**](./docs/guides/re-render-analysis.md) — Causes, unstable hooks, and selector leaks
-- [**Interrupted Renders & Frame Attribution**](./docs/guides/frame-attribution-and-concurrency.md) — Discarded renders and layout effect cascades
-- [**CI Performance Budgets & Regressions**](./docs/guides/ci-performance-budgets.md) — Automated PR enforcement with GitHub Actions
-- [**Full API Reference**](./docs/guides/api-reference.md) — Complete parameter and hook reference
+- [**Getting Started**](https://arpitkumarsahu.github.io/rn-perf-kit/getting-started.html) — 5-minute setup in bare React Native and Expo apps
+- [**Diagnosing & Fixing Navigation Jank**](https://arpitkumarsahu.github.io/rn-perf-kit/guides/navigation-profiling.html) — 6-phase breakdown and mount deferral
+- [**Eliminating Render Storms & Wasted Re-renders**](https://arpitkumarsahu.github.io/rn-perf-kit/guides/re-render-analysis.html) — Causes, unstable hooks, and selector leaks
+- [**Interrupted Renders & Frame Attribution**](https://arpitkumarsahu.github.io/rn-perf-kit/guides/frame-attribution-and-concurrency.html) — Discarded renders and layout effect cascades
+- [**CI Performance Budgets & Regressions**](https://arpitkumarsahu.github.io/rn-perf-kit/guides/ci-performance-budgets.html) — Automated PR enforcement with GitHub Actions
+- [**Full API Reference**](https://arpitkumarsahu.github.io/rn-perf-kit/guides/api-reference.html) — Complete parameter and hook reference
 
 ---
 
@@ -306,4 +306,4 @@ module.exports = config;
 
 ## License
 
-[MIT](./LICENSE) © [Arpit Kumar Sahu](https://github.com/arpitkumarsahu)
+[MIT](https://github.com/arpitkumarsahu/rn-perf-kit/blob/main/LICENSE) © [Arpit Kumar Sahu](https://github.com/arpitkumarsahu)

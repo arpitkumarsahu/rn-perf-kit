@@ -6,6 +6,8 @@
 
 > Deep performance profiling toolkit for React Native apps — tells you **what** is slow, **why**, and **what to change**. Focused on low-end Android devices.
 
+- **Documentation Site**: [arpitkumarsahu.github.io/rn-perf-kit](https://arpitkumarsahu.github.io/rn-perf-kit/)
+- **Demo App**: [JankLab Playground](https://github.com/arpitkumarsahu/rn-perf-kit/tree/main/example)
 - **NPM Package**: [`rn-perf-kit` on npm](https://www.npmjs.com/package/rn-perf-kit)
 - **GitHub**: [github.com/arpitkumarsahu/rn-perf-kit](https://github.com/arpitkumarsahu/rn-perf-kit)
 
